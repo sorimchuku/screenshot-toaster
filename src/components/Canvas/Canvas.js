@@ -1,35 +1,47 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Stage, Layer } from "react-konva";
-import "../Styles/canvas.css";
 import ItemsList from "./ItemsList";
 import ImageComponent from "./ImageComponent";
 import CanvasBackground from "./CanvasBackground";
+import { getUserFiles } from "../../firebase";
+import { Spinner } from "@blueprintjs/core";
+import "../../Styles/canvas.css";
 
 function Canvas() {
-  // static canvas dimensions used for scaling ratio
   const stageWidth = 900,
-        stageHeight = 600;
-  // dynamic canvas dimensions
+    stageHeight = 600;
   const [stageDimensions, setStageDimensions] = useState({
     width: stageWidth,
     height: stageHeight,
     scale: 1
   });
-  // stageRef is used for handling callbacks - example: getting canvas positions after drag and rop
   const stageRef = useRef();
-  // containerRef is used for dynamic canvas scalling
-  // main purpose of containerRef is to get width of parent div of canvas stage
   const containerRef = useRef();
-  // dragUrl stores temporary src of dragged image
   const [dragUrl, setDragUrl] = useState();
-  // images stores images that are added to canvas
   const [images, setImages] = useState([]);
-  // backgroundImage is used for setting backgroundImage of canvas
   const [backgroundImage, setBackgroundImage] = useState();
-  // selectedId is used for keeping selected image to handle resizes, z-index priority etc.
   const [selectedId, setSelectedId] = useState(null);
-  
-  // function to handle resize of canvas dimensions based on window width or when sidebar is closed or opened
+  const [isLoading, setIsLoading] = useState(true); // 이미지 로딩 상태를 관리하는 상태를 추가합니다.
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+      setIsLoading(true); // 이미지 로딩을 시작합니다.
+      const storedFiles = await getUserFiles();
+      if (storedFiles && storedFiles.length > 0) {
+        const firstImage = storedFiles[0];
+        setImages((prevState) => [...prevState, {
+          id: `image${prevState.length}`,
+          x: stageWidth / 2,
+          y: stageHeight / 2,
+          src: firstImage.url,
+        }]);
+      }
+      setIsLoading(false); // 이미지 로딩을 완료합니다.
+    };
+
+    fetchFiles();
+  }, []);
+
   const handleResize = () => {
     let sceneWidth = containerRef.current.clientWidth;
     let scale = sceneWidth / stageWidth;
@@ -40,38 +52,32 @@ function Canvas() {
     });
   };
 
-  // add eventListener for every window resize to call handleResize function
   useEffect(() => {
     handleResize();
     window.addEventListener("resize", handleResize, false);
     return () => window.addEventListener("resize", handleResize, false);
   }, []);
 
-  // if clicked on empty space of canvas, including backgroundImage perform deselect item
   const checkDeselect = (e) => {
     const clickedOnEmpty = e.target === e.target.getStage();
-    const clikedOnBackground = e.target.getId() === "canvasBackground";
-    if (clickedOnEmpty || clikedOnBackground) {
+    const clickedOnBackground = e.target.getId() === "canvasBackground";
+    if (clickedOnEmpty || clickedOnBackground) {
       setSelectedId(null);
     }
   };
 
-  // when element is dragged pass its image src to allow it for adding it to canvas
   const onChangeDragUrl = (dragUrl) => {
     setDragUrl(dragUrl);
   };
 
-  // update image attributes when performing resize
   const handleTransformChange = (newAttrs, i) => {
     let imagesToUpdate = images;
     let singleImageToUpdate = imagesToUpdate[i];
-    // update old attributes
     singleImageToUpdate = newAttrs;
     imagesToUpdate[i] = singleImageToUpdate;
     setImages(imagesToUpdate);
   };
 
-  // function to handle adding images on drag and drop to canvas
   const handleOnDrop = (e) => {
     e.preventDefault();
     stageRef.current.setPointersPositions(e);
@@ -85,10 +91,9 @@ function Canvas() {
     );
   };
 
-  // function to handle adding images on click
   const handleAddOnClick = (src) => {
-    let centerX = stageDimensions.width / 2
-    let centerY = stageDimensions.height / 2
+    let centerX = stageDimensions.width / 2;
+    let centerY = stageDimensions.height / 2;
     setImages(
       images.concat([
         {
@@ -100,17 +105,14 @@ function Canvas() {
     );
   }
 
-  // function to handle adding background image of canvas
   const addToBackground = (backgroundUrl) => {
     setBackgroundImage(backgroundUrl);
   };
 
-  // function to handle removing background image of canvas
   const removeBackground = () => {
-    setBackgroundImage(null)
+    setBackgroundImage(null);
   };
 
-  // used for passing image id to image attributes
   const passImageWithId = (image, id) => {
     const imageWithId = {
       ...image,
@@ -119,9 +121,7 @@ function Canvas() {
     return imageWithId;
   };
 
-  // when sidebar state changes this function is being called
   const resizeCanvasOnSidebarChange = () => {
-    // wait for sidebar animation to complete
     setTimeout(() => {
       handleResize();
     }, 420);
@@ -154,21 +154,23 @@ function Canvas() {
             className="canvasStage"
             ref={stageRef}
             onMouseDown={(e) => {
-              // deselect when clicked on empty area or background image
               checkDeselect(e);
             }}
           >
             <Layer>
               {typeof backgroundImage === "string" && (
-                // check if background image is not empty, default state is null
                 <CanvasBackground
                   backgroundUrl={backgroundImage}
                   width={stageWidth}
                   height={stageHeight}
                 />
               )}
-              {images.map((image, i) => {
-                return (
+              {isLoading ? ( // 로딩 중이면 로딩 애니메이션을 표시합니다.
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                  <Spinner />
+                </div>
+              ) : (
+                images.map((image, i) => (
                   <ImageComponent
                     image={image}
                     shapeProps={passImageWithId(image, `image${i}`)}
@@ -182,8 +184,8 @@ function Canvas() {
                       handleTransformChange(newAttrs, i);
                     }}
                   />
-                );
-              })}
+                ))
+              )}
             </Layer>
           </Stage>
         </div>

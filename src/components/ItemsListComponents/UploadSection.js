@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { IconNames } from '@blueprintjs/icons';
 import { Icon } from '@blueprintjs/core';
+import { getUserFiles, uploadFile } from "@/firebase";
 
 // images can be uploaded to client side manually
 // for temporary storing data of images I used localstorage
@@ -16,22 +17,27 @@ function UploadSection(props) {
 
     // saving state to local storage to prevent deleting uploaded images after closing tab with "uploads"
     useEffect(() => {
-        const loadImages = JSON.parse(localStorage.getItem("uploadedImages"));
-        setUploadedImage(loadImages);
+        const loadImagesFromFirebase = async () => {
+            const userId = localStorage.getItem('userUid'); // 로컬 스토리지에서 사용자 ID를 가져옵니다.
+            const files = await getUserFiles(userId); // 사용자의 모든 파일 정보를 가져옵니다.
+            const images = files.map(file => file.url); // 파일 정보에서 이미지 URL을 가져옵니다.
+            setUploadedImage(images);
+        };
+
+        loadImagesFromFirebase();
     }, []);
 
-    // adding images to localstorage every upload
-    useEffect(() => {
-        localStorage.setItem(
-            "uploadedImages",
-            JSON.stringify(uploadedImages)
-        );
-    }, [uploadedImages]);
-
     const UploadButton = () => {
-        const handleUpload = (e) => {
+        const handleUpload = async (e) => {
             let img = e.target.files[0];
             setUploadedImage((prevState) => [...prevState, URL.createObjectURL(img)]);
+
+            try {
+                const fileInfo = await uploadFile(img);
+                console.log('File uploaded successfully:', fileInfo);
+            } catch (error) {
+                console.error('Failed to upload file:', error);
+            }
         };
         return (
             <div className="uploadImageWrap">

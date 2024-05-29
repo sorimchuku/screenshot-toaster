@@ -1,17 +1,13 @@
 import dynamic from 'next/dynamic';
-const Editor = dynamic(() => import('../components/Editor'), {
-    ssr: false,
-});
-const SimpleEditor = dynamic(() => import('../components/simpleEditor'), {
-  ssr: false,
-});
-const Canvas = dynamic(() => import('../components/Canvas'), {
+import TopBar from '../components/TopBar';
+const Canvas = dynamic(() => import('../components/Canvas/Canvas'), {
   ssr: false,
 });
 
 export default function EditorPage() {
     return (
-        <div>
+        <div className='h-screen'>
+          <TopBar />
             <Canvas />
             <style jsx global>{`
         body {
