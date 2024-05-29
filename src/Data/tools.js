@@ -9,21 +9,15 @@ import { Icon } from '@blueprintjs/core';
 export const tools = [
     {
         id: 0,
-        title: "Photos",
-        icon: <Icon icon={IconNames.MEDIA} />,
-        component: "imagesSection",
+        title: "Uploads",
+        icon: <Icon icon={IconNames.UPLOAD} />,
+        component: "uploadSection",
     },
     {
         id: 1,
         title: "Backgrounds",
         icon: <Icon icon={IconNames.STYLE} />,
         component: "backgroundsSection",
-    },
-    {
-        id: 2,
-        title: "Uploads",
-        icon: <Icon icon={IconNames.UPLOAD} />,
-        component: "uploadSection",
     },
     {
         id: 3,

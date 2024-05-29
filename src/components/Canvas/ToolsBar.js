@@ -1,5 +1,5 @@
 import React from "react";
-import { tools } from '../Data/tools';
+import { tools } from '../../Data/tools';
 
 // list of tools imported from /Data/tools.js
 

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import '../Styles/itemsList.css';
-import { tools } from '../Data/tools';
+import '../../Styles/itemsList.css';
+import { tools } from '../../Data/tools';
 
-import ImagesSection from './ItemsListComponents/ImagesSection';
-import BackgroundsSection from './ItemsListComponents/BackgroundsSection';
-import UploadSection from "./ItemsListComponents/UploadSection";
-import ShareSection from "./ItemsListComponents/ShareSection";
+import ImagesSection from '../ItemsListComponents/ImagesSection';
+import BackgroundsSection from '../ItemsListComponents/BackgroundsSection';
+import UploadSection from "../ItemsListComponents/UploadSection";
+import ShareSection from "../ItemsListComponents/ShareSection";
 import ToolsBar from './ToolsBar';
 
 import { IconNames } from '@blueprintjs/icons';
@@ -22,6 +22,8 @@ function ItemsList(props) {
     };
     const [sidebarCollapse, setSidebarCollapse] = useState(true);
 
+    const uploadedImages = props.uploadedImages;
+    
     const changeSelectedTool = (id) => {
         setSelectedTools(id)
     }
@@ -42,7 +44,7 @@ function ItemsList(props) {
 
     return (
         <div
-            className={`itemsListWrap ${sidebarCollapse ? "sidebarOpen" : "sidebarClosed"
+            className={`itemsListWrap h-full text-black ${sidebarCollapse ? "sidebarOpen" : "sidebarClosed"
                 }`}
         >
             <div className="expandButton" onClick={() => openMenuOnClick()}><Icon icon={IconNames.EXPAND_ALL} /></div>
@@ -61,6 +63,7 @@ function ItemsList(props) {
                                 addToBackground={props.addToBackground}
                                 removeBackground={props.removeBackground}
                                 stageRef={props.stageRef}
+                                uploadedImages={uploadedImages}
                             />
                         );
                     }

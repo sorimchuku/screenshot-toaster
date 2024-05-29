@@ -1,6 +1,6 @@
 @import '~@blueprintjs/core/lib/css/blueprint.css';
 @import '~@blueprintjs/icons/lib/css/blueprint-icons.css';
-
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@1.1.0/dist/web/static/pretendard.css');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -20,6 +20,7 @@
 }
 
 body {
+  font-family: 'Pretendard', sans-serif;
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
@@ -27,6 +28,10 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+}
+
+button:focus {
+  outline: none;
 }
 
 @layer utilities {
@@ -39,4 +44,21 @@ body {
   display: flex;
   flex-direction: row;
   overflow-x: scroll;
+}
+
+.bubble {
+  position: relative;
+}
+
+.bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 12px solid black;
 }

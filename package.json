@@ -11,13 +11,18 @@
   "dependencies": {
     "@blueprintjs/core": "^5.10.2",
     "@blueprintjs/icons": "^5.9.0",
+    "firebase": "^10.12.0",
     "konva": "^9.3.8",
     "next": "14.2.3",
-    "polotno": "^2.5.1",
+    "next-cookies": "^2.0.3",
+    "nookies": "^2.5.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-konva": "^18.2.10",
-    "tailwindcss": "^3.4.3"
+    "react-toastify": "^10.0.5",
+    "tailwindcss": "^3.4.3",
+    "use-image": "^1.1.1",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "eslint": "^8",
