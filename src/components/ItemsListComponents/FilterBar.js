@@ -1,6 +1,7 @@
 //FilterBar.js
 import React from "react"; 
 
+
 // simple filterBar for conditional rendering images by categories in sidebar
 
 function FilterBar(props) {
@@ -36,3 +37,4 @@ function FilterBar(props) {
 }
 
 export default FilterBar;
+
