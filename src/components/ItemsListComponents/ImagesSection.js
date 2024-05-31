@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import items from "../../Data/items.json";
-import FilterBar from "./filterBar";
+import FilterBar from "./FilterBar";
 
 // images can be dragged or cliked for adding it to canvas
 
