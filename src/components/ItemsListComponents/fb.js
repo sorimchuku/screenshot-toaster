@@ -1,4 +1,5 @@
-import React from "react";
+//FilterBar.js
+import React from "react"; 
 
 // simple filterBar for conditional rendering images by categories in sidebar
 
