@@ -1,11 +1,5 @@
-import { Pretendard } from "next/font/google";
 import "./globals.css";
 
-const pretendard = Pretendard({
-  preload: false,
-  weight: ["100", "400", "700", "900"],
-  variable: "--pretendard"
-});
 
 export const metadata = {
   title: "Screenshot Toaster",
@@ -15,7 +9,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="kr">
-      <body className={cls(pretendard.className, 'overflow-hidden')}>
+      <body>
             {children}
       </body>
     </html>
