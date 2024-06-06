@@ -1,24 +1,44 @@
 import Image from "next/image";
 import Dropzone from "./Dropzone";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { toast, ToastContainer, Slide } from "react-toastify";
-import { Icon } from "@blueprintjs/core";
+import { Icon, Spinner } from "@blueprintjs/core";
+import { uploadFile, deleteUserFiles, getUserFiles } from '../firebase';
 
 export default function Home() {
     const [uploadedFiles, setUploadedFiles] = useState([]);
-    const [isEditExisting, setIsEditExisting] = useState(true);
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [isEditExisting, setIsEditExisting] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const router = useRouter();
-
-    const handleFileUpload = (files) => {
-        setUploadedFiles(files);
-    };
-
-    const handleUploadButtonClick = () => {
-        if (uploadedFiles.length > 0) {
-            router.push('/template');
+    
+    const CheckEditExisting = async () => {
+        const userId = localStorage.getItem('userUid');
+        const files = await getUserFiles(userId);
+        if (files.length > 0) {
+            setIsEditExisting(true);
         } else {
-            toast("파일을 추가해 주세요.");
+            setIsEditExisting(false);
+        }
+    }
+
+    const handleUploadButtonClick = async () => {
+        try {
+            await deleteUserFiles();
+
+            const newUploadedFiles = await handleFilesUpload(selectedFiles);
+            if (newUploadedFiles.length > 0) {
+                router.push({
+                    pathname: '/template',
+                    query: { images: JSON.stringify(newUploadedFiles.slice(0, 4)) },
+                }, '/template');
+            } else {
+                toast("파일을 추가해 주세요.");
+            }
+        } catch (error) {
+            console.error('Error uploading files:', error);
+            toast('파일 업로드에 실패했습니다. 다시 시도해 주세요.');
         }
     };
 
@@ -26,8 +46,42 @@ export default function Home() {
         router.push('/editor');
     }
 
+    const handleFilesUpload = async (files) => {
+        setIsUploading(true);
+        const newUploadedFiles = [];
+        for (const file of files) {
+            // Check if the file is already in uploadedFiles
+            if (uploadedFiles.some(uploadedFile => uploadedFile.path === file.path)) {
+                toast("이미 등록된 파일이에요.");
+                continue;
+            }
+
+            try {
+                const uploadedFile = await uploadFile(file);
+                newUploadedFiles.push(uploadedFile);
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                toast('업로드에 실패했습니다. 다시 시도해 주세요.');
+            }
+        }
+        setUploadedFiles(prevFiles => [...prevFiles, ...newUploadedFiles]);
+        setIsUploading(false);
+        return newUploadedFiles;
+    };
+
+    useEffect(() => {
+        CheckEditExisting();
+    }, []);
+
     return (
-        <div className="">
+        <div className="body-container">
+            {isUploading && <div className="loading fixed z-50 top-0 h-full w-full flex items-center justify-center bg-white bg-opacity-50">
+                <div className="loading-container my-auto mx-auto self-center justify-self-center">
+                    <Spinner size={Spinner.SIZE_LARGE} className="pb-2" />
+                    <div className="text-2xl self-center font-bold text-neutral-500">업로드 중...</div>
+                    </div>
+                
+                </div>}
             <ToastContainer
                 hideProgressBar={true}
                 transition={Slide} />
@@ -40,7 +94,8 @@ export default function Home() {
                             </h2>
                         <p className="mb-4">원본 화면 캡처샷 업로드로 스토어 등록용 스크린샷을 제작할 수 있어요</p>
                         <div onClick={handleGoToExistingEdit} 
-                        className={`existing-info-box flex justify-between bg-blue-200 rounded p-2 cursor-pointer ${isEditExisting ? '' : 'invisible'}`}>
+                            className={`existing-info-box flex justify-between bg-blue-200 rounded p-2 cursor-pointer transform transition-all duration-1000
+                            ${isEditExisting ? 'translate-x-0 opacity-100' : 'invisible -translate-x-full opacity-0'}`}>
                             <div className="flex">
                                 <div className="image-container w-24 bg-white rounded">
                                 <Image className="object-contain"></Image>
@@ -75,25 +130,25 @@ export default function Home() {
                                 height={40}
                             />
                         </div>
-                        <div className="gif-container flex justify-end">
+                        <div className="gif-container flex justify-end mt-6">
                             <Image
-                            alt="sample-image"
-                            className="object-contain"
-                            src='/images/shottoaster.gif'
-                            priority={true}
-                            width={120}
-                            height={120}
+                                alt="toaster-gif"
+                                className="object-contain"
+                                src='/images/shottoastergif.gif'
+                                priority={true}
+                                width={300}
+                                height={300}
                             />
                         </div>
                         
                     </div>
             </div>
                 <div className="upload-box h-60 w-full my-6">
-                    <Dropzone onFileUpload={handleFileUpload}></Dropzone>
+                    <Dropzone selectedFiles={selectedFiles} setSelectedFiles={setSelectedFiles} />
                 </div>
                 <div className="uploaded-button flex flex-col items-center">
                 <button onClick={handleUploadButtonClick}
-                    disabled={uploadedFiles?.length === 0}
+                    disabled={selectedFiles?.length === 0}
                     className="upload-button rounded-full py-3 px-16 bg-black text-white text-xl font-bold disabled:bg-neutral-400">
                         템플릿 선택으로
                 </button>

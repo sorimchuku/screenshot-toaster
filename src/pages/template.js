@@ -1,10 +1,9 @@
-import TopBar from '@/components/TopBar';
+//template.js
 import SelectTemplate from '../components/SelectTemplate';
 
 export default function TemplatePage() {
     return (
         <div>
-            <TopBar />
             <SelectTemplate />
         </div>
     );
