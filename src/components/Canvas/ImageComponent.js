@@ -48,8 +48,8 @@ const ImageComponent = ({ image, shapeProps, id, isSelected, onSelect, onChange 
             },
             scaleX: 1.05,
             scaleY: 1.05,
-            shadowBlur: 16,
-            ShadowOpacity: 0.6
+            shadowBlur: 10,
+            ShadowOpacity: 0.4
         });
     };
 
@@ -60,9 +60,9 @@ const ImageComponent = ({ image, shapeProps, id, isSelected, onSelect, onChange 
             duration: 0.1,
             scaleX: 1,
             scaleY: 1,
-            shadowOffsetX: 0,
-            shadowOffsetY: 4,
-            shadowBlur: 10,
+            shadowOffsetX: 1,
+            shadowOffsetY: 1,
+            shadowBlur: 5,
             ShadowOpacity: 0.4
         });
 

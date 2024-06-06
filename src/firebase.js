@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getStorage, ref, deleteObject, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, deleteObject, uploadBytesResumable, getDownloadURL, listAll } from "firebase/storage";
 import { getDatabase, ref as databaseRef, set, get, remove as removeFromDatabase } from 'firebase/database';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 import { v4 as uuidv4 } from "uuid";
@@ -20,10 +20,11 @@ const auth = getAuth(app);
 const database = getDatabase(app);
 
 const uploadFile = async (file) => {
+    const userId = localStorage.getItem('userUid');
     const uniqueFileName = `${uuidv4()}`;
-    const storageRef = ref(storage, `images/${uniqueFileName}_${file.name}`);
+    const storageRef = ref(storage, `images/${userId}/${uniqueFileName}_${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
-
+    
     return new Promise((resolve, reject) => {
         uploadTask.on(
             "state_changed",
@@ -38,7 +39,7 @@ const uploadFile = async (file) => {
             async () => {
                 try {
                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    const fileInfo = { name: file.name, url: downloadURL, path: `images/${uniqueFileName}_${file.name}` };
+                    const fileInfo = { name: file.name, url: downloadURL, path: `images/${userId}/${uniqueFileName}_${file.name}` };
                     await saveFileInfoToDatabase(fileInfo, uniqueFileName);
                     resolve(fileInfo);
                 } catch (error) {
@@ -71,6 +72,35 @@ const getUserFiles = async (userId) => {
     }
 };
 
+const downloadFile = async (filePath) => {
+    try {
+        const fileRef = ref(storage, filePath);
+        const downloadUrl = await getDownloadURL(fileRef);
+        return downloadUrl;
+    } catch (error) {
+        console.error('Error downloading file:', error);
+        throw error;
+    }
+};
+
+const deleteUserFiles = async () => {
+    const userId = localStorage.getItem('userUid');
+    try {
+        const userFolderRef = ref(storage, `images/${userId}/`);
+        const { items } = await listAll(userFolderRef);
+        const deletePromises = items.map(itemRef => deleteObject(itemRef));
+        await Promise.all(deletePromises);
+
+        const userFilesRef = databaseRef(database, `users/${userId}/files`);
+        await removeFromDatabase(userFilesRef);
+        
+        console.log('폴더 정리 성공');
+    } catch (error) {
+        console.error('Error deleting user files:', error);
+        throw error;
+    }
+};
+
 const deleteFile = async (filePath) => {
     const fileRef = ref(storage, filePath);
     const userId = localStorage.getItem('userUid');
@@ -84,10 +114,9 @@ signInAnonymously(auth)
     .then((userCredential) => {
         const user = userCredential.user;
         console.log('익명 사용자 UID:', user.uid);
-        localStorage.setItem('userUid', user.uid);
     })
     .catch((error) => {
         console.error('익명 인증 실패:', error);
     });
 
-export { storage, uploadFile, deleteFile, getUserFiles, auth };
+export { storage, uploadFile, deleteFile, getUserFiles, downloadFile, deleteUserFiles, auth };
