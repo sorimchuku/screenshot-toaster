@@ -3,6 +3,9 @@ import React from 'react';
 import App from 'next/app';
 import "@/app/globals.css";
 import TopBar from '@/components/TopBar';
+import localFont from 'next/font/local';
+
+const pretendard = localFont({ src: '../../public/fonts/PretendardVariable.woff2' });
 
 export const metadata = {
     title: "Screenshot Toaster",
@@ -11,7 +14,7 @@ export const metadata = {
 
 function RootLayout({ children }) {
     return (
-        <div className='h-screen w-screen overflow-hidden'>{children}</div>
+        <div className={pretendard.className}>{children}</div>
     );
 }
 

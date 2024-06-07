@@ -89,10 +89,10 @@ export default function Home() {
             <div className="home-content-box flex text-lg content-between items-stretch">
                 <div className="description h-fit basis-auto w-1/2 min-w-fit">
                         <h2 className="text-3xl font-bold my-6">
-                            <p>샷토스터로 앱스토어 스크린샷을</p>
-                            <p>손쉽게 만들어 보세요</p>
+                            <div>샷토스터로 앱스토어 스크린샷을</div>
+                            <div>손쉽게 만들어 보세요</div>
                             </h2>
-                        <p className="mb-4">원본 화면 캡처샷 업로드로 스토어 등록용 스크린샷을 제작할 수 있어요</p>
+                        <div className="mb-4">원본 화면 캡처샷 업로드로 스토어 등록용 스크린샷을 제작할 수 있어요</div>
                         <div onClick={handleGoToExistingEdit} 
                             className={`existing-info-box flex justify-between bg-blue-200 rounded p-2 cursor-pointer transform transition-all duration-1000
                             ${isEditExisting ? 'translate-x-0 opacity-100' : 'invisible -translate-x-full opacity-0'}`}>
@@ -101,8 +101,8 @@ export default function Home() {
                                 <Image className="object-contain"></Image>
                                 </div>
                                 <div className=" mx-4">
-                                    <p className="font-bold">굽던 스크린샷이 있어요! 작업하던 프로젝트로 이동하시겠어요?</p>
-                                    <p className=" text-base">새로운 캡처샷을 업로드하면 기존의 프로젝트는 삭제돼요 X(</p>
+                                    <div className="font-bold">굽던 스크린샷이 있어요! 작업하던 프로젝트로 이동하시겠어요?</div>
+                                    <div className=" text-base">새로운 캡처샷을 업로드하면 기존의 프로젝트는 삭제돼요 X(</div>
                                 </div>
                             </div>
                             <div className="flex text-blue-400 font-bold items-center ml-8">

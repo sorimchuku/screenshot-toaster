@@ -42,11 +42,16 @@ button:focus {
   outline: none;
 }
 
+p {
+  margin: 0px;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
+
 
 .top-bar {
   height: var(--top-bar-height);
