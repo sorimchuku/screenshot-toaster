@@ -5,16 +5,28 @@ import { useRouter } from "next/router";
 import { toast, ToastContainer, Slide } from "react-toastify";
 import { Icon, Spinner } from "@blueprintjs/core";
 import { uploadFile, deleteUserFiles, getUserFiles } from '../firebase';
+import { parseCookies } from "nookies";
 
 export default function Home() {
     const [uploadedFiles, setUploadedFiles] = useState([]);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isEditExisting, setIsEditExisting] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+    const [isUserSignedIn, setIsUserSignedIn] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        const cookies = parseCookies();
+        const userUid = cookies.userUid;
+        console.log('익명 사용자 UID2:', userUid);
+        if (userUid) {
+            setIsUserSignedIn(true);
+        }
+    }, [parseCookies()]);
     
     const CheckEditExisting = async () => {
-        const userId = localStorage.getItem('userUid');
+        const cookies = parseCookies();
+        const userId = cookies.userUid;
         const files = await getUserFiles(userId);
         if (files.length > 0) {
             setIsEditExisting(true);
@@ -24,6 +36,10 @@ export default function Home() {
     }
 
     const handleUploadButtonClick = async () => {
+        if (!isUserSignedIn) {
+            toast('사용자 인증이 완료되지 않았습니다. 잠시 후 다시 시도해 주세요.');
+            return;
+        }
         try {
             await deleteUserFiles();
 
