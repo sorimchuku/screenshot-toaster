@@ -1,8 +1,9 @@
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, deleteObject, uploadBytesResumable, getDownloadURL, listAll } from "firebase/storage";
 import { getDatabase, ref as databaseRef, set, get, remove as removeFromDatabase } from 'firebase/database';
-import { getAuth, signInAnonymously } from 'firebase/auth';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { v4 as uuidv4 } from "uuid";
+import { setCookie, parseCookies } from 'nookies';
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -18,9 +19,10 @@ const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 const auth = getAuth(app);
 const database = getDatabase(app);
+const cookies = parseCookies();
 
 const uploadFile = async (file) => {
-    const userId = localStorage.getItem('userUid');
+    const userId = cookies.userUid;
     const uniqueFileName = `${uuidv4()}`;
     const storageRef = ref(storage, `images/${userId}/${uniqueFileName}_${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
@@ -51,7 +53,7 @@ const uploadFile = async (file) => {
 };
 
 const saveFileInfoToDatabase = async (fileInfo, uniqueFileName) => {
-    const userId = localStorage.getItem('userUid');
+    const userId = cookies.userUid;
     const userFilesRef = databaseRef(database, `users/${userId}/files/${uniqueFileName}`);
     await set(userFilesRef, fileInfo);
 };
@@ -84,7 +86,7 @@ const downloadFile = async (filePath) => {
 };
 
 const deleteUserFiles = async () => {
-    const userId = localStorage.getItem('userUid');
+    const userId = cookies.userUid;
     try {
         const userFolderRef = ref(storage, `images/${userId}/`);
         const { items } = await listAll(userFolderRef);
@@ -103,7 +105,7 @@ const deleteUserFiles = async () => {
 
 const deleteFile = async (filePath) => {
     const fileRef = ref(storage, filePath);
-    const userId = localStorage.getItem('userUid');
+    const userId = cookies.userUid;
     const uniqueFileName = filePath.split('/').pop().split('_')[0];
     const userFilesRef = databaseRef(database, `users/${userId}/files/${uniqueFileName}`);
     await deleteObject(fileRef);
@@ -113,10 +115,14 @@ const deleteFile = async (filePath) => {
 signInAnonymously(auth)
     .then((userCredential) => {
         const user = userCredential.user;
-        console.log('익명 사용자 UID:', user.uid);
+        console.log('익명 사용자 UID1:', user.uid);
+        setCookie(null, 'userUid', user.uid, {
+            maxAge: 30 * 24 * 60 * 60,
+            path: '/',
+        });
     })
     .catch((error) => {
         console.error('익명 인증 실패:', error);
     });
 
-export { storage, uploadFile, deleteFile, getUserFiles, downloadFile, deleteUserFiles, auth };
+export { storage, uploadFile, deleteFile, getUserFiles, downloadFile, deleteUserFiles, signInAnonymously, auth };

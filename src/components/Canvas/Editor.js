@@ -3,6 +3,7 @@ import { Stage, Layer } from "react-konva";
 import SideBar from "./Sidebar";
 import ImageComponent from "./ImageComponent";
 import { getUserFiles } from "@/firebase";
+import { parseCookies } from "nookies";
 
 export default function Editor() {
     // static canvas dimensions used for scaling ratio
@@ -75,10 +76,11 @@ export default function Editor() {
     }, [stageDimensions]);
 
     useEffect(() => {
+        const cookies = parseCookies();
         const loadImagesFromFirebase = async () => {
-            const userId = localStorage.getItem('userUid'); // 로컬 스토리지에서 사용자 ID를 가져옵니다.
-            const files = await getUserFiles(userId); // 사용자의 모든 파일 정보를 가져옵니다.
-            const images = files.map(file => file.url); // 파일 정보에서 이미지 URL을 가져옵니다.
+            const userId = cookies.userUid;
+            const files = await getUserFiles(userId);
+            const images = files.map(file => file.url);
             setUploadedImages(images);
         };
         loadImagesFromFirebase();
