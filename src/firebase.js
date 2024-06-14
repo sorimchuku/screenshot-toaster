@@ -23,8 +23,9 @@ const cookies = parseCookies();
 
 const uploadFile = async (file) => {
     const userId = cookies.userUid;
-    const uniqueFileName = `${uuidv4()}`;
-    const storageRef = ref(storage, `images/${userId}/${uniqueFileName}_${file.name}`);
+    const uploadTime = new Date().toISOString().replace(/[-:.TZ]/g, '');
+    // const uniqueFileName = `${uuidv4()}`;
+    const storageRef = ref(storage, `images/${userId}/${uploadTime}_${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
     
     return new Promise((resolve, reject) => {
@@ -41,8 +42,8 @@ const uploadFile = async (file) => {
             async () => {
                 try {
                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    const fileInfo = { name: file.name, url: downloadURL, path: `images/${userId}/${uniqueFileName}_${file.name}` };
-                    await saveFileInfoToDatabase(fileInfo, uniqueFileName);
+                    const fileInfo = { name: file.name, url: downloadURL, path: `images/${userId}/${uploadTime}_${file.name}` };
+                    await saveFileInfoToDatabase(fileInfo, uploadTime);
                     resolve(fileInfo);
                 } catch (error) {
                     reject(error);
@@ -52,9 +53,9 @@ const uploadFile = async (file) => {
     });
 };
 
-const saveFileInfoToDatabase = async (fileInfo, uniqueFileName) => {
+const saveFileInfoToDatabase = async (fileInfo, uploadTime) => {
     const userId = cookies.userUid;
-    const userFilesRef = databaseRef(database, `users/${userId}/files/${uniqueFileName}`);
+    const userFilesRef = databaseRef(database, `users/${userId}/files/${uploadTime}`);
     await set(userFilesRef, fileInfo);
 };
 
@@ -72,6 +73,18 @@ const getUserFiles = async (userId) => {
         console.error('Error getting user files:', error);
         throw error;
     }
+};
+
+const getUserImagesFour = async (userId, limit = 4) => {
+    const imagesRef = ref(storage, `images/${userId}`);
+    const res = await listAll(imagesRef);
+    const imageFiles = res.items.slice(0, limit);
+    const downloadURLs = await Promise.all(imageFiles.map(async fileRef => {
+        const url = await getDownloadURL(fileRef);
+        const name = fileRef.name;
+        return { url, name };
+    }));
+    return downloadURLs;
 };
 
 const downloadFile = async (filePath) => {
@@ -112,17 +125,19 @@ const deleteFile = async (filePath) => {
     await removeFromDatabase(userFilesRef);
 };
 
-signInAnonymously(auth)
-    .then((userCredential) => {
-        const user = userCredential.user;
-        console.log('익명 사용자 UID1:', user.uid);
-        setCookie(null, 'userUid', user.uid, {
-            maxAge: 30 * 24 * 60 * 60,
-            path: '/',
+const signInAndSetCookie = () => {
+    signInAnonymously(auth)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log('익명 사용자 UID1:', user.uid);
+            setCookie(null, 'userUid', user.uid, {
+                maxAge: 30 * 24 * 60 * 60,
+                path: '/',
+            });
+        })
+        .catch((error) => {
+            console.error('익명 인증 실패:', error);
         });
-    })
-    .catch((error) => {
-        console.error('익명 인증 실패:', error);
-    });
+};
 
-export { storage, uploadFile, deleteFile, getUserFiles, downloadFile, deleteUserFiles, signInAnonymously, auth };
+export { storage, uploadFile, deleteFile, getUserFiles, downloadFile, deleteUserFiles, auth, signInAndSetCookie, getUserImagesFour };

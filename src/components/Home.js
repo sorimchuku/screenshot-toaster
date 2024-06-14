@@ -13,7 +13,15 @@ export default function Home() {
     const [isEditExisting, setIsEditExisting] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [isUserSignedIn, setIsUserSignedIn] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+    
     const router = useRouter();
+
+    useEffect(() => {
+        const userAgent = typeof window.navigator === 'undefined' ? '' : navigator.userAgent;
+        const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+        setIsMobile(mobile);
+    }, []);
 
     useEffect(() => {
         const cookies = parseCookies();
@@ -27,6 +35,10 @@ export default function Home() {
     const CheckEditExisting = async () => {
         const cookies = parseCookies();
         const userId = cookies.userUid;
+        if (!userId) {
+            setIsEditExisting(false);
+            return;
+        }
         const files = await getUserFiles(userId);
         if (files.length > 0) {
             setIsEditExisting(true);
@@ -98,11 +110,12 @@ export default function Home() {
                     </div>
                 
                 </div>}
+
             <ToastContainer
                 hideProgressBar={true}
                 transition={Slide} />
-            <main className="flex-col max-h-screen flex-shrink-1 p-10 px-36 justify-around">
-            <div className="home-content-box flex text-lg content-between items-stretch">
+            <main className="flex flex-col h-full flex-grow p-10 px-36 justify-between">
+            <div className="home-content-box mb-4 flex text-lg content-between shrink items-stretch">
                 <div className="description h-fit basis-auto w-1/2 min-w-fit">
                         <h2 className="text-3xl font-bold my-6">
                             <div>샷토스터로 앱스토어 스크린샷을</div>
@@ -146,7 +159,7 @@ export default function Home() {
                                 height={40}
                             />
                         </div>
-                        <div className="gif-container flex justify-end mt-6">
+                        <div className="gif-container flex justify-end mt-6 min-w-72">
                             <Image
                                 alt="toaster-gif"
                                 className="object-contain"
@@ -159,16 +172,16 @@ export default function Home() {
                         
                     </div>
             </div>
-                <div className="upload-box h-60 w-full my-6">
+            <div className="upload-box flex flex-grow min-h-60 max-h-80 w-full my-6">
                     <Dropzone selectedFiles={selectedFiles} setSelectedFiles={setSelectedFiles} />
-                </div>
-                <div className="uploaded-button flex flex-col items-center">
+            </div>
+            <div className="uploaded-button flex flex-col items-center">
                 <button onClick={handleUploadButtonClick}
                     disabled={selectedFiles?.length === 0}
                     className="upload-button rounded-full py-3 px-16 bg-black text-white text-xl font-bold disabled:bg-neutral-400">
                         템플릿 선택으로
                 </button>
-                </div>
+            </div>
         </main>
         </div>
     );
