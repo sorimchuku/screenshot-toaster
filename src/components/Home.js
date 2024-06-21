@@ -14,12 +14,26 @@ export default function Home() {
     const [isUploading, setIsUploading] = useState(false);
     const [isUserSignedIn, setIsUserSignedIn] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [isMobileOk, setIsMobileOk] = useState(false);
     
     const router = useRouter();
 
     useEffect(() => {
         const userAgent = typeof window.navigator === 'undefined' ? '' : navigator.userAgent;
         const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+        const checkUserSignIn = async () => {
+            const cookies = parseCookies();
+            let userUid = cookies.userUid;
+            if (!userUid) {
+                await signInAndSetCookie(); // 비동기 작업 완료를 기다림
+                const updatedCookies = parseCookies(); // 쿠키를 다시 파싱
+                userUid = updatedCookies.userUid;
+            }
+            if (userUid) {
+                setIsUserSignedIn(true);
+            }
+        };
+        checkUserSignIn();
         setIsMobile(mobile);
     }, []);
 
@@ -31,6 +45,16 @@ export default function Home() {
             setIsUserSignedIn(true);
         }
     }, [parseCookies()]);
+
+    useEffect(() => {
+        if (isMobile && !isMobileOk) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.touchAction = 'auto';
+        } else {
+            document.body.style.overflow = '';
+            document.body.style.touchAction = '';
+        }
+    }, [isMobile, isMobileOk]);
     
     const CheckEditExisting = async () => {
         const cookies = parseCookies();
@@ -48,8 +72,8 @@ export default function Home() {
     }
 
     const handleUploadButtonClick = async () => {
-        if (!isUserSignedIn) {
-            toast('사용자 인증이 완료되지 않았습니다. 잠시 후 다시 시도해 주세요.');
+        if (!parseCookies().userUid) {
+            toast('사용자 인증이 완료되지 않았습니다. 새로고침 후 다시 시도해 주세요.');
             return;
         }
         try {
@@ -61,8 +85,6 @@ export default function Home() {
                     pathname: '/template',
                     query: { images: JSON.stringify(newUploadedFiles.slice(0, 4)) },
                 }, '/template');
-            } else {
-                toast("파일을 추가해 주세요.");
             }
         } catch (error) {
             console.error('Error uploading files:', error);
@@ -103,6 +125,14 @@ export default function Home() {
 
     return (
         <div className="body-container">
+            {isMobile && !isMobileOk && <div className="mobile fixed z-50 top-0 h-screen w-screen flex items-center justify-center bg-white bg-opacity-90">
+                <div className="loading-container flex flex-col my-auto mx-auto text-center self-center justify-self-center gap-4">
+                    <div className="text-xl self-center font-bold text-neutral-500">이 사이트는 pc환경에 최적화되어 있어요.</div>
+                    <button onClick={() => setIsMobileOk(true)}
+                    className="text-xl self-center font-bold py-3 px-6 rounded-full bg-neutral-400 text-white">모바일로 계속하기</button>
+                </div>
+
+            </div>}
             {isUploading && <div className="loading fixed z-50 top-0 h-full w-full flex items-center justify-center bg-white bg-opacity-50">
                 <div className="loading-container my-auto mx-auto self-center justify-self-center">
                     <Spinner size={Spinner.SIZE_LARGE} className="pb-2" />

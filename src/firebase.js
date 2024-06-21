@@ -23,6 +23,10 @@ const cookies = parseCookies();
 
 const uploadFile = async (file) => {
     const userId = cookies.userUid;
+    if (!userId) {
+        console.error('User UID is undefined. File upload aborted.');
+        return reject('User UID is undefined. File upload aborted.');
+    }
     const uploadTime = new Date().toISOString().replace(/[-:.TZ]/g, '');
     // const uniqueFileName = `${uuidv4()}`;
     const storageRef = ref(storage, `images/${userId}/${uploadTime}_${file.name}`);
@@ -119,20 +123,25 @@ const deleteUserFiles = async () => {
 const deleteFile = async (filePath) => {
     const fileRef = ref(storage, filePath);
     const userId = cookies.userUid;
-    const uniqueFileName = filePath.split('/').pop().split('_')[0];
+    const uniqueFileName = filePath.split('%2F').pop().split('_')[0];
     const userFilesRef = databaseRef(database, `users/${userId}/files/${uniqueFileName}`);
     await deleteObject(fileRef);
+    console.log('File deleted successfully:', filePath);
     await removeFromDatabase(userFilesRef);
+    console.log('Database entry deleted successfully:', uniqueFileName);
+    
 };
 
 const signInAndSetCookie = () => {
-    signInAnonymously(auth)
+    return signInAnonymously(auth) // Promise를 반환하도록 수정
         .then((userCredential) => {
             const user = userCredential.user;
             console.log('익명 사용자 UID1:', user.uid);
             setCookie(null, 'userUid', user.uid, {
                 maxAge: 30 * 24 * 60 * 60,
                 path: '/',
+                sameSite: 'None',
+                secure: true,
             });
         })
         .catch((error) => {

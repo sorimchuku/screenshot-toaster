@@ -9,7 +9,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="kr">
-      <body>
+      <body style={{height: '100%'}}>
             {children}
       </body>
     </html>

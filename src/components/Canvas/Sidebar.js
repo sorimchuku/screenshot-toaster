@@ -30,7 +30,8 @@ export default function SideBar(props) {
         <div className="sidebar-wrap w-[340px] h-full z-[1] overflow-hidden bg-neutral-100 border-r-2">
             {/* <div className="expandButton" onClick={() => openMenuOnClick()}><ExpandLessRoundedIcon /></div> */}
             <div className="itemsListBody overflow-hidden h-full w-full flex flex-col px-8 py-6 gap-6">
-                <div className='addpage cursor-pointer flex px-6 py-4 bg-white rounded-full justify-center items-center gap-2 font-bold text-neutral-500 text-base'>
+                <div onClick={() => {props.handleAddPage}}
+                className='addpage cursor-pointer flex px-6 py-4 bg-white rounded-full justify-center items-center gap-2 font-bold text-neutral-500 text-base'>
                     <Icon icon={IconNames.PLUS} />
                     <span>페이지 추가</span>
                 </div>

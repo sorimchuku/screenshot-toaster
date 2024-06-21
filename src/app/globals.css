@@ -59,6 +59,7 @@ p {
 
 .body-container {
   height: calc(100vh - var(--top-bar-height));
+  overflow: auto;
 }
 
 .polotno-workspace {
