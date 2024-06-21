@@ -13,7 +13,29 @@ export default function Home() {
     const [isEditExisting, setIsEditExisting] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [isUserSignedIn, setIsUserSignedIn] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+    const [isMobileOk, setIsMobileOk] = useState(false);
+    
     const router = useRouter();
+
+    useEffect(() => {
+        const userAgent = typeof window.navigator === 'undefined' ? '' : navigator.userAgent;
+        const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+        const checkUserSignIn = async () => {
+            const cookies = parseCookies();
+            let userUid = cookies.userUid;
+            if (!userUid) {
+                await signInAndSetCookie(); // 비동기 작업 완료를 기다림
+                const updatedCookies = parseCookies(); // 쿠키를 다시 파싱
+                userUid = updatedCookies.userUid;
+            }
+            if (userUid) {
+                setIsUserSignedIn(true);
+            }
+        };
+        checkUserSignIn();
+        setIsMobile(mobile);
+    }, []);
 
     useEffect(() => {
         const cookies = parseCookies();
@@ -23,10 +45,24 @@ export default function Home() {
             setIsUserSignedIn(true);
         }
     }, [parseCookies()]);
+
+    useEffect(() => {
+        if (isMobile && !isMobileOk) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.touchAction = 'auto';
+        } else {
+            document.body.style.overflow = '';
+            document.body.style.touchAction = '';
+        }
+    }, [isMobile, isMobileOk]);
     
     const CheckEditExisting = async () => {
         const cookies = parseCookies();
         const userId = cookies.userUid;
+        if (!userId) {
+            setIsEditExisting(false);
+            return;
+        }
         const files = await getUserFiles(userId);
         if (files.length > 0) {
             setIsEditExisting(true);
@@ -36,8 +72,8 @@ export default function Home() {
     }
 
     const handleUploadButtonClick = async () => {
-        if (!isUserSignedIn) {
-            toast('사용자 인증이 완료되지 않았습니다. 잠시 후 다시 시도해 주세요.');
+        if (!parseCookies().userUid) {
+            toast('사용자 인증이 완료되지 않았습니다. 새로고침 후 다시 시도해 주세요.');
             return;
         }
         try {
@@ -49,8 +85,6 @@ export default function Home() {
                     pathname: '/template',
                     query: { images: JSON.stringify(newUploadedFiles.slice(0, 4)) },
                 }, '/template');
-            } else {
-                toast("파일을 추가해 주세요.");
             }
         } catch (error) {
             console.error('Error uploading files:', error);
@@ -91,6 +125,14 @@ export default function Home() {
 
     return (
         <div className="body-container">
+            {isMobile && !isMobileOk && <div className="mobile fixed z-50 top-0 h-screen w-screen flex items-center justify-center bg-white bg-opacity-90">
+                <div className="loading-container flex flex-col my-auto mx-auto text-center self-center justify-self-center gap-4">
+                    <div className="text-xl self-center font-bold text-neutral-500">이 사이트는 pc환경에 최적화되어 있어요.</div>
+                    <button onClick={() => setIsMobileOk(true)}
+                    className="text-xl self-center font-bold py-3 px-6 rounded-full bg-neutral-400 text-white">모바일로 계속하기</button>
+                </div>
+
+            </div>}
             {isUploading && <div className="loading fixed z-50 top-0 h-full w-full flex items-center justify-center bg-white bg-opacity-50">
                 <div className="loading-container my-auto mx-auto self-center justify-self-center">
                     <Spinner size={Spinner.SIZE_LARGE} className="pb-2" />
@@ -98,11 +140,12 @@ export default function Home() {
                     </div>
                 
                 </div>}
+
             <ToastContainer
                 hideProgressBar={true}
                 transition={Slide} />
-            <main className="flex-col max-h-screen flex-shrink-1 p-10 px-36 justify-around">
-            <div className="home-content-box flex text-lg content-between items-stretch">
+            <main className="flex flex-col h-full flex-grow p-10 px-36 justify-between">
+            <div className="home-content-box mb-4 flex text-lg content-between shrink items-stretch">
                 <div className="description h-fit basis-auto w-1/2 min-w-fit">
                         <h2 className="text-3xl font-bold my-6">
                             <div>샷토스터로 앱스토어 스크린샷을</div>
@@ -146,7 +189,7 @@ export default function Home() {
                                 height={40}
                             />
                         </div>
-                        <div className="gif-container flex justify-end mt-6">
+                        <div className="gif-container flex justify-end mt-6 min-w-72">
                             <Image
                                 alt="toaster-gif"
                                 className="object-contain"
@@ -159,16 +202,16 @@ export default function Home() {
                         
                     </div>
             </div>
-                <div className="upload-box h-60 w-full my-6">
+            <div className="upload-box flex flex-grow min-h-60 max-h-80 w-full my-6">
                     <Dropzone selectedFiles={selectedFiles} setSelectedFiles={setSelectedFiles} />
-                </div>
-                <div className="uploaded-button flex flex-col items-center">
+            </div>
+            <div className="uploaded-button flex flex-col items-center">
                 <button onClick={handleUploadButtonClick}
                     disabled={selectedFiles?.length === 0}
                     className="upload-button rounded-full py-3 px-16 bg-black text-white text-xl font-bold disabled:bg-neutral-400">
                         템플릿 선택으로
                 </button>
-                </div>
+            </div>
         </main>
         </div>
     );

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import { getUserImagesFour } from '../firebase';
+import { parseCookies } from "nookies";
 
 
 export default function SelectTemplate() {
@@ -9,19 +11,15 @@ export default function SelectTemplate() {
     const [images, setImages] = useState([]);
 
     useEffect(() => {
-        const storedImages = localStorage.getItem('images');
-        if (storedImages) {
-            setImages(JSON.parse(storedImages));
-        } else if (router.query.images) {
-            setImages(JSON.parse(router.query.images));
-            localStorage.setItem('images', router.query.images);
-        }
+        const fetchImages = async () => {
+            const cookies = parseCookies();
+            const userId = cookies.userUid;
+            const imageUrls = await getUserImagesFour(userId);
+            setImages(imageUrls);
+        };
 
-        if (router.query.images) {
-            setImages(JSON.parse(router.query.images));
-            localStorage.setItem('images', router.query.images);
-        }
-    }, [router.query]);
+        fetchImages();
+    }, []);
 
     const handleTemplateClick = (template) => {
         router.push(`/editor`);
