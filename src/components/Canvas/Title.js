@@ -27,7 +27,7 @@ class Title extends React.Component {
     };
 
     render() {
-        const { x, y, fontSize, width, align, setNode } = this.props;
+        const { x, y, fontSize, width, align, setNode, color, weight } = this.props;
         const { showOutline, textRect, isEditing, text } = this.state;
 
         return (
@@ -35,9 +35,10 @@ class Title extends React.Component {
                 onMouseEnter={(e) => this.handleMouseEnter(e.target)}
                 onMouseLeave={this.handleMouseLeave}
             >
-                <input
+                {/* <input
                     type="text"
-                    value={text}
+                    text={text}
+                    // value={text}
                     onBlur={this.handleBlur}
                     ref={(input) => { this.input = input; }}
                     style={{
@@ -46,10 +47,12 @@ class Title extends React.Component {
                         left: x,
                         width: width,
                         fontSize: fontSize,
+                        fontWeight: weight,
                         textAlign: align,
                         display: isEditing ? 'block' : 'none',
+                        color: color,
                     }}
-                />
+                /> */}
                 {!isEditing && (
                     <Text
                         text={text}
@@ -57,22 +60,21 @@ class Title extends React.Component {
                         y={y}
                         fontSize={fontSize}
                         fontFamily='Pretendard'
-                        fill='black'
+                        fontStyle={weight}
+                        fill={color}
                         align={align}
                         width={width}
-                        ref={node => {
-                            setNode(node);
-                        }}
+
                     />
                 )}
-                {showOutline && (
+                {(showOutline && this.props.isEdit) && (
                     <Rect
                         x={textRect.x}
                         y={textRect.y}
                         width={textRect.width}
                         height={textRect.height}
                         stroke='#52A9EE'
-                        strokeWidth={1}
+                        strokeWidth={2}
                     />
                 )}
             </Group>

@@ -6,6 +6,7 @@ import TopBar from '@/components/TopBar';
 import localFont from 'next/font/local';
 import Head from 'next/head';
 import { signInAndSetCookie } from '@/firebase';
+import { TemplateProvider } from '@/components/context/GlobalContext';
 
 const pretendard = localFont({ src: '../../public/fonts/PretendardVariable.woff2' });
 
@@ -35,7 +36,10 @@ class MyApp extends App {
                     <meta name='viewport' content='height=device-height width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=1' />
             </Head>
                 <TopBar />
-                <Component {...pageProps} />
+                <TemplateProvider>
+                    <Component {...pageProps} />
+                </TemplateProvider>
+                
             </RootLayout>
         );
     }

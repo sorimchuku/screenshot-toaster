@@ -26,11 +26,15 @@ export default function SideBar(props) {
         }
     }
 
+    const handleImageClick = (imageUrl) => {
+        props.updateImageAtIndex(imageUrl, props.activeStage);
+    };
+
     return (
-        <div className="sidebar-wrap w-[340px] h-full z-[1] overflow-hidden bg-neutral-100 border-r-2">
+        <div className="sidebar-wrap w-[340px] min-w-[340px] h-full z-[1] overflow-hidden bg-neutral-100 border-r-2">
             {/* <div className="expandButton" onClick={() => openMenuOnClick()}><ExpandLessRoundedIcon /></div> */}
             <div className="itemsListBody overflow-hidden h-full w-full flex flex-col px-8 py-6 gap-6">
-                <div onClick={() => {props.handleAddPage}}
+                <div onClick={props.handleAddPage}
                 className='addpage cursor-pointer flex px-6 py-4 bg-white rounded-full justify-center items-center gap-2 font-bold text-neutral-500 text-base'>
                     <Icon icon={IconNames.PLUS} />
                     <span>페이지 추가</span>
@@ -46,8 +50,7 @@ export default function SideBar(props) {
                                     changeSelectedTool(i)
                                 }}
                                  className="tools-title-wrap cursor-pointer flex justify-between items-center font-bold text-xl">
-                                    <div className='flex items-center gap-2'>
-                                        <div className='w-5 h-5 bg-sky-100 rounded'></div>
+                                    <div className='flex items-center'>
                                         <span>{tool.title}</span>
                                     </div>
                                     <Icon icon={selectedTools === i ? IconNames.CARET_DOWN : IconNames.CARET_RIGHT} />
@@ -56,13 +59,14 @@ export default function SideBar(props) {
                                  ${selectedTools === i ? 'max-h-screen mt-4' : 'max-h-0'}`}>
                                     {React.createElement(componentsMap[tool.component], {
                                         onChangeDragUrl: props.onChangeDragUrl,
-                                        handleAddOnClick: props.handleAddOnClick,
+                                        handleImageClick: handleImageClick,
                                         dragUrl: props.dragUrl,
                                         addToBackground: props.addToBackground,
                                         removeBackground: props.removeBackground,
                                         stageRef: props.stageRef,
                                         uploadedImages : props.uploadedImages,
                                         setUploadedImages : props.setUploadedImages, 
+                                        activeStage : props.activeStage,
                                         style: { display: selectedTools === i ? 'block' : 'none' },
                                     })}
                                 </div>

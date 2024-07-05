@@ -11,7 +11,10 @@ const TopBar = () => {
         <button onClick={() => router.push('/')} className="text-3xl font-bold racking-tight h-9 w-auto">
           <Image src='../../images/logo_long.svg'
             alt="Shottoaster"
-            width={200} height={36} />
+            width={200}
+            height={36}
+            priority={true}
+             />
           </button>
       </div>
     </nav>
