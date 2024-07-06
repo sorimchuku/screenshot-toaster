@@ -57,7 +57,7 @@ export default function SelectTemplate() {
     return (
         <div className="body-container">
             <main className="p-10 px-36 flex flex-col gap-4 h-full">
-                <div className='flex-shrink'>
+                <div className='flex-shrink flex flex-col items-start'>
                     <div className="text-4xl font-bold text-center">템플릿 선택하기</div>
                     <div className="text-lg text-center mt-4">색, 폰트, 순서는 이 다음에 변경 가능해요.</div>
                 </div>

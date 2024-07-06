@@ -134,9 +134,9 @@ export default function Editor() {
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
                 {Array.from({length: numStages }).map((_, index) => (
-                    <div className="flex flex-col items-end self-end">
+                    <div className="flex flex-col items-end self-end" key={'stage' + index}>
                         {index === activeStage &&
-                            <div onClick={() => handleStageDelete(index)}
+                            <div onClick={() => handleStageDelete(index)} key={'delete' + index}
                                 className="border-2 rounded-xl px-4 py-2 mb-2 font-bold text-red-600 cursor-pointer">
                                     <Icon icon="trash" />
                             </div>

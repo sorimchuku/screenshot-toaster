@@ -218,7 +218,7 @@ export default function Home() {
                 <button onClick={handleUploadButtonClick}
                     disabled={selectedFiles?.length === 0}
                     className="upload-button rounded-full py-3 px-16 bg-black text-white text-xl font-bold disabled:bg-neutral-400">
-                        템플릿 선택으로
+                        템플릿 선택하기
                 </button>
             </div>
         </main>

@@ -149,4 +149,4 @@ const signInAndSetCookie = () => {
         });
 };
 
-export { storage, database, uploadFile, deleteFile, getUserFiles, downloadFile, deleteUserFiles, auth, signInAndSetCookie, getUserImagesFour };
+export { storage, database, uploadFile, deleteFile, getUserFiles, downloadFile, deleteUserFiles, auth, signInAndSetCookie, getUserImagesFour, signInAnonymously };

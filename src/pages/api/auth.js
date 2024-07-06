@@ -1,5 +1,5 @@
 // pages/api/auth.js
-import { auth, signInAnonymously } from '../../firebase';
+import { auth, signInAnonymously } from '@/firebase';
 
 export default async function handler(req, res) {
     try {
