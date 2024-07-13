@@ -36,16 +36,15 @@ export default function Editor() {
                 const images = files.map(file => file.url);
                 setTemplate(templateName);
                 setUploadedImages(images);
-                const newStages = Array.from({ length: images.length }, (_, index) => newStage(images[index], index));
+                const newStages = Array.from({ length: images.length }, (_, index) => newStage(templateName, images[index], index));
                 setStages(newStages);
                 console.log('Images loaded from Firebase:', newStages);
                 
-                await saveUserEdit(userId, templateName, images, newStages);
+                await saveUserEdit(userId, images, newStages);
                 localStorage.setItem('initialized', 'true');
             };
             loadImagesFromFirebase();
         } else return;
-        
     }, []);
 
     useEffect(() => {
@@ -61,7 +60,6 @@ export default function Editor() {
                 if (snapshot.exists()) {
                     const editorState = snapshot.val();
                     setUploadedImages(editorState.uploadedImages);
-                    setTemplate(editorState.template);
                     setStages(editorState.stages);
                     console.log('Editor state fetched successfully:', editorState)
                 } else {
@@ -76,12 +74,37 @@ export default function Editor() {
     }, []);
 
     useEffect(() => {
+        // 변경 사항이 있는지 확인하는 함수
+        const hasChanges = () => {
+            return JSON.stringify({ uploadedImages, stages, template }) !== JSON.stringify(prevStateRef.current);
+        };
+
+        // 페이지를 나갈 때 실행될 함수
+        const handleBeforeUnload = (e) => {
+            if (hasChanges()) {
+                // 기본 이벤트를 방지하고, 사용자에게 경고 메시지를 표시
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        };
+
+        // 이벤트 리스너 등록
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        // 컴포넌트가 언마운트될 때 이벤트 리스너 제거
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [uploadedImages, stages, template]); // 의존성 배열에 상태를 추가하여 해당 상태가 변경될 때마다 이펙트를 다시 실행
+
+
+    useEffect(() => {
         const userId = parseCookies().userUid;
         if (!userId) return; // userId가 없으면 종료
 
         const intervalId = setInterval(() => {
             // ref의 현재 값을 사용하여 saveUserEdit 호출
-            saveUserEdit(prevStateRef.current.userId, prevStateRef.current.template,  prevStateRef.current.uploadedImages, prevStateRef.current.stages);
+            saveUserEdit(prevStateRef.current.userId,  prevStateRef.current.uploadedImages, prevStateRef.current.stages);
         }, 30000);
 
         return () => clearInterval(intervalId);
@@ -91,22 +114,22 @@ export default function Editor() {
         prevStateRef.current = { template,  uploadedImages, stages };
     }, [template,  uploadedImages, stages]);
 
-    const newStage = (image = null, layoutIndex = 4) => {
+    const newStage = (newTemplateName = 'template1', image = null, layoutIndex = 4,) => {
         const stageId = uuidv4();
         const stage = {
             id:stageId,
             image:image || sampleImage,
+            templateName: newTemplateName,
             layoutIndex:layoutIndex,
         }
         return stage;
     }
 
-    const saveUserEdit = async (userId, templateName, uploadedImages, stages) => {
+    const saveUserEdit = async (userId, uploadedImages, stages) => {
         startSaving();
         const editorStateRef = ref(database, `users/${userId}/editor`);
         try {
             await set(editorStateRef, {
-                template: templateName,
                 uploadedImages: uploadedImages,
                 stages: stages,
             });
@@ -133,6 +156,7 @@ export default function Editor() {
 
     const handleAddPage = () => {
         const stage = newStage(); // 새로운 스테이지 생성
+        console.log('New stage:', stage);
         const updatedStages = [...stages]; // stages 배열 복사
         updatedStages.splice(activeStage + 1, 0, stage); // 활성화된 스테이지 다음 위치에 새 스테이지 삽입
         setStages(updatedStages); // 수정된 배열을 상태에 설정
@@ -176,6 +200,14 @@ export default function Editor() {
         setStages(updatedStages); // 상태 업데이트
     };
 
+    const updateLayoutAtIndex = (template, activeStage) => {
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage], templateName: template.templateName, layoutIndex: template.index };
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
+
     return (
         <div className="body-container max-w-full h-full flex relative">
             <SideBar
@@ -184,6 +216,7 @@ export default function Editor() {
                 handleAddPage={handleAddPage}
                 updateImageAtIndex={updateImageAtIndex}
                 activeStage={activeStage}
+                updateLayoutAtIndex={updateLayoutAtIndex}
             />
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
@@ -211,7 +244,7 @@ export default function Editor() {
                             }
                         <div onClick={() => handleStageClick(index)} key={index}
                             className={`stage-wrap bg-slate-200 shadow ${index === activeStage ? 'outline outline-2 outline-blue-300' : ''}`}>
-                            <Template templateName={template} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} />
+                            <Template templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} />
                         </div>
                     </div>
                    

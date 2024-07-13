@@ -47,15 +47,6 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit }) => {
         return null;
     }
 
-    const captureStage = () => {
-        const stage = stageRef.current;
-        if (stage) {
-            const dataURL = stage.toDataURL();
-            return dataURL;
-        }
-        return null;
-    };
-
     const style = template.stages[stageIndex] || template.stages[template.stages.length - 1];
 
     return (
