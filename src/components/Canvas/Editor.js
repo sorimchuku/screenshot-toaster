@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, use } from "react";
 import { useRouter } from "next/router";
 import SideBar from "./Sidebar";
 import { getUserFiles, database } from "@/firebase";
@@ -7,11 +7,12 @@ import { parseCookies } from "nookies";
 import Template from "./Template";
 import { useGlobalContext } from "../context/GlobalContext";
 import { Icon } from "@blueprintjs/core";
+import { v4 as uuidv4 } from 'uuid';
+import { templates } from "./Data/templates";
 
 export default function Editor() {
     const [uploadedImages, setUploadedImages] = useState([]);
-    const [imageList, setImageList] = useState([]);
-    const [numStages, setNumStages] = useState(0);
+    const [stages, setStages] = useState([]);
     const [activeStage, setActiveStage] = useState(0);
     const [stageSize, setStageSize] = useState({ width: 240, height: 540 });
     const [stageScale, setStageScale] = useState(1);
@@ -21,7 +22,7 @@ export default function Editor() {
     const [template, setTemplate] = useState('');
     const sampleImage = 'images/screenshot-sample.png';
 
-    const prevStateRef = useRef({ template, numStages, uploadedImages, imageList });
+    const prevStateRef = useRef({ template, uploadedImages, stages });
 
     useEffect(() => {
         const isInitialized = localStorage.getItem('initialized');
@@ -35,12 +36,12 @@ export default function Editor() {
                 const images = files.map(file => file.url);
                 setTemplate(templateName);
                 setUploadedImages(images);
-                setImageList(images);
-                setNumStages(images.length);
+                const newStages = Array.from({ length: images.length }, (_, index) => newStage(images[index], index));
+                setStages(newStages);
+                console.log('Images loaded from Firebase:', newStages);
                 
-                await saveUserEdit(userId, templateName, images.length, images, images);
+                await saveUserEdit(userId, templateName, images, newStages);
                 localStorage.setItem('initialized', 'true');
-                console.log('Editor initialized');
             };
             loadImagesFromFirebase();
         } else return;
@@ -59,10 +60,9 @@ export default function Editor() {
                 const snapshot = await get(editorStateRef);
                 if (snapshot.exists()) {
                     const editorState = snapshot.val();
-                    setNumStages(editorState.numStages);
-                    setImageList(editorState.imageList);
                     setUploadedImages(editorState.uploadedImages);
                     setTemplate(editorState.template);
+                    setStages(editorState.stages);
                     console.log('Editor state fetched successfully:', editorState)
                 } else {
                     console.log("No editor state available for this user.");
@@ -81,27 +81,35 @@ export default function Editor() {
 
         const intervalId = setInterval(() => {
             // ref의 현재 값을 사용하여 saveUserEdit 호출
-            saveUserEdit(prevStateRef.current.userId, prevStateRef.current.template, prevStateRef.current.numStages, prevStateRef.current.uploadedImages, prevStateRef.current.imageList);
+            saveUserEdit(prevStateRef.current.userId, prevStateRef.current.template,  prevStateRef.current.uploadedImages, prevStateRef.current.stages);
         }, 30000);
 
         return () => clearInterval(intervalId);
     }, []);
 
     useEffect(() => {
-        prevStateRef.current = { template, numStages, uploadedImages, imageList };
-    }, [template, numStages, uploadedImages, imageList]);
+        prevStateRef.current = { template,  uploadedImages, stages };
+    }, [template,  uploadedImages, stages]);
 
-    const saveUserEdit = async (userId, templateName, numStages, uploadedImages, imageList) => {
+    const newStage = (image = null, layoutIndex = 4) => {
+        const stageId = uuidv4();
+        const stage = {
+            id:stageId,
+            image:image || sampleImage,
+            layoutIndex:layoutIndex,
+        }
+        return stage;
+    }
+
+    const saveUserEdit = async (userId, templateName, uploadedImages, stages) => {
         startSaving();
         const editorStateRef = ref(database, `users/${userId}/editor`);
         try {
             await set(editorStateRef, {
                 template: templateName,
-                numStages: numStages,
                 uploadedImages: uploadedImages,
-                imageList: imageList
+                stages: stages,
             });
-            console.log('Editor state saved successfully:', 'template:', templateName, 'numStages:', numStages, 'uploadedImages:', uploadedImages, 'imageList:', imageList);
             const now = new Date();
             const hours = now.getHours().toString();
             const minutes = now.getMinutes().toString();
@@ -121,12 +129,14 @@ export default function Editor() {
             const clientWidth = scrollContainerRef.current.clientWidth;
             scrollContainerRef.current.scrollLeft = (activeStage * stageSize.width) + (stageSize.width / 2) - (clientWidth / 2);
         });}
-    }, [activeStage, numStages]); 
+    }, [activeStage]); 
 
     const handleAddPage = () => {
-        setNumStages(prevNumStages => prevNumStages + 1); // Increase the number of stages by 1
-        setImageList(prevImages => [...prevImages, sampleImage]); // Add a new empty image to the uploaded images
-        setActiveStage(numStages); // Set the new stage as the active stage
+        const stage = newStage(); // 새로운 스테이지 생성
+        const updatedStages = [...stages]; // stages 배열 복사
+        updatedStages.splice(activeStage + 1, 0, stage); // 활성화된 스테이지 다음 위치에 새 스테이지 삽입
+        setStages(updatedStages); // 수정된 배열을 상태에 설정
+        setActiveStage(activeStage + 1); // 새로운 스테이지를 활성화된 스테이지로 설정
     };
 
     const handleStageClick = (index) => {
@@ -134,19 +144,36 @@ export default function Editor() {
     };
 
     const handleStageDelete = (index) => {
-        const updatedImageList = [...imageList];
-        updatedImageList.splice(index, 1);
-        setImageList(updatedImageList);
-        setNumStages(prevNumStages => prevNumStages - 1);
+        const updatedStages = stages.filter((_, i) => i !== index);
+        setStages(updatedStages);
         if(index !== 0){
         setActiveStage(activeStage - 1);
         }
     }
 
+    const handleStageMove = (currentIndex, direction) => {
+        const newIndex = direction === 'prev' ? currentIndex - 1 : currentIndex + 1;
+
+        // 인덱스가 배열 범위를 벗어나지 않는지 확인
+        if (newIndex < 0 || newIndex >= stages.length) return;
+
+        // 스테이지 배열 복사
+        const updatedStages = [...stages];
+        // 현재 스테이지를 새 인덱스로 이동
+        const [removedStage] = updatedStages.splice(currentIndex, 1);
+        updatedStages.splice(newIndex, 0, removedStage);
+
+        // 업데이트된 스테이지 배열로 상태 업데이트
+        setStages(updatedStages);
+        // 이동된 스테이지를 활성화
+        setActiveStage(newIndex);
+    };
+
     const updateImageAtIndex = (newImage, index) => {
-        const updatedImageList = [...imageList];
-        updatedImageList[index] = newImage;
-        setImageList(updatedImageList);
+        const updatedStages = [...stages]; // stages 배열 복사
+        const updatedStage = { ...updatedStages[index], image: newImage }; // 해당 index의 stage 업데이트
+        updatedStages[index] = updatedStage; // 업데이트된 stage를 배열에 할당
+        setStages(updatedStages); // 상태 업데이트
     };
 
     return (
@@ -160,17 +187,31 @@ export default function Editor() {
             />
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
-                {Array.from({length: numStages }).map((_, index) => (
+                {stages.map((stage, index) => (
                     <div className="flex flex-col items-end self-end" key={'stage' + index}>
                         {index === activeStage &&
-                            <div onClick={() => handleStageDelete(index)} key={'delete' + index}
-                                className="border-2 rounded-xl px-4 py-2 mb-2 font-bold text-red-600 cursor-pointer">
-                                    <Icon icon="trash" />
+                        <div className="flex border-2 rounded-xl px-4 py-2 mb-2 items-center gap-3">
+                            <div className="flex gap-2 cursor-pointer">
+                                <div onClick={() => handleStageMove(index, 'prev')} key={'prev' + index}
+                                    className=" text-gray-900 ">
+                                    <Icon icon="chevron-left" /> 
+                                </div>
+                                <div onClick={() => handleStageMove(index, 'next')} key={'next' + index}
+                                    className=" text-gray-900 ">
+                                    <Icon icon="chevron-right" />
+                                </div>
                             </div>
+                            <div className="text-gray-400">|</div>
+                                <div onClick={() => handleStageDelete(index)} key={'delete' + index}
+                                    className=" text-red-600 cursor-pointer">
+                                    <Icon icon="trash" />
+                                </div>
+                        </div>
+                            
                             }
                         <div onClick={() => handleStageClick(index)} key={index}
                             className={`stage-wrap bg-slate-200 shadow ${index === activeStage ? 'outline outline-2 outline-blue-300' : ''}`}>
-                            <Template templateName={template} stageSize={stageSize} stageScale={stageScale} stageIndex={index} image={imageList[index]} isEdit={true} />
+                            <Template templateName={template} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} />
                         </div>
                     </div>
                    

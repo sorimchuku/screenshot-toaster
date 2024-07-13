@@ -120,6 +120,7 @@ export const templates = [
                 bgColor: '#01BE64',
                 rotation: 21,
                 cornerRadius: 24,
+                twins:true,
             },
             {
                 x: -20,
@@ -143,6 +144,7 @@ export const templates = [
                 bgColor: '#01BE64',
                 rotation: 21,
                 cornerRadius: 24,
+                twins:true,
             },
             {
                 x: 'center',
