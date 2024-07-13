@@ -3,10 +3,18 @@ import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { getUserImagesFour } from '../firebase';
 import { parseCookies } from "nookies";
+import Template from './Canvas/Template';
+import { useGlobalContext } from './context/GlobalContext';
+import { templates as templatesData } from './Canvas/Data/templates.js';
 
 
 export default function SelectTemplate() {
     const templates = ['template1', 'template2', 'template3', 'template4'];
+    const [stageSize, setStageSize] = useState({ width: 120, height: 200 });
+    const [selectedTemplate, setSelectedTemplate] = useState('template1');
+    const stageScale = 1;
+    const { setTemplateName } = useGlobalContext();
+    const sampleImages = ['images/screenshot-sample.png', 'images/screenshot-sample2.png', 'images/screenshot-sample3.png', 'images/screenshot-sample4.png'];
     const router = useRouter();
     const [images, setImages] = useState([]);
 
@@ -14,49 +22,84 @@ export default function SelectTemplate() {
         const fetchImages = async () => {
             const cookies = parseCookies();
             const userId = cookies.userUid;
-            const imageUrls = await getUserImagesFour(userId);
-            setImages(imageUrls);
+            const userImages = await getUserImagesFour(userId);
+            const imageUrls = userImages.map(file => file.url);
+            if (imageUrls.length < 4) {
+                const placeholders = sampleImages.slice(0, 4 - imageUrls.length);
+                setImages([...imageUrls, ...placeholders]);
+            } else {
+               setImages(imageUrls); 
+            } 
         };
 
         fetchImages();
+
+        
+    }, []);
+
+    useEffect(() => {
+        const updateStageSize = () => {
+            const width = window.innerWidth * 0.092;
+            const height = window.innerHeight * 0.29;
+            setStageSize({ width, height });
+        }
+        updateStageSize();
+        window.addEventListener('resize', updateStageSize);
+        return () => window.removeEventListener('resize', updateStageSize);
     }, []);
 
     const handleTemplateClick = (template) => {
-        router.push(`/editor`);
+        setSelectedTemplate(template);
+        setTemplateName(template);
+    };
+    
+
+    const handleGoClick = () => {
+        localStorage.setItem('initialized', false);
+        router.push({
+            pathname: `/editor`,
+        });
     }
 
     return (
         <div className="body-container">
-            <main className="p-10 px-36 flex flex-col gap-4 h-full">
-                <div className='flex-shrink'>
-                    <div className="text-4xl font-bold text-center">템플릿 선택하기</div>
-                    <div className="text-lg text-center mt-4">색, 폰트, 순서는 이 다음에 변경 가능해요.</div>
-                </div>
-                <div className='template-container flex flex-wrap flex-grow flex-shrink-0 basis-auto'>
-                        {templates.map((template, index) => (
-                            <div key={index} className="template-box flex w-1/2">
-                            <div onClick={() => handleTemplateClick(template)}
-                            className='template-inner flex items-center w-full justify-center border-2 border-neutral-300 rounded-xl m-3 hover:border-blue-500'>
-                                    {images.map((image, index) => (
-                                        <div key={index} className="">
-                                            <div className='flex my-auto'>
-                                                <Image
-                                                    src={image.url}
-                                                    alt={image.name}
-                                                    width={80}
-                                                    height={80}
-                                                    className="object-cover mx-auto max-h-48 w-auto px-2"
-                                                />
-                                            </div>
-                                        </div>
-                                    ))}
-                            </div>
-                           
-                            </div>
-                        
-                                
-                        ))}
+            <main className="py-8 px-36 flex flex-col gap-3 h-full">
+                <div className='flex justify-between items-center'>
+                    <div className='flex-shrink flex flex-col items-start'>
+                        <div className="text-4xl font-bold text-center">템플릿 선택하기</div>
+                        <div className="text-lg text-center mt-4">색, 폰트, 순서는 이 다음에 변경 가능해요.</div>
                     </div>
+                    <div onClick={() => handleGoClick()}
+                    className='flex cursor-pointer bg-black px-8 py-2 h-fit rounded-full text-lg text-white items-center justify-center'>선택 완료</div>
+                </div>
+                
+                <div className='template-container grid grid-cols-2 w-full items-center gap-2 flex-grow flex-shrink-0 basis-auto'>
+                    {templates.map((template, index) => {
+                        const templateData = templatesData.find(t => t.name === template);
+                        return (
+                        <div key={index} className="template-box flex w-full h-full items-center justify-center">
+                            <div onClick={() => handleTemplateClick(template)}
+                                className={`template-inner flex items-center w-fit h-fit justify-center border-2 rounded-xl p-2 gap-2 ${template === selectedTemplate ? ' border-sky-400 ' : 'border-gray-300' }`}>
+                                {Array.from({ length: 4 }).map((_, innerIndex) => {
+
+                                    const isTwins = templateData.stages[innerIndex]?.twins !== undefined ? templateData.stages[innerIndex].twins : false;
+                                    const imageIndex = isTwins ? 0 : innerIndex;
+                                    return(
+                                        <div key={innerIndex}
+                                        className={`stage-wrap rounded ${template === selectedTemplate ? 'grayscale-0' : 'grayscale'}`}>
+                                        <Template templateName={template} stageSize={stageSize} stageScale={stageScale} stageIndex={innerIndex} image={images[imageIndex]} isEdit={false} />
+                                    </div>
+                                    )
+                                    
+                                })}
+                            </div>
+
+                        </div>
+                        )
+
+
+                    })}
+                </div>
 
             </main>
         </div>

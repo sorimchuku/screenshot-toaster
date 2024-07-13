@@ -13,7 +13,7 @@ const ImageComponent = ({ image, shapeProps, onDimensionsChange }) => {
             setDimensions(newDimensions);
             onDimensionsChange(newDimensions);
         }
-    }, [status, onDimensionsChange]);
+    }, [status]);
 
     return (
         <Image

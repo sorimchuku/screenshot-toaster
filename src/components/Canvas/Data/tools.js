@@ -11,17 +11,23 @@ export const tools = [
     },
     {
         id: 1,
+        title: "레이아웃 변경",
+        component: "LayoutSelectSection",
+    },
+    {
+        id: 2,
         title: "제목",
         component: "TitleSection",
     },
     {
-        id: 2,
+        id: 3,
         title: "소제목",
         component: "SubTitleSection",
     },
     {
-        id: 3,
+        id: 4,
         title: "스크린샷 소스 이미지",
         component: "UploadSection",
     },
+    
 ];

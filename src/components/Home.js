@@ -15,18 +15,23 @@ export default function Home() {
     const [isUserSignedIn, setIsUserSignedIn] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isMobileOk, setIsMobileOk] = useState(false);
+    const [workspaceScreenshot, setWorkspaceScreenshot] = useState('');
     
     const router = useRouter();
 
     useEffect(() => {
         const userAgent = typeof window.navigator === 'undefined' ? '' : navigator.userAgent;
         const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+        const prevEditImage = localStorage.getItem('workspaceScreenshot');
+        if (prevEditImage) {
+            setWorkspaceScreenshot(prevEditImage);
+        }
         const checkUserSignIn = async () => {
             const cookies = parseCookies();
             let userUid = cookies.userUid;
             if (!userUid) {
-                await signInAndSetCookie(); // 비동기 작업 완료를 기다림
-                const updatedCookies = parseCookies(); // 쿠키를 다시 파싱
+                await signInAndSetCookie();
+                const updatedCookies = parseCookies();
                 userUid = updatedCookies.userUid;
             }
             if (userUid) {
@@ -144,7 +149,7 @@ export default function Home() {
             <ToastContainer
                 hideProgressBar={true}
                 transition={Slide} />
-            <main className="flex flex-col h-full flex-grow p-10 px-36 justify-between">
+            <main className="flex flex-col h-full flex-grow p-10 px-24 justify-between">
             <div className="home-content-box mb-4 flex text-lg content-between shrink items-stretch">
                 <div className="description h-fit basis-auto w-1/2 min-w-fit">
                         <h2 className="text-3xl font-bold my-6">
@@ -157,7 +162,11 @@ export default function Home() {
                             ${isEditExisting ? 'translate-x-0 opacity-100' : 'invisible -translate-x-full opacity-0'}`}>
                             <div className="flex">
                                 <div className="image-container w-24 bg-white rounded">
-                                <Image className="object-contain"></Image>
+                                <Image className="object-contain"
+                                    src={workspaceScreenshot}
+                                    width={100}
+                                    height={100}
+                                ></Image>
                                 </div>
                                 <div className=" mx-4">
                                     <div className="font-bold">굽던 스크린샷이 있어요! 작업하던 프로젝트로 이동하시겠어요?</div>
@@ -209,7 +218,7 @@ export default function Home() {
                 <button onClick={handleUploadButtonClick}
                     disabled={selectedFiles?.length === 0}
                     className="upload-button rounded-full py-3 px-16 bg-black text-white text-xl font-bold disabled:bg-neutral-400">
-                        템플릿 선택으로
+                        템플릿 선택하기
                 </button>
             </div>
         </main>

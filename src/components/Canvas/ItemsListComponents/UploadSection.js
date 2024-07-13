@@ -36,11 +36,10 @@ export default function UploadSection(props) {
     const UploadButton = () => {
         const handleUpload = async (e) => {
             let img = e.target.files[0];
-            props.setUploadedImages((prevState) => [...prevState, URL.createObjectURL(img)]);
-
             try {
                 const fileInfo = await uploadFile(img);
                 console.log('File uploaded successfully:', fileInfo);
+                props.setUploadedImages((prevState) => [...prevState, fileInfo.url]);
             } catch (error) {
                 console.error('Failed to upload file:', error);
             }
@@ -80,7 +79,7 @@ export default function UploadSection(props) {
                     draggable="true"
                     elementcategory={item}
                     onClick={(e) => {
-                        props.handleAddOnClick(e.target.src);
+                        props.handleImageClick(e.target.src);
                     }}
                 />
                 

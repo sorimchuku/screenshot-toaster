@@ -133,7 +133,7 @@ const deleteFile = async (filePath) => {
 };
 
 const signInAndSetCookie = () => {
-    return signInAnonymously(auth) // Promise를 반환하도록 수정
+    return signInAnonymously(auth)
         .then((userCredential) => {
             const user = userCredential.user;
             console.log('익명 사용자 UID1:', user.uid);
@@ -149,4 +149,4 @@ const signInAndSetCookie = () => {
         });
 };
 
-export { storage, uploadFile, deleteFile, getUserFiles, downloadFile, deleteUserFiles, auth, signInAndSetCookie, getUserImagesFour };
+export { storage, database, uploadFile, deleteFile, getUserFiles, downloadFile, deleteUserFiles, auth, signInAndSetCookie, getUserImagesFour, signInAnonymously };
