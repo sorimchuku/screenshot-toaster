@@ -149,7 +149,7 @@ export default function Home() {
             <ToastContainer
                 hideProgressBar={true}
                 transition={Slide} />
-            <main className="flex flex-col h-full flex-grow p-10 px-36 justify-between">
+            <main className="flex flex-col h-full flex-grow p-10 px-24 justify-between">
             <div className="home-content-box mb-4 flex text-lg content-between shrink items-stretch">
                 <div className="description h-fit basis-auto w-1/2 min-w-fit">
                         <h2 className="text-3xl font-bold my-6">

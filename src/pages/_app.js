@@ -35,8 +35,8 @@ class MyApp extends App {
                     <meta name="description" content={metadata.description} />
                     <meta name='viewport' content='height=device-height width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=1' />
             </Head>
-                <TopBar />
                 <TemplateProvider>
+                    <TopBar />
                     <Component {...pageProps} />
                 </TemplateProvider>
                 

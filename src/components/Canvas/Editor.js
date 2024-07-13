@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import SideBar from "./Sidebar";
-import ImageComponent from "./ImageComponent";
 import { getUserFiles, database } from "@/firebase";
 import { ref, get, set } from 'firebase/database';
 import { parseCookies } from "nookies";
@@ -18,16 +17,18 @@ export default function Editor() {
     const [stageScale, setStageScale] = useState(1);
     const router = useRouter();
     const scrollContainerRef = useRef();
-    const { templateName } = useGlobalContext();
+    const { templateName, startSaving, finishSaving, setLastSaved } = useGlobalContext();
     const [template, setTemplate] = useState('');
     const sampleImage = 'images/screenshot-sample.png';
+
+    const prevStateRef = useRef({ template, numStages, uploadedImages, imageList });
 
     useEffect(() => {
         const isInitialized = localStorage.getItem('initialized');
         localStorage.setItem('pageLoaded', 'true');
+        const cookies = parseCookies();
+        const userId = cookies.userUid;
         if (isInitialized !== 'true') {
-            const cookies = parseCookies();
-            const userId = cookies.userUid;
             if (!userId) return;
             const loadImagesFromFirebase = async () => {
                 const files = await getUserFiles(userId);
@@ -36,12 +37,14 @@ export default function Editor() {
                 setUploadedImages(images);
                 setImageList(images);
                 setNumStages(images.length);
+                
                 await saveUserEdit(userId, templateName, images.length, images, images);
                 localStorage.setItem('initialized', 'true');
+                console.log('Editor initialized');
             };
             loadImagesFromFirebase();
         } else return;
-        console.log('Editor initialized');
+        
     }, []);
 
     useEffect(() => {
@@ -68,12 +71,28 @@ export default function Editor() {
                 console.error('Error fetching editor state:', error);
             }
         };
-
         fetchEditorState();
     } else return;
     }, []);
 
+    useEffect(() => {
+        const userId = parseCookies().userUid;
+        if (!userId) return; // userId가 없으면 종료
+
+        const intervalId = setInterval(() => {
+            // ref의 현재 값을 사용하여 saveUserEdit 호출
+            saveUserEdit(prevStateRef.current.userId, prevStateRef.current.template, prevStateRef.current.numStages, prevStateRef.current.uploadedImages, prevStateRef.current.imageList);
+        }, 30000);
+
+        return () => clearInterval(intervalId);
+    }, []);
+
+    useEffect(() => {
+        prevStateRef.current = { template, numStages, uploadedImages, imageList };
+    }, [template, numStages, uploadedImages, imageList]);
+
     const saveUserEdit = async (userId, templateName, numStages, uploadedImages, imageList) => {
+        startSaving();
         const editorStateRef = ref(database, `users/${userId}/editor`);
         try {
             await set(editorStateRef, {
@@ -82,9 +101,17 @@ export default function Editor() {
                 uploadedImages: uploadedImages,
                 imageList: imageList
             });
-            console.log('Editor state saved successfully');
+            console.log('Editor state saved successfully:', 'template:', templateName, 'numStages:', numStages, 'uploadedImages:', uploadedImages, 'imageList:', imageList);
+            const now = new Date();
+            const hours = now.getHours().toString();
+            const minutes = now.getMinutes().toString();
+            const formattedTime = `${hours}:${minutes}`; // hh:mm 형식으로 조합
+
+            setLastSaved(formattedTime);
         } catch (error) {
             console.error('Error saving editor state:', error);
+        } finally {
+            finishSaving();
         }
     };
 
