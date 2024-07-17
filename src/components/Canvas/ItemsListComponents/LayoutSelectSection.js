@@ -34,7 +34,7 @@ export default function LayoutSelectSection(props) {
             <div className={`grid grid-cols-4 items-center w-full h-fit`}>
                { currentTemplates.map((template, index) => {
                     return (
-                        <div key={'sample' + index} onClick={() => props.handleLayoutClick(template)}
+                        <div key={'sample' + index} onClick={() => props.handleLayoutClick(template)} onTouchStart={() => props.handleLayoutClick(template)}
                             className={`stage-wrap rounded transition-all hover:brightness-50`}>
                             <Template templateName={template.templateName} stageSize={stageSize} stageScale={1} stageIndex={template.index} image={sampleImage} isEdit={false} />
                         </div>

@@ -13,7 +13,7 @@ class MyDocument extends Document {
                 <Head>
                     <link href=' https://cdn.jsdelivr.net/gh/orioncactus/pretendard@1.1.0/dist/web/static/pretendard.css' rel="stylesheet" />
                 </Head>
-                <body className='h-screen w-screen overflow-hidden'>
+                <body>
                     <Main />
                     <NextScript />
                 </body>

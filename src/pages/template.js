@@ -3,7 +3,7 @@ import SelectTemplate from '../components/SelectTemplate';
 
 export default function TemplatePage() {
     return (
-        <div>
+        <div className='h-full w-full flex'>
             <SelectTemplate />
         </div>
     );

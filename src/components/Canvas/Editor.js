@@ -242,7 +242,7 @@ export default function Editor() {
                         </div>
                             
                             }
-                        <div onClick={() => handleStageClick(index)} key={index}
+                        <div onClick={() => handleStageClick(index)} onTouchStart={() => handleStageClick(index)} key={index}
                             className={`stage-wrap bg-slate-200 shadow ${index === activeStage ? 'outline outline-2 outline-blue-300' : ''}`}>
                             <Template templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} />
                         </div>

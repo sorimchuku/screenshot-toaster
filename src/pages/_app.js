@@ -17,7 +17,7 @@ export const metadata = {
 
 function RootLayout({ children }) {
     return (
-        <div className={pretendard.className} style={{ overflow: 'visible', maxHeight: '100vh', minHeight: '100vh', height: '100vh', minWidth: '1080px'}}>{children}</div>
+        <div className={pretendard.className} style={{ overflow: 'auto',  height: '100vh', minHeight:'720px', minWidth: '1280px', width: '100%'}}>{children}</div>
     );
 }
 
@@ -33,11 +33,17 @@ class MyApp extends App {
             <Head>
                     <title>{metadata.title}</title>
                     <meta name="description" content={metadata.description} />
-                    <meta name='viewport' content='height=device-height width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=1' />
+                    <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=1' />
             </Head>
                 <TemplateProvider>
-                    <TopBar />
-                    <Component {...pageProps} />
+                    <div className='flex flex-col h-full w-full'>
+                        <TopBar />
+                        <div className='flex w-full flex-grow'>
+                            <Component {...pageProps} />
+                        </div>
+                        
+                    </div>
+                    
                 </TemplateProvider>
                 
             </RootLayout>

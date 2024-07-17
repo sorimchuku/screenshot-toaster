@@ -6,7 +6,7 @@ const Editor = dynamic(() => import('../components/Canvas/Editor'), {
 
 export default function EditorPage() {
     return (
-        <div className='h-screen'>
+        <div className='h-full w-full flex'>
             <Editor />
         </div>
     );
