@@ -116,11 +116,14 @@ export default function Editor() {
 
     const newStage = (newTemplateName = 'template1', image = null, layoutIndex = 4,) => {
         const stageId = uuidv4();
+        const foundTemplate = templates.find(t => t.name === newTemplateName);
+        const initialStyle = foundTemplate.stages[layoutIndex] || foundTemplate.stages[foundTemplate.stages.length - 1];
         const stage = {
             id:stageId,
             image:image || sampleImage,
             templateName: newTemplateName,
             layoutIndex:layoutIndex,
+            style: initialStyle,
         }
         return stage;
     }
@@ -156,7 +159,6 @@ export default function Editor() {
 
     const handleAddPage = () => {
         const stage = newStage(); // 새로운 스테이지 생성
-        console.log('New stage:', stage);
         const updatedStages = [...stages]; // stages 배열 복사
         updatedStages.splice(activeStage + 1, 0, stage); // 활성화된 스테이지 다음 위치에 새 스테이지 삽입
         setStages(updatedStages); // 수정된 배열을 상태에 설정
@@ -207,6 +209,13 @@ export default function Editor() {
         setStages(updatedStages);
     }
 
+    const updateLayoutColor = (color, activeStage) => {
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage], style: { ...updatedStages[activeStage].style, bgColor: color } };
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
 
     return (
         <div className="body-container max-w-full h-full flex relative">
@@ -217,10 +226,12 @@ export default function Editor() {
                 updateImageAtIndex={updateImageAtIndex}
                 activeStage={activeStage}
                 updateLayoutAtIndex={updateLayoutAtIndex}
+                updateLayoutColor={updateLayoutColor}
             />
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
                 {stages.map((stage, index) => (
+                    
                     <div className="flex flex-col items-end self-end" key={'stage' + index}>
                         {index === activeStage &&
                         <div className="flex border-2 rounded-xl px-4 py-2 mb-2 items-center gap-3">
@@ -244,10 +255,9 @@ export default function Editor() {
                             }
                         <div onClick={() => handleStageClick(index)} onTouchStart={() => handleStageClick(index)} key={index}
                             className={`stage-wrap bg-slate-200 shadow ${index === activeStage ? 'outline outline-2 outline-blue-300' : ''}`}>
-                            <Template templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} />
+                            <Template templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} style={stage.style} />
                         </div>
                     </div>
-                   
                     
                 ))}
             </div>

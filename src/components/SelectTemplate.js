@@ -28,8 +28,8 @@ export default function SelectTemplate() {
                 const placeholders = sampleImages.slice(0, 4 - imageUrls.length);
                 setImages([...imageUrls, ...placeholders]);
             } else {
-               setImages(imageUrls); 
-            } 
+                setImages(imageUrls);
+            }
         };
 
         fetchImages();
@@ -90,10 +90,11 @@ export default function SelectTemplate() {
 
                                     const isTwins = templateData.stages[innerIndex]?.twins !== undefined ? templateData.stages[innerIndex].twins : false;
                                     const imageIndex = isTwins ? 0 : innerIndex;
+                                    const style = templateData.stages[innerIndex] || templateData.stages[templateData.stages.length - 1];
                                     return(
                                         <div key={innerIndex} 
                                         className={`stage-wrap rounded ${template === selectedTemplate ? 'grayscale-0' : 'grayscale'}`}>
-                                        <Template  templateName={template} stageSize={stageSize} stageScale={stageScale} stageIndex={innerIndex} image={images[imageIndex]} isEdit={false} />
+                                        <Template  templateName={template} stageSize={stageSize} stageScale={stageScale} stageIndex={innerIndex} image={images[imageIndex]} isEdit={false} style={style} />
                                     </div>
                                     )
                                     

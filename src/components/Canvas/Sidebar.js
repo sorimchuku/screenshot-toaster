@@ -36,6 +36,10 @@ export default function SideBar(props) {
         props.updateLayoutAtIndex(layout, props.activeStage);
     }
 
+    const handleColorChange = (color) => {
+        props.updateLayoutColor(color, props.activeStage);
+    }
+
     return (
         <div className="sidebar-wrap w-[340px] min-w-[340px] h-full z-[1] overflow-hidden bg-neutral-100 border-r-2">
             {/* <div className="expandButton" onClick={() => openMenuOnClick()}><ExpandLessRoundedIcon /></div> */}
@@ -67,6 +71,7 @@ export default function SideBar(props) {
                                         onChangeDragUrl: props.onChangeDragUrl,
                                         handleImageClick: handleImageClick,
                                         handleLayoutClick: handleLayoutClick,
+                                        handleColorChange: handleColorChange,
                                         dragUrl: props.dragUrl,
                                         addToBackground: props.addToBackground,
                                         removeBackground: props.removeBackground,
