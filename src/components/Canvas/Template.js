@@ -6,7 +6,7 @@ import Title from './Title';
 import { templates } from './Data/templates.js';
 import defaultImage from '../../../public/images/screenshot-sample.png';
 
-const Template = ({ templateName, stageIndex, image, stageSize, isEdit }) => {
+const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style }) => {
     const [template, setTemplate] = useState(null);
     const [textNode1, setTextNode1] = useState(null);
     const [textNode2, setTextNode2] = useState(null);
@@ -47,7 +47,9 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit }) => {
         return null;
     }
 
-    const style = template.stages[stageIndex] || template.stages[template.stages.length - 1];
+    // const style = template.stages[stageIndex] || template.stages[template.stages.length - 1];
+
+    console.log('style', style);
 
     return (
         <Stage width={stageSize.width} height={stageSize.height} ref={stageRef}>

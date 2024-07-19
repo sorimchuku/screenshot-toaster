@@ -28,8 +28,8 @@ export default function SelectTemplate() {
                 const placeholders = sampleImages.slice(0, 4 - imageUrls.length);
                 setImages([...imageUrls, ...placeholders]);
             } else {
-               setImages(imageUrls); 
-            } 
+                setImages(imageUrls);
+            }
         };
 
         fetchImages();
@@ -39,8 +39,14 @@ export default function SelectTemplate() {
 
     useEffect(() => {
         const updateStageSize = () => {
-            const width = window.innerWidth * 0.092;
-            const height = window.innerHeight * 0.29;
+            const ratio = stageSize.width / stageSize.height;
+            let width;
+            if(window.innerWidth < 1440) {
+                width = window.innerWidth * 0.088;
+            } else {
+            width = window.innerWidth * 0.09;
+            }
+            const height = width / ratio;
             setStageSize({ width, height });
         }
         updateStageSize();
@@ -63,7 +69,7 @@ export default function SelectTemplate() {
 
     return (
         <div className="body-container">
-            <main className="py-8 px-36 flex flex-col gap-3 h-full">
+            <main className="py-8 px-36 flex flex-col gap-3 h-full ">
                 <div className='flex justify-between items-center'>
                     <div className='flex-shrink flex flex-col items-start'>
                         <div className="text-4xl font-bold text-center">템플릿 선택하기</div>
@@ -77,17 +83,18 @@ export default function SelectTemplate() {
                     {templates.map((template, index) => {
                         const templateData = templatesData.find(t => t.name === template);
                         return (
-                        <div key={index} className="template-box flex w-full h-full items-center justify-center">
-                            <div onClick={() => handleTemplateClick(template)}
+                            <div key={index} onClick={() => handleTemplateClick(template)} onTouchStart={() => handleTemplateClick(template)} className="template-box flex w-full h-full items-center justify-center">
+                            <div
                                 className={`template-inner flex items-center w-fit h-fit justify-center border-2 rounded-xl p-2 gap-2 ${template === selectedTemplate ? ' border-sky-400 ' : 'border-gray-300' }`}>
                                 {Array.from({ length: 4 }).map((_, innerIndex) => {
 
                                     const isTwins = templateData.stages[innerIndex]?.twins !== undefined ? templateData.stages[innerIndex].twins : false;
                                     const imageIndex = isTwins ? 0 : innerIndex;
+                                    const style = templateData.stages[innerIndex] || templateData.stages[templateData.stages.length - 1];
                                     return(
-                                        <div key={innerIndex}
+                                        <div key={innerIndex} 
                                         className={`stage-wrap rounded ${template === selectedTemplate ? 'grayscale-0' : 'grayscale'}`}>
-                                        <Template templateName={template} stageSize={stageSize} stageScale={stageScale} stageIndex={innerIndex} image={images[imageIndex]} isEdit={false} />
+                                        <Template  templateName={template} stageSize={stageSize} stageScale={stageScale} stageIndex={innerIndex} image={images[imageIndex]} isEdit={false} style={style} />
                                     </div>
                                     )
                                     

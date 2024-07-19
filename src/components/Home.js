@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { toast, ToastContainer, Slide } from "react-toastify";
 import { Icon, Spinner } from "@blueprintjs/core";
-import { uploadFile, deleteUserFiles, getUserFiles } from '../firebase';
+import { uploadFile, deleteUserFiles, getUserFiles, signInAndSetCookie } from '../firebase';
 import { parseCookies } from "nookies";
 
 export default function Home() {
@@ -16,7 +16,7 @@ export default function Home() {
     const [isMobile, setIsMobile] = useState(false);
     const [isMobileOk, setIsMobileOk] = useState(false);
     const [workspaceScreenshot, setWorkspaceScreenshot] = useState('');
-    
+
     const router = useRouter();
 
     useEffect(() => {
@@ -60,7 +60,7 @@ export default function Home() {
             document.body.style.touchAction = '';
         }
     }, [isMobile, isMobileOk]);
-    
+
     const CheckEditExisting = async () => {
         const cookies = parseCookies();
         const userId = cookies.userUid;
@@ -128,45 +128,46 @@ export default function Home() {
         CheckEditExisting();
     }, []);
 
+
     return (
         <div className="body-container">
             {isMobile && !isMobileOk && <div className="mobile fixed z-50 top-0 h-screen w-screen flex items-center justify-center bg-white bg-opacity-90">
                 <div className="loading-container flex flex-col my-auto mx-auto text-center self-center justify-self-center gap-4">
                     <div className="text-xl self-center font-bold text-neutral-500">이 사이트는 pc환경에 최적화되어 있어요.</div>
                     <button onClick={() => setIsMobileOk(true)}
-                    className="text-xl self-center font-bold py-3 px-6 rounded-full bg-neutral-400 text-white">모바일로 계속하기</button>
+                        className="text-xl self-center font-bold py-3 px-6 rounded-full bg-neutral-400 text-white">모바일로 계속하기</button>
                 </div>
 
             </div>}
-            {isUploading && <div className="loading fixed z-50 top-0 h-full w-full flex items-center justify-center bg-white bg-opacity-50">
+            {isUploading && <div className={`loading fixed z-50 top-0 flex items-center justify-center bg-white bg-opacity-50 ${isMobile ? 'h-screen w-screen' : 'h-full w-full'}`}>
                 <div className="loading-container my-auto mx-auto self-center justify-self-center">
                     <Spinner size={Spinner.SIZE_LARGE} className="pb-2" />
                     <div className="text-2xl self-center font-bold text-neutral-500">업로드 중...</div>
-                    </div>
-                
-                </div>}
+                </div>
+
+            </div>}
 
             <ToastContainer
                 hideProgressBar={true}
                 transition={Slide} />
-            <main className="flex flex-col h-full flex-grow p-10 px-24 justify-between">
-            <div className="home-content-box mb-4 flex text-lg content-between shrink items-stretch">
-                <div className="description h-fit basis-auto w-1/2 min-w-fit">
+            <div className="flex flex-col h-full w-full py-10 px-24 justify-between">
+                <div className="home-content-box mb-2 flex text-lg content-between">
+                    <div className="description h-fit basis-auto w-1/2 min-w-fit">
                         <h2 className="text-3xl font-bold my-6">
                             <div>샷토스터로 앱스토어 스크린샷을</div>
                             <div>손쉽게 만들어 보세요</div>
-                            </h2>
+                        </h2>
                         <div className="mb-4">원본 화면 캡처샷 업로드로 스토어 등록용 스크린샷을 제작할 수 있어요</div>
-                        <div onClick={handleGoToExistingEdit} 
+                        <div onClick={handleGoToExistingEdit}
                             className={`existing-info-box flex justify-between bg-blue-200 rounded p-2 cursor-pointer transform transition-all duration-1000
                             ${isEditExisting ? 'translate-x-0 opacity-100' : 'invisible -translate-x-full opacity-0'}`}>
                             <div className="flex">
                                 <div className="image-container w-24 bg-white rounded">
-                                <Image className="object-contain"
-                                    src={workspaceScreenshot}
-                                    width={100}
-                                    height={100}
-                                ></Image>
+                                    <Image className="object-contain"
+                                        src={workspaceScreenshot}
+                                        width={100}
+                                        height={100}
+                                    ></Image>
                                 </div>
                                 <div className=" mx-4">
                                     <div className="font-bold">굽던 스크린샷이 있어요! 작업하던 프로젝트로 이동하시겠어요?</div>
@@ -178,17 +179,17 @@ export default function Home() {
                                 <Icon icon="chevron-right" size={20} />
                             </div>
                         </div>
-                        
-                </div>
+
+                    </div>
                     <div className="right-box h-auto w-1/2 flex-col justify-between px-8">
                         <div className="storeicons-container flex items-center justify-end">
                             <span className="mr-12">for</span>
                             <Image
-                            alt="appstore-icon"
-                            className="object-contain mx-4"
-                            src='/images/apple-app-store-icon.png'
-                            width={40}
-                            height={40}
+                                alt="appstore-icon"
+                                className="object-contain mx-4"
+                                src='/images/apple-app-store-icon.png'
+                                width={40}
+                                height={40}
                             />
                             <Image
                                 alt="playstore-icon"
@@ -208,20 +209,20 @@ export default function Home() {
                                 height={300}
                             />
                         </div>
-                        
+
                     </div>
-            </div>
-            <div className="upload-box flex flex-grow min-h-60 max-h-80 w-full my-6">
+                </div>
+                <div className="upload-box flex flex-grow max-h-80 w-full my-6">
                     <Dropzone selectedFiles={selectedFiles} setSelectedFiles={setSelectedFiles} />
-            </div>
-            <div className="uploaded-button flex flex-col items-center">
-                <button onClick={handleUploadButtonClick}
-                    disabled={selectedFiles?.length === 0}
-                    className="upload-button rounded-full py-3 px-16 bg-black text-white text-xl font-bold disabled:bg-neutral-400">
+                </div>
+                <div className="uploaded-button flex flex-col items-center">
+                    <button onClick={handleUploadButtonClick}
+                        disabled={selectedFiles?.length === 0}
+                        className="upload-button rounded-full py-3 px-16 bg-black text-white text-xl font-bold disabled:bg-neutral-400">
                         템플릿 선택하기
-                </button>
+                    </button>
+                </div>
             </div>
-        </main>
         </div>
     );
 } 
