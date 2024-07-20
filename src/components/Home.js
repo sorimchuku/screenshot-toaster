@@ -15,17 +15,13 @@ export default function Home() {
     const [isUserSignedIn, setIsUserSignedIn] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isMobileOk, setIsMobileOk] = useState(false);
-    const [workspaceScreenshot, setWorkspaceScreenshot] = useState('');
 
     const router = useRouter();
+    const prevEditIcon = '/images/prev_edit_icon.png';
 
     useEffect(() => {
         const userAgent = typeof window.navigator === 'undefined' ? '' : navigator.userAgent;
         const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-        const prevEditImage = localStorage.getItem('workspaceScreenshot');
-        if (prevEditImage) {
-            setWorkspaceScreenshot(prevEditImage);
-        }
         const checkUserSignIn = async () => {
             const cookies = parseCookies();
             let userUid = cookies.userUid;
@@ -161,15 +157,15 @@ export default function Home() {
                         <div onClick={handleGoToExistingEdit}
                             className={`existing-info-box flex justify-between bg-blue-200 rounded p-2 cursor-pointer transform transition-all duration-1000
                             ${isEditExisting ? 'translate-x-0 opacity-100' : 'invisible -translate-x-full opacity-0'}`}>
-                            <div className="flex">
-                                <div className="image-container w-24 bg-white rounded">
-                                    <Image className="object-contain"
-                                        src={workspaceScreenshot}
-                                        width={100}
-                                        height={100}
+                            <div className="flex items-center">
+                                <div className="image-container w-16 mx-2 flex items-center justify-center bg-transparent rounded">
+                                    <Image
+                                        src={prevEditIcon}
+                                        width={50}
+                                        height={50}
                                     ></Image>
                                 </div>
-                                <div className=" mx-4">
+                                <div>
                                     <div className="font-bold">굽던 스크린샷이 있어요! 작업하던 프로젝트로 이동하시겠어요?</div>
                                     <div className=" text-base">새로운 캡처샷을 업로드하면 기존의 프로젝트는 삭제돼요 X(</div>
                                 </div>

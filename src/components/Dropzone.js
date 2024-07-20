@@ -91,9 +91,9 @@ const Dropzone = ({ selectedFiles, setSelectedFiles }) => {
                     <div className="">스크린샷 이미지 업로드</div>
                 </label>
             ) : (
-                <div className="flex items-center justify-start h-full w-full">
+                <div className="flex items-center justify-start h-full w-full gap-6">
                         {selectedFiles.map((file, index) => (
-                            <div key={index} className="flex h-56 px-4 w-fit items-center justify-center">
+                            <div key={index} className="flex h-56 w-fit items-center justify-center">
                                 <div className='flex my-auto'>
                                     <Image
                                         src={URL.createObjectURL(file)}
@@ -103,15 +103,15 @@ const Dropzone = ({ selectedFiles, setSelectedFiles }) => {
                                         className="object-cover mx-auto max-h-48 w-auto"
                                     />
                                     <button onClick={() => handleDelete(index)}
-                                        className='h-4 w-4 rounded-full bg-black text-white relative right-3 -top-2 flex items-center justify-center'>
-                                        <Icon icon={IconNames.CROSS} size={12} />
+                                        className='p-1 h-fit w-fit rounded-full bg-black text-white relative right-3 -top-2 flex items-center text-center'>
+                                        <Icon icon={IconNames.CROSS} size={12} className='h-3 w-3' />
                                     </button>
                                 </div>
                             </div>
                         ))}
                     {selectedFiles.length < MAX_FILES && (
                         <div className='addfile mb-12'>
-                            <div className='bubble mb-6 bg-black text-white px-8 py-4 font-light rounded'>
+                            <div className='bubble mb-6 bg-black text-white px-8 py-4 font-light rounded break-keep'>
                                 최대 10장까지!
                             </div>
                             <label htmlFor="fileUpload" className="cursor-pointer flex items-center m-10 my-auto mx-auto w-12 h-12 bg-neutral-200 rounded-full">
