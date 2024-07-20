@@ -19,7 +19,6 @@ export default function LayoutSelectSection(props) {
             }))
             
         );
-        console.log(stagesInfo);
         return stagesInfo;
     };
 

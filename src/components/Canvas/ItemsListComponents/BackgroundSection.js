@@ -1,12 +1,13 @@
 import { Icon } from "@blueprintjs/core";
 import React, { useState, useEffect } from "react";
 import { ColorPicker, Saturation, Hue, useColor, Fields } from "react-color-palette";
-import "react-color-palette/css";
+import "@/app/rcp-fork.css"
 
 const colors = [
-    "#E30E0E", "#F95A00", "#FFD02A", "#A7D002", "#30C37D", "#1874FF",
-    "#931010", "#8B3C03", "#7E6817", "#63741D", "#0B6E3F", "#520EE3",
-    "#FED6CD", "#FFE1D0", "#FFEA", "#E5F392", "#D0F6B9", "#C1ECFA"
+    "#ffffff", "#111111", "#01be64", "#86C9FE", "#FAFAFA", "#E8EDEF",
+    "#ECA09E", "#ECBC80", "#F6DE72", "#C5E8B0", "#9EC9F1", "#D0B7F9",
+    "#E26091", "#DF5340", "#F1A934", "#009D48", "#006BE4", "#35169D",
+    "#E835A7", "#F86800", "#F7EB50", "#BEFD44", "#8CFBE1", "#A044F9",
 ]
 
 const rainbowColors = [
@@ -29,7 +30,7 @@ export default function BackgroundSection(props) {
                 {colors.map((color, index) => {
                     return (
                         <div key={index} className="h-7 w-7 p-px" onClick={() => props.handleColorChange(color)}>
-                            <div className="h-full w-full rounded-md" style={{ backgroundColor: color }}></div>
+                            <div className="h-full w-full border rounded-md" style={{ backgroundColor: color }}></div>
                         </div>
                     )
                 })}
@@ -52,7 +53,7 @@ export default function BackgroundSection(props) {
                         </div>
 
                     </div>}
-                    {isPaletteOpen && <div className="absolute z-10 w-48 h-fit bg-white flex flex-col shadow">
+                    {isPaletteOpen && <div className="absolute z-10 w-48 h-fit bg-white flex flex-col drop-shadow-md">
                         <div className="flex w-full items-center justify-end">
                             <Icon icon="cross" onClick={() => setIsPaletteOpen(false)} className="p-1 text-gray-400" />
                         </div>

@@ -49,8 +49,6 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style })
 
     // const style = template.stages[stageIndex] || template.stages[template.stages.length - 1];
 
-    console.log('style', style);
-
     return (
         <Stage width={stageSize.width} height={stageSize.height} ref={stageRef}>
             <Layer>

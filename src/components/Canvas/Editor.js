@@ -104,7 +104,7 @@ export default function Editor() {
 
         const intervalId = setInterval(() => {
             // ref의 현재 값을 사용하여 saveUserEdit 호출
-            saveUserEdit(prevStateRef.current.userId,  prevStateRef.current.uploadedImages, prevStateRef.current.stages);
+            saveUserEdit(userId,  prevStateRef.current.uploadedImages, prevStateRef.current.stages);
         }, 30000);
 
         return () => clearInterval(intervalId);
@@ -130,6 +130,7 @@ export default function Editor() {
 
     const saveUserEdit = async (userId, uploadedImages, stages) => {
         startSaving();
+        if(!userId) return;
         const editorStateRef = ref(database, `users/${userId}/editor`);
         try {
             await set(editorStateRef, {
@@ -204,12 +205,12 @@ export default function Editor() {
 
     const updateLayoutAtIndex = (template, activeStage) => {
         const updatedStages = [...stages];
-        const updatedStage = { ...updatedStages[activeStage], templateName: template.templateName, layoutIndex: template.index };
+        const updatedStage = { ...updatedStages[activeStage], templateName: template.templateName, layoutIndex: template.index, style: template.style};
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
     }
 
-    const updateLayoutColor = (color, activeStage) => {
+    const changeStageColor = (color, activeStage) => {
         const updatedStages = [...stages];
         const updatedStage = { ...updatedStages[activeStage], style: { ...updatedStages[activeStage].style, bgColor: color } };
         updatedStages[activeStage] = updatedStage;
@@ -226,7 +227,7 @@ export default function Editor() {
                 updateImageAtIndex={updateImageAtIndex}
                 activeStage={activeStage}
                 updateLayoutAtIndex={updateLayoutAtIndex}
-                updateLayoutColor={updateLayoutColor}
+                changeStageColor={changeStageColor}
             />
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>

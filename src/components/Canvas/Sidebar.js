@@ -37,7 +37,7 @@ export default function SideBar(props) {
     }
 
     const handleColorChange = (color) => {
-        props.updateLayoutColor(color, props.activeStage);
+        props.changeStageColor(color, props.activeStage);
     }
 
     return (
