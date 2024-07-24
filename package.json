@@ -21,11 +21,12 @@
     "next-google-fonts": "^2.2.0",
     "nookies": "^2.5.2",
     "react": "^18.3.1",
-    "react-color-palette": "^7.2.1",
+    "react-colorful": "^5.6.1",
     "react-dom": "^18.3.1",
     "react-konva": "^18.2.10",
     "react-toastify": "^10.0.5",
     "tailwindcss": "^3.4.3",
+    "use-eye-dropper": "^1.6.1",
     "use-image": "^1.1.1",
     "uuid": "^9.0.1"
   },

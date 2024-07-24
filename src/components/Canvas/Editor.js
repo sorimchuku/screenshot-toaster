@@ -83,8 +83,8 @@ export default function Editor() {
         const handleBeforeUnload = (e) => {
             if (hasChanges()) {
                 // 기본 이벤트를 방지하고, 사용자에게 경고 메시지를 표시
-                e.preventDefault();
-                e.returnValue = '';
+                // e.preventDefault();
+                // e.returnValue = '';
             }
         };
 
@@ -204,14 +204,17 @@ export default function Editor() {
     };
 
     const updateLayoutAtIndex = (template, activeStage) => {
+        if (activeStage === null) return;
         const updatedStages = [...stages];
         const updatedStage = { ...updatedStages[activeStage], templateName: template.templateName, layoutIndex: template.index, style: template.style};
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
     }
-
+    
     const changeStageColor = (color, activeStage) => {
+        if (activeStage  === null ) return;
         const updatedStages = [...stages];
+        console.log(updatedStages);
         const updatedStage = { ...updatedStages[activeStage], style: { ...updatedStages[activeStage].style, bgColor: color } };
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
@@ -233,9 +236,9 @@ export default function Editor() {
                 ref={scrollContainerRef}>
                 {stages.map((stage, index) => (
                     
-                    <div className="flex flex-col items-end self-end" key={'stage' + index}>
+                    <div className="flex flex-col items-end " key={'stage' + index}>
                         {index === activeStage &&
-                        <div className="flex border-2 rounded-xl px-4 py-2 mb-2 items-center gap-3">
+                        <div className="flex absolute z-10 -translate-y-12 bg-white border-2 rounded-xl px-4 py-2 mb-2 items-center gap-3">
                             <div className="flex gap-2 cursor-pointer">
                                 <div onClick={() => handleStageMove(index, 'prev')} key={'prev' + index}
                                     className=" text-gray-900 ">
