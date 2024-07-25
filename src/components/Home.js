@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { toast, ToastContainer, Slide } from "react-toastify";
 import { Icon, Spinner } from "@blueprintjs/core";
-import { uploadFile, deleteUserFiles, getUserFiles, signInAndSetCookie } from '../firebase';
-import { parseCookies } from "nookies";
+import { uploadFile, deleteUserFiles, getUserFiles, checkUserSignIn } from '../firebase';
 
 export default function Home() {
     const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -22,30 +21,14 @@ export default function Home() {
     useEffect(() => {
         const userAgent = typeof window.navigator === 'undefined' ? '' : navigator.userAgent;
         const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-        const checkUserSignIn = async () => {
-            const cookies = parseCookies();
-            let userUid = cookies.userUid;
-            if (!userUid) {
-                await signInAndSetCookie();
-                const updatedCookies = parseCookies();
-                userUid = updatedCookies.userUid;
-            }
-            if (userUid) {
-                setIsUserSignedIn(true);
-            }
-        };
-        checkUserSignIn();
+        checkUserSignIn((user) => {
+                if (user) {
+                    setIsUserSignedIn(true);
+                    CheckEditExisting(user.uid);
+                }
+            });
         setIsMobile(mobile);
     }, []);
-
-    useEffect(() => {
-        const cookies = parseCookies();
-        const userUid = cookies.userUid;
-        console.log('익명 사용자 UID2:', userUid);
-        if (userUid) {
-            setIsUserSignedIn(true);
-        }
-    }, [parseCookies()]);
 
     useEffect(() => {
         if (isMobile && !isMobileOk) {
@@ -57,9 +40,7 @@ export default function Home() {
         }
     }, [isMobile, isMobileOk]);
 
-    const CheckEditExisting = async () => {
-        const cookies = parseCookies();
-        const userId = cookies.userUid;
+    const CheckEditExisting = async (userId) => {
         if (!userId) {
             setIsEditExisting(false);
             return;
@@ -73,10 +54,12 @@ export default function Home() {
     }
 
     const handleUploadButtonClick = async () => {
-        if (!parseCookies().userUid) {
-            toast('사용자 인증이 완료되지 않았습니다. 새로고침 후 다시 시도해 주세요.');
-            return;
-        }
+        checkUserSignIn((user) => {
+            if(!user) {
+                toast('사용자 인증이 완료되지 않았습니다. 새로고침 후 다시 시도해 주세요.');
+                return;
+            }
+        });
         try {
             await deleteUserFiles();
 
@@ -119,10 +102,6 @@ export default function Home() {
         setIsUploading(false);
         return newUploadedFiles;
     };
-
-    useEffect(() => {
-        CheckEditExisting();
-    }, []);
 
 
     return (

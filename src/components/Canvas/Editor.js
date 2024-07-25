@@ -1,9 +1,8 @@
 import React, { useRef, useState, useEffect, use } from "react";
 import { useRouter } from "next/router";
 import SideBar from "./Sidebar";
-import { getUserFiles, database } from "@/firebase";
+import { getUserFiles, database, getUserId } from "@/firebase";
 import { ref, get, set } from 'firebase/database';
-import { parseCookies } from "nookies";
 import Template from "./Template";
 import { useGlobalContext } from "../context/GlobalContext";
 import { Icon } from "@blueprintjs/core";
@@ -27,11 +26,11 @@ export default function Editor() {
     useEffect(() => {
         const isInitialized = localStorage.getItem('initialized');
         localStorage.setItem('pageLoaded', 'true');
-        const cookies = parseCookies();
-        const userId = cookies.userUid;
+        
         if (isInitialized !== 'true') {
-            if (!userId) return;
             const loadImagesFromFirebase = async () => {
+                const userId = await getUserId();
+                if (!userId) return;
                 const files = await getUserFiles(userId);
                 const images = files.map(file => file.url);
                 setTemplate(templateName);
@@ -49,11 +48,11 @@ export default function Editor() {
 
     useEffect(() => {
         const isInitialized = localStorage.getItem('initialized');
-        const cookies = parseCookies();
-        const userId = cookies.userUid;
-        if (!userId) return; // userId가 없으면 종료
+
         if(isInitialized === 'true') {
         const fetchEditorState = async () => {
+            const userId = await getUserId();
+            if (!userId) return; // userId가 없으면 종료
             const editorStateRef = ref(database, `users/${userId}/editor`);
             try {
                 const snapshot = await get(editorStateRef);
@@ -99,15 +98,17 @@ export default function Editor() {
 
 
     useEffect(() => {
-        const userId = parseCookies().userUid;
-        if (!userId) return; // userId가 없으면 종료
+        const fetchUserIdAndSetInterval = async () => {
+            const userId = await getUserId();
+            if (!userId) return;
+            const intervalId = setInterval(() => {
+                saveUserEdit(userId, prevStateRef.current.uploadedImages, prevStateRef.current.stages);
+            }, 30000);
 
-        const intervalId = setInterval(() => {
-            // ref의 현재 값을 사용하여 saveUserEdit 호출
-            saveUserEdit(userId,  prevStateRef.current.uploadedImages, prevStateRef.current.stages);
-        }, 30000);
+            return () => clearInterval(intervalId);
+        };
 
-        return () => clearInterval(intervalId);
+        fetchUserIdAndSetInterval();
     }, []);
 
     useEffect(() => {
