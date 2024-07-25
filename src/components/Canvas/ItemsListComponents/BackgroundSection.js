@@ -19,7 +19,8 @@ const rainbowColors = [
 export default function BackgroundSection(props) {
     const [selectedColor, setSelectedColor] = useState('#000000');
     const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-    const { open, close, isSupported } = useEyeDropper()
+    const { open, close, isSupported } = useEyeDropper();
+    const [error, setError] = useState(null);
     // useEyeDropper will reject/cleanup the open() promise on unmount,
     // so setState never fires when the component is unmounted.
     const pickColor = useCallback(() => {
@@ -27,7 +28,7 @@ export default function BackgroundSection(props) {
         const openPicker = async () => {
             try {
                 const color = await open()
-                props.handleColorChange(color.sRGBHex)
+                onColorChange(color.sRGBHex)
             } catch (e) {
                 console.log(e)
                 // Ensures component is still mounted
