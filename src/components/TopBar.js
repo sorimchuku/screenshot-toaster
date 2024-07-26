@@ -3,10 +3,16 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import { useGlobalContext } from "./context/GlobalContext";
 import { Icon, Spinner } from "@blueprintjs/core";
+import { devices } from "./Canvas/Data/devices";
 
 const TopBar = () => {
   const router = useRouter();
-  const { isSaving, lastSaved }  = useGlobalContext();
+  const { isSaving, lastSaved, selectedDevice, setSelectedDevice } = useGlobalContext();
+
+  const handleDeviceChange = (e) => {
+    const newDevice = devices.find(device => device.id === parseInt(e.target.value));
+    setSelectedDevice(newDevice);
+  };
 
 
   return (
@@ -18,8 +24,8 @@ const TopBar = () => {
             width={200}
             height={36}
             priority={true}
-             />
-          </button>
+          />
+        </button>
       </div>
       {router.pathname === '/editor' && (
         <div className="editor-top flex gap-6 items-center">
@@ -28,17 +34,22 @@ const TopBar = () => {
             <span>
               {isSaving ? '저장중...' : lastSaved === '' ? '자동 저장' : `${lastSaved} 저장됨`}
             </span>
-            
-            
+
+
           </div>
-          <div className="text-lg rounded-lg bg-gray-100 border-2 border-gray-200 px-8 py-2 flex items-center gap-2">
-            <span>기종 선택</span>
-            <Icon icon="chevron-down"/>
-            </div>
+          <div className="text-lg rounded-lg bg-gray-100 border-2 border-gray-200 flex items-center gap-2 focus:outline-none">
+            <select onChange={handleDeviceChange} className="bg-transparent focus:outline-none mx-4 my-2" value={selectedDevice ? selectedDevice.id : ''}>
+              <option value="" className="">기종 선택</option>
+              {devices.map(device => (
+                <option key={device.id} value={device.id} className="device-select text-lg">{device.name}</option>
+              ))}
+            </select>
+              
+          </div>
           <div className=" bg-black text-white px-10 py-2 text-lg rounded-full">내보내기</div>
         </div>
       )}
-      
+
     </nav>
   );
 }

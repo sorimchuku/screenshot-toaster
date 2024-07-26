@@ -20,7 +20,6 @@ const ImageComponent = ({ image, shapeProps, onDimensionsChange }) => {
             image={img}
             ref={shapeRef}
             {...shapeProps}
-            // {...dimensions}
         />
     );
 };

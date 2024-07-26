@@ -6,9 +6,11 @@ const GlobalContext = createContext();
 export const useGlobalContext = () => useContext(GlobalContext);
 
 export const TemplateProvider = ({ children }) => {
-    const [templateName, setTemplateName] = useState('');
+    const [templateName, setTemplateName] = useState('template1');
+    const [uploadedImages, setUploadedImages] = useState([]);
     const [isSaving, setIsSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState('');
+    const [selectedDevice, setSelectedDevice] = useState(null);
 
     const startSaving = () => {
         setIsSaving(true);
@@ -25,6 +27,8 @@ export const TemplateProvider = ({ children }) => {
         finishSaving,
         lastSaved,
         setLastSaved,
+        selectedDevice,
+        setSelectedDevice,
     };
 
     return (

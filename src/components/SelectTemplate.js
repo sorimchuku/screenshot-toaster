@@ -55,6 +55,7 @@ export default function SelectTemplate() {
     const handleTemplateClick = (template) => {
         setSelectedTemplate(template);
         setTemplateName(template);
+        console.log(template);
     };
     
 

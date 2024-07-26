@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { toast, ToastContainer, Slide } from "react-toastify";
 import { Icon, Spinner } from "@blueprintjs/core";
 import { uploadFile, deleteUserFiles, getUserFiles, checkUserSignIn } from '../firebase';
+import { useGlobalContext } from "./context/GlobalContext";
 
 export default function Home() {
     const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -14,6 +15,7 @@ export default function Home() {
     const [isUserSignedIn, setIsUserSignedIn] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isMobileOk, setIsMobileOk] = useState(false);
+    const { uploadedImages, setUploadedImages } = useGlobalContext();
 
     const router = useRouter();
     const prevEditIcon = '/images/prev_edit_icon.png';
@@ -138,7 +140,7 @@ export default function Home() {
                             ${isEditExisting ? 'translate-x-0 opacity-100' : 'invisible -translate-x-full opacity-0'}`}>
                             <div className="flex items-center">
                                 <div className="image-container w-16 mx-2 flex items-center justify-center bg-transparent rounded">
-                                    <Image
+                                    <Image className="w-[50px] h-auto"
                                         src={prevEditIcon}
                                         width={50}
                                         height={50}
@@ -161,14 +163,14 @@ export default function Home() {
                             <span className="mr-12">for</span>
                             <Image
                                 alt="appstore-icon"
-                                className="object-contain mx-4"
+                                className="object-contain mx-4 w-[40px] h-auto"
                                 src='/images/apple-app-store-icon.png'
                                 width={40}
                                 height={40}
                             />
                             <Image
                                 alt="playstore-icon"
-                                className="object-contain"
+                                className="object-contain w-[40px] h-auto"
                                 src='/images/playstore-icon.png'
                                 width={40}
                                 height={40}
@@ -177,7 +179,7 @@ export default function Home() {
                         <div className="gif-container flex justify-end mt-6 min-w-72">
                             <Image
                                 alt="toaster-gif"
-                                className="object-contain"
+                                className="object-contain w-[300px] h-auto"
                                 src='/images/shottoastergif.gif'
                                 priority={true}
                                 width={300}
