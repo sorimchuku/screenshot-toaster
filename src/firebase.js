@@ -171,7 +171,6 @@ const checkUserSignIn = (callback) => {
             callback(user);
         } else {
             console.log('사용자가 로그인되어 있지 않습니다.');
-            signInAnonymouslyAndRemember().then(callback);
         }
     });
 };
