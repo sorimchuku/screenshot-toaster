@@ -157,12 +157,13 @@ export default function Editor() {
         const stageId = uuidv4();
         const foundTemplate = templates?.find(t => t.name === newTemplateName);
         const initialStyle = foundTemplate.stages[layoutIndex] || foundTemplate.stages[foundTemplate.stages.length - 1];
+        const newInitialStyle = { ...initialStyle, ratio: selectedDevice?.ratio || 9 / 16 };
         const stage = {
             id:stageId,
             image:image || sampleImage,
             templateName: newTemplateName,
             layoutIndex:layoutIndex,
-            style: initialStyle,
+            style: newInitialStyle,
         }
         return stage;
     }
