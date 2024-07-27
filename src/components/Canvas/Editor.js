@@ -26,15 +26,21 @@ export default function Editor() {
 
     useEffect(() => {
         const updateStageSize = () => {
+            const userAgent = typeof window.navigator === 'undefined' ? '' : navigator.userAgent;
+            const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+            let windowHeight = window.innerHeight;
+            if (mobile) {
+                windowHeight = 720;
+            }
             if (!selectedDevice) {
                 const ratio = 9 / 16;
-                const height = window.innerHeight * 0.7;
+                const height = windowHeight * 0.7;
                 const width = height * ratio;
                 setStageSize({ width, height });
                 return;
             }
             const ratio = selectedDevice.ratio;
-            const height = window.innerHeight * 0.7;
+            const height = windowHeight * 0.7;
             const width = height * ratio
             setStageSize({ width, height });
         };
