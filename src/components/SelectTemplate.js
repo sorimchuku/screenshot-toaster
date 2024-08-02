@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import { getUserImagesFour } from '../firebase';
-import { parseCookies } from "nookies";
+import { getUserImagesFour, getUserId } from '../firebase';
 import Template from './Canvas/Template';
 import { useGlobalContext } from './context/GlobalContext';
 import { templates as templatesData } from './Canvas/Data/templates.js';
@@ -20,8 +19,7 @@ export default function SelectTemplate() {
 
     useEffect(() => {
         const fetchImages = async () => {
-            const cookies = parseCookies();
-            const userId = cookies.userUid;
+            const userId = await getUserId();
             const userImages = await getUserImagesFour(userId);
             const imageUrls = userImages.map(file => file.url);
             if (imageUrls.length < 4) {
@@ -57,6 +55,7 @@ export default function SelectTemplate() {
     const handleTemplateClick = (template) => {
         setSelectedTemplate(template);
         setTemplateName(template);
+        console.log(template);
     };
     
 

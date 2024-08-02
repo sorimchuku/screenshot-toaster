@@ -37,6 +37,7 @@ export default function SideBar(props) {
     }
 
     const handleColorChange = (color) => {
+        console.log(props.activeStage);
         props.changeStageColor(color, props.activeStage);
     }
 
@@ -80,6 +81,7 @@ export default function SideBar(props) {
                                         setUploadedImages : props.setUploadedImages, 
                                         activeStage : props.activeStage,
                                         style: { display: selectedTools === i ? 'block' : 'none' },
+                                        selectedTools: selectedTools,
                                     })}
                                 </div>
                             </div>

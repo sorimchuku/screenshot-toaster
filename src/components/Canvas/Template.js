@@ -6,21 +6,27 @@ import Title from './Title';
 import { templates } from './Data/templates.js';
 import defaultImage from '../../../public/images/screenshot-sample.png';
 
-const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style }) => {
+const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, device }) => {
     const [template, setTemplate] = useState(null);
     const [textNode1, setTextNode1] = useState(null);
     const [textNode2, setTextNode2] = useState(null);
     const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
     const [title, setTitle] = useState('제목 입력');
     const [subTitle, setSubTitle] = useState('소제목을 입력하세요.\n두 줄까지 추가할 수 있어요.');
-    const mockup = 'images/iPhone1314.png';
+    const mockup = {
+        0: 'images/mockup_9_16.png',
+        1: 'images/mockup_9_19-5.png',
+        2: 'images/mockup_9_16.png',
+        3: 'images/mockup_9_16.png',
+    }
     const scale = stageSize.width / 300;
     const stageRef = useRef();
 
-    const originalHeight = imageDimensions && imageDimensions.height ? imageDimensions.height : 500;
-    const originalWidth = imageDimensions && imageDimensions.width ? imageDimensions.width : 500;
-    const aspectRatio = originalHeight / originalWidth;
+    const originalHeight = imageDimensions.height || 16;
+    const originalWidth = imageDimensions.width || 9;
+    const imageRatio = originalHeight / originalWidth;
 
+    const aspectRatio = 1 / style.ratio;
     
     const handleDimensionsChange = (newDimensions) => {
         if (newDimensions.width !== imageDimensions.width || newDimensions.height !== imageDimensions.height) {
@@ -64,7 +70,7 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style })
                     x={style.x === 'center' ?  ((stageSize.width - scale * style.width) / 2) : style.align === 'right' ? stageSize.width - scale * style.x : scale*style.x}
                     y={scale*style.y}
                     width={style.width ? scale * style.width : scale *  500}
-                    height={style.height ? scale * style.width * (aspectRatio) : scale * 500}
+                    height={style.width ? scale * style.width * (aspectRatio) : scale * 500 * aspectRatio}
                     fill="grey"
                     cornerRadius={style.cornerRadius ? scale * style.cornerRadius : scale * 20}
                     shadowColor='#6E6E6E'
@@ -82,8 +88,8 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style })
                         x: style.x === 'center' ? ((stageSize.width - scale * style.width) / 2) : style.align === 'right' ? stageSize.width - scale * style.x : scale * style.x,
                         y: scale *style.y,
                         width: scale * style.width ? scale * style.width : scale * 500,
-                        height: style.height ? scale * style.width * (aspectRatio) : scale * 500,
-                        rotation: style.rotation ? style.rotation : 0
+                        height: style.width ? scale * style.width * (imageRatio) : scale * 500 * imageRatio,
+                        rotation: style.rotation ? style.rotation : 0,
                     }}
                     onDimensionsChange={handleDimensionsChange}
                 />
@@ -91,7 +97,7 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style })
                     x={style.x === 'center' ? ((stageSize.width - scale * style.width) / 2) : style.align === 'right' ? stageSize.width - scale * style.x : scale * style.x}
                     y={scale *style.y}
                     width={style.width ? scale * style.width : scale * 500}
-                    height={style.height ? scale * style.width * (aspectRatio) : scale * 500}
+                    height={style.width ? scale * style.width * (aspectRatio) : scale * 500 * aspectRatio}
                     fill="grey"
                     cornerRadius={style. cornerRadius ? scale * style.cornerRadius : scale * 20}
                     rotation={style.rotation ? style.rotation : 0}
@@ -99,15 +105,15 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style })
             </Layer>
             <Layer>
                 <ImageComponent
-                    image={mockup}
+                    image={mockup[device] || mockup[0]}
                     shapeProps={{
                         x: style.x === 'center' ? ((stageSize.width - scale * style.width) / 2) : style.align === 'right' ? stageSize.width - scale * style.x : scale * style.x,
                         y: scale *style.y,
                         width: style.width ? scale *style.width : scale * 500,
-                        height: style.height ? scale * style.width * (aspectRatio) : scale * 500,
+                        height: style.width ? scale * style.width * (aspectRatio) : scale * 500 * aspectRatio,
                         rotation: style.rotation ? style.rotation : 0
                     }}
-                    onDimensionsChange={handleDimensionsChange}
+                    onDimensionsChange={() => {}}
                 />
             </Layer>
             <Layer>

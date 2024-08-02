@@ -1,9 +1,8 @@
 import React, { useRef, useState, useEffect, use } from "react";
 import { useRouter } from "next/router";
 import SideBar from "./Sidebar";
-import { getUserFiles, database } from "@/firebase";
+import { getUserFiles, database, getUserId } from "@/firebase";
 import { ref, get, set } from 'firebase/database';
-import { parseCookies } from "nookies";
 import Template from "./Template";
 import { useGlobalContext } from "../context/GlobalContext";
 import { Icon } from "@blueprintjs/core";
@@ -18,20 +17,51 @@ export default function Editor() {
     const [stageScale, setStageScale] = useState(1);
     const router = useRouter();
     const scrollContainerRef = useRef();
-    const { templateName, startSaving, finishSaving, setLastSaved } = useGlobalContext();
+    const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice } = useGlobalContext();
     const [template, setTemplate] = useState('');
+    const [isSaveError, setIsSaveError] = useState(false);
     const sampleImage = 'images/screenshot-sample.png';
 
-    const prevStateRef = useRef({ template, uploadedImages, stages });
+    const prevStateRef = useRef({ template, uploadedImages, stages, selectedDevice });
+
+    useEffect(() => {
+        const updateStageSize = () => {
+            const userAgent = typeof window.navigator === 'undefined' ? '' : navigator.userAgent;
+            const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+            let windowHeight = window.innerHeight;
+            if (mobile) {
+                windowHeight = 720;
+            }
+            if (!selectedDevice) {
+                const ratio = 9 / 16;
+                const height = windowHeight * 0.7;
+                const width = height * ratio;
+                setStageSize({ width, height });
+                return;
+            }
+            const ratio = selectedDevice.ratio;
+            const height = windowHeight * 0.7;
+            const width = height * ratio
+            setStageSize({ width, height });
+        };
+        window.addEventListener('resize', updateStageSize);
+        updateStageSize(); // Set initial size
+
+        return () => {
+            window.removeEventListener('resize', updateStageSize);
+        };
+    }, [selectedDevice]);
+
+
 
     useEffect(() => {
         const isInitialized = localStorage.getItem('initialized');
         localStorage.setItem('pageLoaded', 'true');
-        const cookies = parseCookies();
-        const userId = cookies.userUid;
+        
         if (isInitialized !== 'true') {
-            if (!userId) return;
             const loadImagesFromFirebase = async () => {
+                const userId = await getUserId();
+                if (!userId) return;
                 const files = await getUserFiles(userId);
                 const images = files.map(file => file.url);
                 setTemplate(templateName);
@@ -40,7 +70,7 @@ export default function Editor() {
                 setStages(newStages);
                 console.log('Images loaded from Firebase:', newStages);
                 
-                await saveUserEdit(userId, images, newStages);
+                await saveUserEdit(userId, images, newStages, selectedDevice);
                 localStorage.setItem('initialized', 'true');
             };
             loadImagesFromFirebase();
@@ -49,18 +79,19 @@ export default function Editor() {
 
     useEffect(() => {
         const isInitialized = localStorage.getItem('initialized');
-        const cookies = parseCookies();
-        const userId = cookies.userUid;
-        if (!userId) return; // userId가 없으면 종료
         if(isInitialized === 'true') {
         const fetchEditorState = async () => {
+            const userId = await getUserId();
+            if (!userId) return; // userId가 없으면 종료
             const editorStateRef = ref(database, `users/${userId}/editor`);
             try {
                 const snapshot = await get(editorStateRef);
                 if (snapshot.exists()) {
                     const editorState = snapshot.val();
+                    console.log('Editor state fetched successfully:', editorState);
                     setUploadedImages(editorState.uploadedImages);
                     setStages(editorState.stages);
+                    setSelectedDevice(editorState.selectedDevice);
                     console.log('Editor state fetched successfully:', editorState)
                 } else {
                     console.log("No editor state available for this user.");
@@ -76,15 +107,15 @@ export default function Editor() {
     useEffect(() => {
         // 변경 사항이 있는지 확인하는 함수
         const hasChanges = () => {
-            return JSON.stringify({ uploadedImages, stages, template }) !== JSON.stringify(prevStateRef.current);
+            return JSON.stringify({ uploadedImages, stages, template, selectedDevice }) !== JSON.stringify(prevStateRef.current);
         };
 
         // 페이지를 나갈 때 실행될 함수
         const handleBeforeUnload = (e) => {
             if (hasChanges()) {
                 // 기본 이벤트를 방지하고, 사용자에게 경고 메시지를 표시
-                e.preventDefault();
-                e.returnValue = '';
+                // e.preventDefault();
+                // e.returnValue = '';
             }
         };
 
@@ -95,40 +126,55 @@ export default function Editor() {
         return () => {
             window.removeEventListener('beforeunload', handleBeforeUnload);
         };
-    }, [uploadedImages, stages, template]); // 의존성 배열에 상태를 추가하여 해당 상태가 변경될 때마다 이펙트를 다시 실행
-
+    }, [uploadedImages, stages, template, selectedDevice]); // 의존성 배열에 상태를 추가하여 해당 상태가 변경될 때마다 이펙트를 다시 실행
 
     useEffect(() => {
-        const userId = parseCookies().userUid;
-        if (!userId) return; // userId가 없으면 종료
+        const fetchUserIdAndSetInterval = async () => {
+            const userId = await getUserId();
+            if (!userId) return;
+            const intervalId = setInterval(() => {
+                saveUserEdit(userId, prevStateRef.current.uploadedImages, prevStateRef.current.stages, prevStateRef.current.selectedDevice);
+            }, 30000);
 
-        const intervalId = setInterval(() => {
-            // ref의 현재 값을 사용하여 saveUserEdit 호출
-            saveUserEdit(userId,  prevStateRef.current.uploadedImages, prevStateRef.current.stages);
-        }, 30000);
+            return () => clearInterval(intervalId);
+        };
 
-        return () => clearInterval(intervalId);
+        fetchUserIdAndSetInterval();
     }, []);
 
     useEffect(() => {
-        prevStateRef.current = { template,  uploadedImages, stages };
-    }, [template,  uploadedImages, stages]);
+        prevStateRef.current = { template,  uploadedImages, stages, selectedDevice };
+    }, [template,  uploadedImages, stages, selectedDevice]);
+
+    useEffect(() => {
+        const updateRatio = () => {
+            const ratio = selectedDevice ? selectedDevice.ratio : 9 / 16;
+            //stages의 모든 stage에 대해 stage.style의 ratio를 업데이트
+            const updatedStages = stages.map(stage => {
+                const updatedStyle = { ...stage.style, ratio };
+                return { ...stage, style: updatedStyle };
+            });
+            setStages(updatedStages);
+        };
+        updateRatio();
+    }, [selectedDevice]);
 
     const newStage = (newTemplateName = 'template1', image = null, layoutIndex = 4,) => {
         const stageId = uuidv4();
-        const foundTemplate = templates.find(t => t.name === newTemplateName);
+        const foundTemplate = templates?.find(t => t.name === newTemplateName);
         const initialStyle = foundTemplate.stages[layoutIndex] || foundTemplate.stages[foundTemplate.stages.length - 1];
+        const newInitialStyle = { ...initialStyle, ratio: selectedDevice?.ratio || 9 / 16 };
         const stage = {
             id:stageId,
             image:image || sampleImage,
             templateName: newTemplateName,
             layoutIndex:layoutIndex,
-            style: initialStyle,
+            style: newInitialStyle,
         }
         return stage;
     }
 
-    const saveUserEdit = async (userId, uploadedImages, stages) => {
+    const saveUserEdit = async (userId, uploadedImages, stages, selectedDevice) => {
         startSaving();
         if(!userId) return;
         const editorStateRef = ref(database, `users/${userId}/editor`);
@@ -136,6 +182,7 @@ export default function Editor() {
             await set(editorStateRef, {
                 uploadedImages: uploadedImages,
                 stages: stages,
+                selectedDevice: selectedDevice,
             });
             const now = new Date();
             const hours = now.getHours().toString();
@@ -143,8 +190,10 @@ export default function Editor() {
             const formattedTime = `${hours}:${minutes}`; // hh:mm 형식으로 조합
 
             setLastSaved(formattedTime);
+            console.log('Editor state saved successfully:', { uploadedImages, stages, selectedDevice });
         } catch (error) {
             console.error('Error saving editor state:', error);
+            setIsSaveError(true);
         } finally {
             finishSaving();
         }
@@ -204,14 +253,17 @@ export default function Editor() {
     };
 
     const updateLayoutAtIndex = (template, activeStage) => {
+        if (activeStage === null) return;
         const updatedStages = [...stages];
         const updatedStage = { ...updatedStages[activeStage], templateName: template.templateName, layoutIndex: template.index, style: template.style};
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
     }
-
+    
     const changeStageColor = (color, activeStage) => {
+        if (activeStage  === null ) return;
         const updatedStages = [...stages];
+        console.log(updatedStages);
         const updatedStage = { ...updatedStages[activeStage], style: { ...updatedStages[activeStage].style, bgColor: color } };
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
@@ -233,9 +285,9 @@ export default function Editor() {
                 ref={scrollContainerRef}>
                 {stages.map((stage, index) => (
                     
-                    <div className="flex flex-col items-end self-end" key={'stage' + index}>
+                    <div className="flex flex-col items-end " key={'stage' + index}>
                         {index === activeStage &&
-                        <div className="flex border-2 rounded-xl px-4 py-2 mb-2 items-center gap-3">
+                        <div className="flex absolute z-10 -translate-y-12 bg-white border-2 rounded-xl px-4 py-2 mb-2 items-center gap-3">
                             <div className="flex gap-2 cursor-pointer">
                                 <div onClick={() => handleStageMove(index, 'prev')} key={'prev' + index}
                                     className=" text-gray-900 ">
@@ -256,7 +308,7 @@ export default function Editor() {
                             }
                         <div onClick={() => handleStageClick(index)} onTouchStart={() => handleStageClick(index)} key={index}
                             className={`stage-wrap bg-slate-200 shadow ${index === activeStage ? 'outline outline-2 outline-blue-300' : ''}`}>
-                            <Template templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} style={stage.style} />
+                            <Template templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} style={stage.style} device={selectedDevice?.id || 0} />
                         </div>
                     </div>
                     

@@ -2,8 +2,6 @@ import { initializeApp } from "firebase/app";
 import { getStorage, ref, deleteObject, uploadBytesResumable, getDownloadURL, listAll } from "firebase/storage";
 import { getDatabase, ref as databaseRef, set, get, remove as removeFromDatabase } from 'firebase/database';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { v4 as uuidv4 } from "uuid";
-import { setCookie, parseCookies } from 'nookies';
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -19,10 +17,30 @@ const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 const auth = getAuth(app);
 const database = getDatabase(app);
-const cookies = parseCookies();
+
+const getUserId = () => {
+    return new Promise((resolve, reject) => {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                resolve(user.uid);
+            } else {
+                signInAnonymously(auth)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        console.log('익명 사용자 UID:', user.uid);
+                        resolve(user.uid);
+                    })
+                    .catch((error) => {
+                        console.error('익명 인증 실패:', error);
+                        reject(error);
+                    });
+            }
+        });
+    });
+};
 
 const uploadFile = async (file) => {
-    const userId = cookies.userUid;
+    const userId = await getUserId();
     if (!userId) {
         console.error('User UID is undefined. File upload aborted.');
         return reject('User UID is undefined. File upload aborted.');
@@ -58,12 +76,13 @@ const uploadFile = async (file) => {
 };
 
 const saveFileInfoToDatabase = async (fileInfo, uploadTime) => {
-    const userId = cookies.userUid;
+    const userId = await getUserId();
     const userFilesRef = databaseRef(database, `users/${userId}/files/${uploadTime}`);
     await set(userFilesRef, fileInfo);
 };
 
-const getUserFiles = async (userId) => {
+const getUserFiles = async () => {
+    const userId = await getUserId();
     try {
         const userFilesRef = databaseRef(database, `users/${userId}/files`);
         const snapshot = await get(userFilesRef);
@@ -103,7 +122,7 @@ const downloadFile = async (filePath) => {
 };
 
 const deleteUserFiles = async () => {
-    const userId = cookies.userUid;
+    const userId = await getUserId();
     try {
         const userFolderRef = ref(storage, `images/${userId}/`);
         const { items } = await listAll(userFolderRef);
@@ -122,7 +141,7 @@ const deleteUserFiles = async () => {
 
 const deleteFile = async (filePath) => {
     const fileRef = ref(storage, filePath);
-    const userId = cookies.userUid;
+    const userId = await getUserId();
     const uniqueFileName = filePath.split('%2F').pop().split('_')[0];
     const userFilesRef = databaseRef(database, `users/${userId}/files/${uniqueFileName}`);
     await deleteObject(fileRef);
@@ -132,21 +151,28 @@ const deleteFile = async (filePath) => {
     
 };
 
-const signInAndSetCookie = () => {
+
+const signInAnonymouslyAndRemember = async () => {
     return signInAnonymously(auth)
         .then((userCredential) => {
             const user = userCredential.user;
-            console.log('익명 사용자 UID1:', user.uid);
-            setCookie(null, 'userUid', user.uid, {
-                maxAge: 30 * 24 * 60 * 60,
-                path: '/',
-                sameSite: 'None',
-                secure: true,
-            });
+            console.log('익명 사용자 UID:', user.uid);
+            return user;
         })
         .catch((error) => {
             console.error('익명 인증 실패:', error);
         });
 };
 
-export { storage, database, uploadFile, deleteFile, getUserFiles, downloadFile, deleteUserFiles, auth, signInAndSetCookie, getUserImagesFour, signInAnonymously };
+const checkUserSignIn = (callback) => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log('사용자가 로그인되어 있습니다:', user.uid);
+            callback(user);
+        } else {
+            console.log('사용자가 로그인되어 있지 않습니다.');
+        }
+    });
+};
+
+export { storage, database, uploadFile, deleteFile, getUserFiles, downloadFile, deleteUserFiles, auth, getUserImagesFour, signInAnonymously, signInAnonymouslyAndRemember, checkUserSignIn, getUserId };

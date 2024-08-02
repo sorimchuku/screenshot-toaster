@@ -5,7 +5,7 @@ import "@/app/globals.css";
 import TopBar from '@/components/TopBar';
 import localFont from 'next/font/local';
 import Head from 'next/head';
-import { signInAndSetCookie } from '@/firebase';
+import { signInAnonymouslyAndRemember } from '@/firebase';
 import { TemplateProvider } from '@/components/context/GlobalContext';
 
 const pretendard = localFont({ src: '../../public/fonts/PretendardVariable.woff2' });
@@ -24,7 +24,7 @@ function RootLayout({ children }) {
 
 class MyApp extends App {
     componentDidMount() {
-        signInAndSetCookie();
+        signInAnonymouslyAndRemember();
     }
     render() {
         const { Component, pageProps } = this.props;
