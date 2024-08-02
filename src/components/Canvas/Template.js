@@ -14,10 +14,11 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
     const [title, setTitle] = useState('제목 입력');
     const [subTitle, setSubTitle] = useState('소제목을 입력하세요.\n두 줄까지 추가할 수 있어요.');
     const mockup = {
-        0: 'images/mockup_9_16.png',
+        0: 'images/mockup_9_19-5.png',
         1: 'images/mockup_9_19-5.png',
         2: 'images/mockup_9_16.png',
-        3: 'images/mockup_9_16.png',
+        3: 'images/mockup_9_16_and.png',
+        4: 'images/mockup_9_19-5_and.png',
     }
     const scale = stageSize.width / 300;
     const stageRef = useRef();
