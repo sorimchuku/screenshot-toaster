@@ -24,6 +24,7 @@ export default function Editor() {
 
     const prevStateRef = useRef({ template, uploadedImages, stages, selectedDevice });
 
+    const defaultRatio = 9 / 19.5;
     useEffect(() => {
         const updateStageSize = () => {
             const userAgent = typeof window.navigator === 'undefined' ? '' : navigator.userAgent;
@@ -33,7 +34,7 @@ export default function Editor() {
                 windowHeight = 720;
             }
             if (!selectedDevice) {
-                const ratio = 9 / 16;
+                const ratio = defaultRatio;
                 const height = windowHeight * 0.7;
                 const width = height * ratio;
                 setStageSize({ width, height });
@@ -148,7 +149,7 @@ export default function Editor() {
 
     useEffect(() => {
         const updateRatio = () => {
-            const ratio = selectedDevice ? selectedDevice.ratio : 9 / 16;
+            const ratio = selectedDevice ? selectedDevice.ratio : defaultRatio;
             //stages의 모든 stage에 대해 stage.style의 ratio를 업데이트
             const updatedStages = stages.map(stage => {
                 const updatedStyle = { ...stage.style, ratio };
@@ -163,7 +164,7 @@ export default function Editor() {
         const stageId = uuidv4();
         const foundTemplate = templates?.find(t => t.name === newTemplateName);
         const initialStyle = foundTemplate.stages[layoutIndex] || foundTemplate.stages[foundTemplate.stages.length - 1];
-        const newInitialStyle = { ...initialStyle, ratio: selectedDevice?.ratio || 9 / 16 };
+        const newInitialStyle = { ...initialStyle, ratio: selectedDevice?.ratio || defaultRatio };
         const stage = {
             id:stageId,
             image:image || sampleImage,
@@ -177,8 +178,10 @@ export default function Editor() {
     const saveUserEdit = async (userId, uploadedImages, stages, selectedDevice) => {
         startSaving();
         if(!userId) return;
+        const userRef = ref(database, `users/${userId}`);
         const editorStateRef = ref(database, `users/${userId}/editor`);
         try {
+            await set(userRef, {uid: userId});
             await set(editorStateRef, {
                 uploadedImages: uploadedImages,
                 stages: stages,
@@ -255,7 +258,8 @@ export default function Editor() {
     const updateLayoutAtIndex = (template, activeStage) => {
         if (activeStage === null) return;
         const updatedStages = [...stages];
-        const updatedStage = { ...updatedStages[activeStage], templateName: template.templateName, layoutIndex: template.index, style: template.style};
+        const newStyle = { ...template.style, ratio: selectedDevice?.ratio || defaultRatio };
+        const updatedStage = { ...updatedStages[activeStage], templateName: template.templateName, layoutIndex: template.index, style: newStyle };
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
     }

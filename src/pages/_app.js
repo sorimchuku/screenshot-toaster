@@ -34,6 +34,7 @@ class MyApp extends App {
                     <title>{metadata.title}</title>
                     <meta name="description" content={metadata.description} />
                     <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=1' />
+                    <meta name="google-site-verification" content="MbuwiZqP4M6LV6EwL5QMHKopoGWLOjL7J3VYNiWe2SI" />
             </Head>
                 <TemplateProvider>
                     <div className='flex flex-col h-full w-full'>

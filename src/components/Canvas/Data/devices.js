@@ -19,5 +19,12 @@ export const devices = [
         width: 1080,
         height: 1920,
         ratio: 9 / 16,
+    },
+    {
+        id: 4,
+        name: 'Android 1080*2340',
+        width: 1080,
+        height: 2340,
+        ratio: 9 / 19.5,
     }
 ];
