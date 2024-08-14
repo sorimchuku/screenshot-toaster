@@ -3113,7 +3113,7 @@ klaw@^3.0.0:
   dependencies:
     graceful-fs "^4.1.9"
 
-"konva@^8.0.1 || ^7.2.5 || ^9.0.0", konva@^9.3.8:
+"konva@^8.0.1 || ^7.2.5 || ^9.0.0", "konva@^8.3.5 || ^9.0.0", konva@^9.3.8:
   version "9.3.13"
   resolved "https://registry.npmjs.org/konva/-/konva-9.3.13.tgz"
   integrity sha512-hs0ysHnqjK9noZ/rkfDNJINfbNhkXMgjgkJ8uc6vU0amu05mSDtRlukz5kKHOaSnWHA6miXcHJydvPABh18Y8A==
@@ -3920,7 +3920,15 @@ react-is@^16.13.1, react-is@^16.7.0:
   resolved "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
-react-konva@^18.2.10:
+react-konva-utils@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.npmjs.org/react-konva-utils/-/react-konva-utils-1.0.6.tgz"
+  integrity sha512-011+jyXwadFDkbIUdlTarKwbqME0ljX1vPeW5oyLQx4rtHdcsDr43tdOdSsMT3XpZyl8clgM9I/eK0lBuBuFHg==
+  dependencies:
+    react-konva "^18.0.0-0"
+    use-image "^1.1.0"
+
+react-konva@^18.0.0-0, react-konva@^18.2.10:
   version "18.2.10"
   resolved "https://registry.npmjs.org/react-konva/-/react-konva-18.2.10.tgz"
   integrity sha512-ohcX1BJINL43m4ynjZ24MxFI1syjBdrXhqVxYVDw2rKgr3yuS0x/6m1Y2Z4sl4T/gKhfreBx8KHisd0XC6OT1g==
@@ -4719,7 +4727,7 @@ use-eye-dropper@^1.6.1:
   resolved "https://registry.npmjs.org/use-eye-dropper/-/use-eye-dropper-1.6.1.tgz"
   integrity sha512-1JcsrufvhUMJpZb3hlx1/gJyfOPf+obZsi82C/3/spvi3M8hqLz+FeRwJIezNSbfZ+Ru3DXVDej7fv7UfrHMFA==
 
-use-image@^1.1.1:
+use-image@^1.1.0, use-image@^1.1.1:
   version "1.1.1"
   resolved "https://registry.npmjs.org/use-image/-/use-image-1.1.1.tgz"
   integrity sha512-n4YO2k8AJG/BcDtxmBx8Aa+47kxY5m335dJiCQA5tTeVU4XdhrhqR6wT0WISRXwdMEOv5CSjqekDZkEMiiWaYQ==

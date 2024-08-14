@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { toast, ToastContainer, Slide } from "react-toastify";
 import { Icon, Spinner } from "@blueprintjs/core";
-import { uploadFile, deleteUserFiles, getUserFiles, checkUserSignIn } from '../firebase';
+import { ref, get, set } from 'firebase/database';
+import { uploadFile, deleteUserFiles, getUserFiles, checkUserSignIn, database} from '../firebase';
 import { useGlobalContext } from "./context/GlobalContext";
 
 export default function Home() {
@@ -47,11 +48,12 @@ export default function Home() {
             setIsEditExisting(false);
             return;
         }
-        const files = await getUserFiles(userId);
-        if (files.length > 0) {
+        //userid에 해당하는 realtime db의 editor가 존재하는지 확인
+        const editorRef = ref(database, `users/${userId}/editor`);
+        const editorSnapshot = await get(editorRef);
+        if (editorSnapshot.exists()) {
             setIsEditExisting(true);
-        } else {
-            setIsEditExisting(false);
+            return;
         }
     }
 
@@ -69,7 +71,7 @@ export default function Home() {
             if (newUploadedFiles.length > 0) {
                 router.push({
                     pathname: '/template',
-                    query: { images: JSON.stringify(newUploadedFiles.slice(0, 4)) },
+                    // query: { images: JSON.stringify(newUploadedFiles.slice(0, 4)) },
                 }, '/template');
             }
         } catch (error) {
