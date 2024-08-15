@@ -37,7 +37,7 @@ const Title = (props) => {
         setText(e.target.value);
     };
 
-    const { x, y, fontSize, width, align, color, weight } = props;
+    const { x, y, fontSize, width, align, color, weight, fontFamily } = props;
 
     return (
         <Group
@@ -80,7 +80,7 @@ const Title = (props) => {
                     x={x}
                     y={y}
                     fontSize={fontSize}
-                    fontFamily='Pretendard'
+                    fontFamily={fontFamily}
                     fontStyle={weight}
                     fill={color}
                     align={align}

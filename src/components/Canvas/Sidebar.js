@@ -21,10 +21,10 @@ export default function SideBar(props) {
     };
 
     const changeSelectedTool = (id) => {
-        if(selectedTools === id) {
+        if (selectedTools === id) {
             setSelectedTools(null);
         } else {
-        setSelectedTools(id);
+            setSelectedTools(id);
         }
     }
 
@@ -41,12 +41,18 @@ export default function SideBar(props) {
         props.changeStageColor(color, props.activeStage);
     }
 
+    const handleToggleTitle = (e, toolId) => {
+        const { checked } = e.target;
+        props.toggleTitleSubtitle(toolId, checked);
+    };
+
+
     return (
         <div className="sidebar-wrap w-[340px] min-w-[340px] h-full z-[1] overflow-hidden bg-neutral-100 border-r-2">
             {/* <div className="expandButton" onClick={() => openMenuOnClick()}><ExpandLessRoundedIcon /></div> */}
             <div className="itemsListBody overflow-hidden h-full w-full flex flex-col px-8 py-6 gap-6">
                 <div onClick={props.handleAddPage}
-                className='addpage cursor-pointer flex px-6 py-3 bg-white rounded-full justify-center items-center gap-2 font-bold text-neutral-500 text-base'>
+                    className='addpage cursor-pointer flex px-6 py-3 bg-white rounded-full justify-center items-center gap-2 font-bold text-neutral-500 text-base'>
                     <Icon icon={IconNames.PLUS} />
                     <span>페이지 추가</span>
                 </div>
@@ -60,14 +66,22 @@ export default function SideBar(props) {
                                 <div onClick={() => {
                                     changeSelectedTool(i)
                                 }}
-                                 className="tools-title-wrap cursor-pointer flex justify-between items-center font-bold text-xl">
+                                    className="tools-title-wrap cursor-pointer flex justify-between items-center font-bold text-xl">
                                     <div className='flex items-center'>
                                         <span>{tool.title}</span>
+                                        {(tool.id === 2 || tool.id === 3) && 
+                                            <input type="checkbox" className="text-switch ml-3" checked={
+                                                tool.id === 2 ? props.title : props.subTitle
+                                            } onClick={(e) => {
+                                                e.stopPropagation();
+                                            }}
+                                            onChange={(e) => handleToggleTitle(e, tool.id)} />}
+                                        
                                     </div>
                                     <Icon className='text-gray-300' icon={selectedTools === i ? IconNames.CARET_DOWN : IconNames.CARET_RIGHT} />
                                 </div>
                                 <div className={`tools-inner transition-all ease-in-out duration-300 overflow-hidden
-                                 ${selectedTools === i ? 'max-h-screen mt-4' : 'max-h-0'}`}>
+                                    ${selectedTools === i ? 'max-h-screen mt-4' : 'max-h-0'}`}>
                                     {React.createElement(componentsMap[tool.component], {
                                         onChangeDragUrl: props.onChangeDragUrl,
                                         handleImageClick: handleImageClick,
@@ -77,9 +91,9 @@ export default function SideBar(props) {
                                         addToBackground: props.addToBackground,
                                         removeBackground: props.removeBackground,
                                         stageRef: props.stageRef,
-                                        uploadedImages : props.uploadedImages,
-                                        setUploadedImages : props.setUploadedImages, 
-                                        activeStage : props.activeStage,
+                                        uploadedImages: props.uploadedImages,
+                                        setUploadedImages: props.setUploadedImages,
+                                        activeStage: props.activeStage,
                                         style: { display: selectedTools === i ? 'block' : 'none' },
                                         selectedTools: selectedTools,
                                     })}

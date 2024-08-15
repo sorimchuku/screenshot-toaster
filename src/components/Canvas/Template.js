@@ -118,7 +118,7 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
                 />
             </Layer>
             <Layer>
-                <Title
+                {style.title !== false && <Title
                     text={title}
                     x={style.titleX === 'center' ? (stageSize.width - scale * style.titleWidth) / 2 : scale * style.titleX}
                     y={scale *style.titleY}
@@ -129,8 +129,9 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
                     color={style.titleColor}
                     weight={style.titleWeight}
                     isEdit={isEdit}
-                />
-                <Title
+                    fontFamily={style.titleFontFamily || 'Pretendard'}
+                /> }
+                {style.subTitle !== false && <Title
                     text={subTitle}
                     x={style.subTitleX === 'center' ? (stageSize.width - scale * style.subTitleWidth) / 2 : scale *style.subTitleX}
                     y={scale *style.subTitleY}
@@ -141,7 +142,8 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
                     color={style.subTitleColor}
                     weight={style.subTitleWeight}
                     isEdit={isEdit}
-                />
+                    fontFamily={style.subTitleFontFamily || 'Pretendard'}
+                /> }
             </Layer>
         </Stage>
     );

@@ -273,6 +273,21 @@ export default function Editor() {
         setStages(updatedStages);
     }
 
+    const toggleTitleSubtitle = (toolId, checked) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (toolId === 2) {
+            updatedStage.style = { ...updatedStage.style, title: checked };
+        } else if (toolId === 3) {
+            updatedStage.style = { ...updatedStage.style, subTitle: checked };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    };
+
 
     return (
         <div className="body-container max-w-full h-full flex relative">
@@ -284,6 +299,9 @@ export default function Editor() {
                 activeStage={activeStage}
                 updateLayoutAtIndex={updateLayoutAtIndex}
                 changeStageColor={changeStageColor}
+                toggleTitleSubtitle={toggleTitleSubtitle}
+                title={stages[activeStage]?.style?.title ?? true}
+                subTitle={stages[activeStage]?.style?.subTitle ?? true}
             />
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
