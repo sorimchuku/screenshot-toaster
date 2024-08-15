@@ -17,7 +17,7 @@ export const metadata = {
 
 function RootLayout({ children }) {
     return (
-        <div className={pretendard.className} style={{ overflow: 'auto',  height: '100vh', minHeight:'720px', minWidth: '1280px', width: '100%'}}>{children}</div>
+        <div className={pretendard.className} style={{ overflow: 'hidden',  height: '100vh', minHeight:'720px', minWidth: '1280px', width: '100%'}}>{children}</div>
     );
 }
 

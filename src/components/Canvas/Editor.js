@@ -288,6 +288,21 @@ export default function Editor() {
         setStages(updatedStages);
     };
 
+    const changeTextColor = (toolId, color, activeStage) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (toolId === 2) {
+            updatedStage.style = { ...updatedStage.style, titleColor: color };
+        } else if (toolId === 3) {
+            updatedStage.style = { ...updatedStage.style, subTitleColor: color };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
 
     return (
         <div className="body-container max-w-full h-full flex relative">
@@ -302,12 +317,13 @@ export default function Editor() {
                 toggleTitleSubtitle={toggleTitleSubtitle}
                 title={stages[activeStage]?.style?.title ?? true}
                 subTitle={stages[activeStage]?.style?.subTitle ?? true}
+                changeTextColor={changeTextColor}
             />
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
                 {stages.map((stage, index) => (
                     
-                    <div className="flex flex-col items-end " key={'stage' + index}>
+                    <div className="flex flex-col items-end relative " key={'stage' + index}>
                         {index === activeStage &&
                         <div className="flex absolute z-10 -translate-y-12 bg-white border-2 rounded-xl px-4 py-2 mb-2 items-center gap-3">
                             <div className="flex gap-2 cursor-pointer">

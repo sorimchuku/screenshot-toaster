@@ -37,7 +37,6 @@ export default function SideBar(props) {
     }
 
     const handleColorChange = (color) => {
-        console.log(props.activeStage);
         props.changeStageColor(color, props.activeStage);
     }
 
@@ -46,11 +45,14 @@ export default function SideBar(props) {
         props.toggleTitleSubtitle(toolId, checked);
     };
 
+    const handleTextColorChange = (toolId, color) => {
+        props.changeTextColor(toolId, color, props.activeStage);
+    }
+
 
     return (
-        <div className="sidebar-wrap w-[340px] min-w-[340px] h-full z-[1] overflow-hidden bg-neutral-100 border-r-2">
-            {/* <div className="expandButton" onClick={() => openMenuOnClick()}><ExpandLessRoundedIcon /></div> */}
-            <div className="itemsListBody overflow-hidden h-full w-full flex flex-col px-8 py-6 gap-6">
+        <div className="sidebar-wrap w-[340px] min-w-[340px] h-full overflow-y-scroll z-[1] bg-neutral-100 border-r-2 relative">
+            <div className="itemsListBody h-full w-full flex flex-col px-8 py-6 gap-6">
                 <div onClick={props.handleAddPage}
                     className='addpage cursor-pointer flex px-6 py-3 bg-white rounded-full justify-center items-center gap-2 font-bold text-neutral-500 text-base'>
                     <Icon icon={IconNames.PLUS} />
@@ -87,6 +89,7 @@ export default function SideBar(props) {
                                         handleImageClick: handleImageClick,
                                         handleLayoutClick: handleLayoutClick,
                                         handleColorChange: handleColorChange,
+                                        handleTextColorChange: handleTextColorChange,
                                         dragUrl: props.dragUrl,
                                         addToBackground: props.addToBackground,
                                         removeBackground: props.removeBackground,

@@ -22,7 +22,7 @@ export const tools = [
     {
         id: 3,
         title: "소제목",
-        component: "SubTitleSection",
+        component: "TitleSection",
     },
     {
         id: 4,
