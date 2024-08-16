@@ -5,7 +5,6 @@ import ImageComponent from './ImageComponent';
 import Title from './Title';
 import { templates } from './Data/templates.js';
 import defaultImage from '../../../public/images/screenshot-sample.png';
-import WebFont from 'webfontloader';
 
 // WebFont.load({
 //     google: {
@@ -42,12 +41,15 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
         }
     };
 
+
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            WebFont.load({
-                google: {
-                    families: ['Pretendard', 'Dongle', 'Noto Sans KR', 'Noto Serif KR', 'Black Han Sans', 'Bagel Fat One', 'Nanum Pen Script'],
-                },
+            import('webfontloader').then(WebFont => {
+                WebFont.load({
+                    google: {
+                        families: ['Pretendard', 'Dongle', 'Noto Sans KR', 'Noto Serif KR', 'Black Han Sans', 'Bagel Fat One', 'Nanum Pen Script'],
+                    },
+                });
             });
         }
     }, []);
