@@ -134,7 +134,7 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
                     color={style.titleColor}
                     weight={style.titleWeight}
                     isEdit={isEdit}
-                    fontFamily={style.titleFontFamily || 'Pretendard'}
+                    fontFamily={style.titleFont ?? 'Pretendard'}
                 /> }
                 {style.subTitle !== false && <Title
                     text={subTitle}
@@ -147,7 +147,7 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
                     color={style.subTitleColor}
                     weight={style.subTitleWeight}
                     isEdit={isEdit}
-                    fontFamily={style.subTitleFontFamily || 'Pretendard'}
+                    fontFamily={style.subTitleFont ?? 'Pretendard'}
                 /> }
             </Layer>
         </Stage>

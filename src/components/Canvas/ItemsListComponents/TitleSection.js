@@ -5,9 +5,7 @@ import { HexColorPicker, HexColorInput } from "react-colorful";
 import "@/app/style.css";
 import { Icon } from '@blueprintjs/core';
 
-const rainbowColors = [
-    "#E30E0E", "#F95A00", "#FFD02A", "#30C37D", "#52A9EE"
-]
+const fonts = ['Pretendard', 'Dongle', 'Noto Sans KR', 'Noto Serif KR', 'Black Han Sans', 'Bagel Fat One', 'Nanum Pen Script'];
 
 export default function TitleSection(props) {
     const [selectedColor, setSelectedColor] = useState('');
@@ -16,7 +14,13 @@ export default function TitleSection(props) {
     const [error, setError] = useState(null);
     const currentColor = props.selectedTools === 2 ? props.currentStageStyle?.titleColor : props.selectedTools === 3 ? props.currentStageStyle?.subTitleColor : '';
     const currentPos = props.selectedTools === 2 ? props.currentStageStyle?.titlePosition : props.selectedTools === 3 ? props.currentStageStyle?.subTitlePosition : {};
-    
+    const currentFont = props.selectedTools === 2 ? props.currentStageStyle?.titleFont ?? 'Pretendard' : props.selectedTools === 3 ? props.currentStageStyle?.subTitleFont ?? 'Pretendard' : '';
+    const currentFontSize = props.selectedTools === 2 ? props.currentStageStyle?.titleSize : props.selectedTools === 3 ? props.currentStageStyle?.subTitleSize : '';
+    const currentWeight = props.selectedTools === 2 ? props.currentStageStyle?.titleWeight : props.selectedTools === 3 ? props.currentStageStyle?.subTitleWeight : '';
+
+    const [alignment, setAlignment] = useState('left'); // 초기 상태를 'left'로 설정
+
+
 
     // useEyeDropper will reject/cleanup the open() promise on unmount,
     // so setState never fires when the component is unmounted.
@@ -52,18 +56,57 @@ export default function TitleSection(props) {
         props.handleTextPositionChange(props.selectedTools, position);
     }
 
+    const onFontChange = (e) => {
+        const value = e.target.value;
+        props.handleFontChange(props.selectedTools, value);
+    }
+
+    const onAlignmentChange = (value) => {
+        setAlignment(value);
+        props.handleTextAlignmentChange(props.selectedTools, value);
+    };
+
+
     return (
         <div className='flex flex-col gap-4'>
             <div>
                 <div className='text-lg font-bold'>텍스트</div>
+                <div className='my-2 flex flex-col gap-3'>
+                    <div className='flex gap-2'>
+                        <select className='w-full border-b-2 focus:outline-none' value={currentFont} onChange={onFontChange}>
+                            {fonts.map((font, index) => {
+                                return <option key={index} value={font}>{font}</option>
+                            })}
+                        </select>
+                        <input type='number' value={currentFontSize} onChange={(e) => props.handleTextSizeChange(props.selectedTools, e.target.value)} className='w-16 border-b-2 focus:outline-none'></input>
+                    </div>
+                    <div className='flex gap-2'>
+                        <select className='w-full border-b-2 focus:outline-none' value={currentWeight}
+                            onChange={(e) => props.handleTextWeightChange(props.selectedTools, e.target.value)}>
+                            <option key={'Normal'} value='normal'>Normal</option>
+                            <option key={'Bold'} value='bold'>Bold</option>
+                        </select>
+                        <div className='flex flex-nowrap gap-1'>
+                            <button onClick={() => onAlignmentChange('left')} className={`text-base font-bold ${alignment === 'left' ? 'bg-gray-200' : ''} rounded-md p-1`}>
+                                <Icon icon="align-left" className=''></Icon>
+                            </button>
+                            <button onClick={() => onAlignmentChange('center')} className={`text-base font-bold ${alignment === 'center' ? 'bg-gray-200' : ''} rounded-md p-1`}>
+                                <Icon icon="align-center" className=''></Icon>
+                            </button>
+                            <button onClick={() => onAlignmentChange('right')} className={`text-base font-bold ${alignment === 'right' ? 'bg-gray-200' : ''} rounded-md p-1`}>
+                                <Icon icon="align-right" className=''></Icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div>
                 <div className='text-lg font-bold'>색상</div>
                 <div className='my-2'>
                     <div className='flex items-center gap-2'>
-                    <div className="h-7 w-7 p-px" onClick={() => setIsPaletteOpen(!isPaletteOpen)}>
+                        <div className="h-7 w-7 p-px" onClick={() => setIsPaletteOpen(!isPaletteOpen)}>
 
-                            <div className="h-full w-full rounded-md" style={{ backgroundColor: currentColor }}>
+                            <div className="h-full w-full rounded-md border" style={{ backgroundColor: currentColor }}>
                             </div>
 
                         </div>
@@ -90,12 +133,12 @@ export default function TitleSection(props) {
             <div>
                 <div className='text-lg font-bold'>위치</div>
                 <div className='my-2 flex justify-between gap-3'>
-                        <label className='flex flex-grow font-bold'>X
-                            <input type='number' className='font-normal w-full border-b-2 mx-4 focus:outline-none' value={currentPos.x} onChange={(e) => onPositionChange(e, 'x')}></input>
-                        </label>
-                        <label className='flex flex-grow font-bold'>Y
-                            <input type='number' className='font-normal w-full border-b-2 mx-4 focus:outline-none' value={currentPos.y} onChange={(e) => onPositionChange(e, 'y')}></input>
-                        </label>
+                    <label className='flex flex-grow font-bold'>X
+                        <input type='number' className='font-normal w-full border-b-2 mx-4 focus:outline-none' value={currentPos.x} onChange={(e) => onPositionChange(e, 'x')}></input>
+                    </label>
+                    <label className='flex flex-grow font-bold'>Y
+                        <input type='number' className='font-normal w-full border-b-2 mx-4 focus:outline-none' value={currentPos.y} onChange={(e) => onPositionChange(e, 'y')}></input>
+                    </label>
                 </div>
             </div>
         </div>

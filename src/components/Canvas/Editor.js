@@ -318,6 +318,66 @@ export default function Editor() {
         setStages(updatedStages);
     }
 
+    const changeTextFont = (toolId, font, activeStage) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (toolId === 2) {
+            updatedStage.style = { ...updatedStage.style, titleFont: font };
+        } else if (toolId === 3) {
+            updatedStage.style = { ...updatedStage.style, subTitleFont: font };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
+    const changeTextSize = (toolId, size, activeStage) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (toolId === 2) {
+            updatedStage.style = { ...updatedStage.style, titleSize: size };
+        } else if (toolId === 3) {
+            updatedStage.style = { ...updatedStage.style, subTitleSize: size };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
+    const changeTextWeight = (toolId, weight, activeStage) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (toolId === 2) {
+            updatedStage.style = { ...updatedStage.style, titleWeight: weight };
+        } else if (toolId === 3) {
+            updatedStage.style = { ...updatedStage.style, subTitleWeight: weight };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
+    const changeTextAlignment = (toolId, alignment, activeStage) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (toolId === 2) {
+            updatedStage.style = { ...updatedStage.style, titleAlign: alignment };
+        } else if (toolId === 3) {
+            updatedStage.style = { ...updatedStage.style, subTitleAlign: alignment };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
 
     return (
         <div className="body-container max-w-full h-full flex relative">
@@ -333,6 +393,10 @@ export default function Editor() {
                 changeTextColor={changeTextColor}
                 currentStageStyle={currentStageStyle}
                 changeTextPosition={changeTextPosition}
+                changeTextFont={changeTextFont}
+                changeTextSize={changeTextSize}
+                changeTextWeight={changeTextWeight}
+                changeTextAlignment={changeTextAlignment}
             />
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>

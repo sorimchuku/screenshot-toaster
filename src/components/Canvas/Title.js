@@ -60,6 +60,7 @@ const Title = (props) => {
                             left: textRect.x,
                             fontSize: fontSize,
                             fontWeight: weight,
+                            fontFamily: fontFamily,
                             textAlign: align,
                             color: color,
                             width: width,

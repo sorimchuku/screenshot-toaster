@@ -53,6 +53,22 @@ export default function SideBar(props) {
         props.changeTextPosition(toolId, position, props.activeStage);
     }
 
+    const handleFontChange = (toolId, font) => {
+        props.changeTextFont(toolId, font, props.activeStage);
+    }
+
+    const handleTextSizeChange = (toolId, size) => {
+        props.changeTextSize(toolId, size, props.activeStage);
+    }
+
+    const handleTextWeightChange = (toolId, weight) => {
+        props.changeTextWeight(toolId, weight, props.activeStage);
+    }
+
+    const handleTextAlignmentChange = (toolId, alignment) => {
+        props.changeTextAlignment(toolId, alignment, props.activeStage);
+    }
+
 
     return (
         <div className="sidebar-wrap w-[340px] min-w-[340px] h-full overflow-y-scroll z-[1] bg-neutral-100 border-r-2 relative">
@@ -95,6 +111,10 @@ export default function SideBar(props) {
                                         handleColorChange: handleColorChange,
                                         handleTextColorChange: handleTextColorChange,
                                         handleTextPositionChange: handleTextPositionChange,
+                                        handleFontChange: handleFontChange,
+                                        handleTextSizeChange: handleTextSizeChange,
+                                        handleTextWeightChange: handleTextWeightChange,
+                                        handleTextAlignmentChange: handleTextAlignmentChange,
                                         dragUrl: props.dragUrl,
                                         addToBackground: props.addToBackground,
                                         removeBackground: props.removeBackground,
