@@ -15,7 +15,7 @@ export default function Editor() {
     const [activeStage, setActiveStage] = useState(0);
     const [stageSize, setStageSize] = useState({ width: 240, height: 540 });
     const [stageScale, setStageScale] = useState(1);
-    const router = useRouter();
+
     const scrollContainerRef = useRef();
     const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice } = useGlobalContext();
     const [template, setTemplate] = useState('');
@@ -63,8 +63,8 @@ export default function Editor() {
             const loadImagesFromFirebase = async () => {
                 const userId = await getUserId();
                 if (!userId) return;
-                const files = await getUserFiles(userId);
-                const images = files.map(file => file.url);
+                const images = await getUserFiles(userId);
+                // const images = files.map(file => file);
                 setTemplate(templateName);
                 setUploadedImages(images);
                 const newStages = Array.from({ length: images.length }, (_, index) => newStage(templateName, images[index], index));
@@ -134,7 +134,7 @@ export default function Editor() {
             const userId = await getUserId();
             if (!userId) return;
             const intervalId = setInterval(() => {
-                saveUserEdit(userId, prevStateRef.current.uploadedImages, prevStateRef.current.stages, prevStateRef.current.selectedDevice);
+                saveUserEdit(userId, prevStateRef.current.uploadedImages ?? [], prevStateRef.current.stages ?? [], prevStateRef.current.selectedDevice ?? null);
             }, 30000);
 
             return () => clearInterval(intervalId);

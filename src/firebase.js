@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, deleteObject, uploadBytesResumable, getDownloadURL, listAll } from "firebase/storage";
-import { getDatabase, ref as databaseRef, set, get, remove as removeFromDatabase } from 'firebase/database';
+import { getDatabase, ref as databaseRef, set, get, remove as removeFromDatabase, push } from 'firebase/database';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -77,14 +77,16 @@ const uploadFile = async (file) => {
 
 const saveFileInfoToDatabase = async (fileInfo, uploadTime) => {
     const userId = await getUserId();
-    const userFilesRef = databaseRef(database, `users/${userId}/files/${uploadTime}`);
-    await set(userFilesRef, fileInfo);
+    // const userFilesRef = databaseRef(database, `users/${userId}/files/${uploadTime}`);
+    const userEditorRef = databaseRef(database, `users/${userId}/editor/uploadedImages`);
+    // await set(userFilesRef, fileInfo);
+    await push(userEditorRef, fileInfo.url);
 };
 
 const getUserFiles = async () => {
     const userId = await getUserId();
     try {
-        const userFilesRef = databaseRef(database, `users/${userId}/files`);
+        const userFilesRef = databaseRef(database, `users/${userId}/editor/uploadedImages`);
         const snapshot = await get(userFilesRef);
         const files = [];
         snapshot.forEach((childSnapshot) => {
@@ -129,7 +131,7 @@ const deleteUserFiles = async () => {
         const deletePromises = items.map(itemRef => deleteObject(itemRef));
         await Promise.all(deletePromises);
 
-        const userFilesRef = databaseRef(database, `users/${userId}/files`);
+        const userFilesRef = databaseRef(database, `users/${userId}/editor/uploadedImages`);
         await removeFromDatabase(userFilesRef);
         
         console.log('폴더 정리 성공');
@@ -143,7 +145,7 @@ const deleteFile = async (filePath) => {
     const fileRef = ref(storage, filePath);
     const userId = await getUserId();
     const uniqueFileName = filePath.split('%2F').pop().split('_')[0];
-    const userFilesRef = databaseRef(database, `users/${userId}/files/${uniqueFileName}`);
+    const userFilesRef = databaseRef(database, `users/${userId}/editor/uploadedImages`);
     await deleteObject(fileRef);
     console.log('File deleted successfully:', filePath);
     await removeFromDatabase(userFilesRef);

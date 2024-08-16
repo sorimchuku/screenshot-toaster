@@ -5,6 +5,13 @@ import ImageComponent from './ImageComponent';
 import Title from './Title';
 import { templates } from './Data/templates.js';
 import defaultImage from '../../../public/images/screenshot-sample.png';
+import WebFont from 'webfontloader';
+
+WebFont.load({
+    google: {
+        families: ['Pretendard', 'Dongle', 'Noto Sans KR', 'Noto Serif KR', 'Black Han Sans', 'Bagel Fat One', 'Nanum Pen Script'],
+    },
+});
 
 const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, device }) => {
     const [template, setTemplate] = useState(null);

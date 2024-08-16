@@ -91,10 +91,10 @@ export default function TitleSection(props) {
                 <div className='text-lg font-bold'>위치</div>
                 <div className='my-2 flex justify-between gap-3'>
                         <label className='flex flex-grow font-bold'>X
-                            <input type='text' className='font-normal w-full border-b-2 mx-4 focus:outline-none' value={currentPos.x} onChange={(e) => onPositionChange(e, 'x')}></input>
+                            <input type='number' className='font-normal w-full border-b-2 mx-4 focus:outline-none' value={currentPos.x} onChange={(e) => onPositionChange(e, 'x')}></input>
                         </label>
                         <label className='flex flex-grow font-bold'>Y
-                            <input type='text' className='font-normal w-full border-b-2 mx-4 focus:outline-none' value={currentPos.y} onChange={(e) => onPositionChange(e, 'y')}></input>
+                            <input type='number' className='font-normal w-full border-b-2 mx-4 focus:outline-none' value={currentPos.y} onChange={(e) => onPositionChange(e, 'y')}></input>
                         </label>
                 </div>
             </div>
