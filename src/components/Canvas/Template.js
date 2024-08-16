@@ -7,11 +7,11 @@ import { templates } from './Data/templates.js';
 import defaultImage from '../../../public/images/screenshot-sample.png';
 import WebFont from 'webfontloader';
 
-WebFont.load({
-    google: {
-        families: ['Pretendard', 'Dongle', 'Noto Sans KR', 'Noto Serif KR', 'Black Han Sans', 'Bagel Fat One', 'Nanum Pen Script'],
-    },
-});
+// WebFont.load({
+//     google: {
+//         families: ['Pretendard', 'Dongle', 'Noto Sans KR', 'Noto Serif KR', 'Black Han Sans', 'Bagel Fat One', 'Nanum Pen Script'],
+//     },
+// });
 
 const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, device }) => {
     const [template, setTemplate] = useState(null);
@@ -41,6 +41,16 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
             setImageDimensions(newDimensions);
         }
     };
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            WebFont.load({
+                google: {
+                    families: ['Pretendard', 'Dongle', 'Noto Sans KR', 'Noto Serif KR', 'Black Han Sans', 'Bagel Fat One', 'Nanum Pen Script'],
+                },
+            });
+        }
+    }, []);
 
     useEffect(() => {
         if (textNode1 && textNode1.x !== (stageSize.width - textNode1.width) / 2) {
