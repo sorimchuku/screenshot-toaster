@@ -18,7 +18,9 @@ export default function TitleSection(props) {
     const currentFontSize = props.selectedTools === 2 ? props.currentStageStyle?.titleSize : props.selectedTools === 3 ? props.currentStageStyle?.subTitleSize : '';
     const currentWeight = props.selectedTools === 2 ? props.currentStageStyle?.titleWeight : props.selectedTools === 3 ? props.currentStageStyle?.subTitleWeight : '';
 
-    const [alignment, setAlignment] = useState('left'); // 초기 상태를 'left'로 설정
+    // const [alignment, setAlignment] = useState('left'); // 초기 상태를 'left'로 설정
+
+    const currentAlign = props.selectedTools === 2 ? props.currentStageStyle?.titleAlign : props.selectedTools === 3 ? props.currentStageStyle?.subTitleAlign : '';
 
 
 
@@ -62,7 +64,6 @@ export default function TitleSection(props) {
     }
 
     const onAlignmentChange = (value) => {
-        setAlignment(value);
         props.handleTextAlignmentChange(props.selectedTools, value);
     };
 
@@ -87,13 +88,13 @@ export default function TitleSection(props) {
                             <option key={'Bold'} value='bold'>Bold</option>
                         </select>
                         <div className='flex flex-nowrap gap-1'>
-                            <button onClick={() => onAlignmentChange('left')} className={`text-base font-bold ${alignment === 'left' ? 'bg-gray-200' : ''} rounded-md p-1`}>
+                            <button onClick={() => onAlignmentChange('left')} className={`text-base font-bold ${currentAlign === 'left' ? 'bg-gray-200' : ''} rounded-md p-1`}>
                                 <Icon icon="align-left" className=''></Icon>
                             </button>
-                            <button onClick={() => onAlignmentChange('center')} className={`text-base font-bold ${alignment === 'center' ? 'bg-gray-200' : ''} rounded-md p-1`}>
+                            <button onClick={() => onAlignmentChange('center')} className={`text-base font-bold ${currentAlign === 'center' ? 'bg-gray-200' : ''} rounded-md p-1`}>
                                 <Icon icon="align-center" className=''></Icon>
                             </button>
-                            <button onClick={() => onAlignmentChange('right')} className={`text-base font-bold ${alignment === 'right' ? 'bg-gray-200' : ''} rounded-md p-1`}>
+                            <button onClick={() => onAlignmentChange('right')} className={`text-base font-bold ${currentAlign === 'right' ? 'bg-gray-200' : ''} rounded-md p-1`}>
                                 <Icon icon="align-right" className=''></Icon>
                             </button>
                         </div>
