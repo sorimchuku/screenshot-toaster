@@ -27,7 +27,7 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
     const originalWidth = imageDimensions.width || 9;
     const imageRatio = originalHeight / originalWidth;
 
-    const aspectRatio = 1 / style.ratio;
+    const aspectRatio = 1 / style?.ratio;
     
     const handleDimensionsChange = (newDimensions) => {
         if (newDimensions.width !== imageDimensions.width || newDimensions.height !== imageDimensions.height) {
@@ -53,8 +53,6 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
     if (!template || !template.stages) {
         return null;
     }
-
-    // const style = template.stages[stageIndex] || template.stages[template.stages.length - 1];
 
     return (
         <Stage width={stageSize.width} height={stageSize.height} ref={stageRef}>
@@ -120,8 +118,8 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
             <Layer>
                 {style.title !== false && <Title
                     text={title}
-                    x={style.titleX === 'center' ? (stageSize.width - scale * style.titleWidth) / 2 : scale * style.titleX}
-                    y={scale *style.titleY}
+                    x={style.titlePosition.x === 'center' ? (stageSize.width - scale * style.titleWidth) / 2 : scale * style.titlePosition.x}
+                    y={scale *style.titlePosition.y}
                     fontSize={scale *style.titleSize}
                     width={scale *style.titleWidth}
                     align={style.titleAlign}
@@ -133,8 +131,8 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
                 /> }
                 {style.subTitle !== false && <Title
                     text={subTitle}
-                    x={style.subTitleX === 'center' ? (stageSize.width - scale * style.subTitleWidth) / 2 : scale *style.subTitleX}
-                    y={scale *style.subTitleY}
+                    x={style.subTitlePosition.x === 'center' ? (stageSize.width - scale * style.subTitleWidth) / 2 : scale *style.subTitlePosition.x}
+                    y={scale *style.subTitlePosition.y}
                     fontSize={scale *style.subTitleSize}
                     width={scale *style.subTitleWidth}
                     align={style.subTitleAlign}

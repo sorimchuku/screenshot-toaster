@@ -49,6 +49,10 @@ export default function SideBar(props) {
         props.changeTextColor(toolId, color, props.activeStage);
     }
 
+    const handleTextPositionChange = (toolId, position) => {
+        props.changeTextPosition(toolId, position, props.activeStage);
+    }
+
 
     return (
         <div className="sidebar-wrap w-[340px] min-w-[340px] h-full overflow-y-scroll z-[1] bg-neutral-100 border-r-2 relative">
@@ -73,7 +77,7 @@ export default function SideBar(props) {
                                         <span>{tool.title}</span>
                                         {(tool.id === 2 || tool.id === 3) && 
                                             <input type="checkbox" className="text-switch ml-3" checked={
-                                                tool.id === 2 ? props.title : props.subTitle
+                                                tool.id === 2 ? props.currentStageStyle?.title ?? true : props.currentStageStyle?.subTitle ?? true
                                             } onClick={(e) => {
                                                 e.stopPropagation();
                                             }}
@@ -90,6 +94,7 @@ export default function SideBar(props) {
                                         handleLayoutClick: handleLayoutClick,
                                         handleColorChange: handleColorChange,
                                         handleTextColorChange: handleTextColorChange,
+                                        handleTextPositionChange: handleTextPositionChange,
                                         dragUrl: props.dragUrl,
                                         addToBackground: props.addToBackground,
                                         removeBackground: props.removeBackground,
@@ -99,6 +104,7 @@ export default function SideBar(props) {
                                         activeStage: props.activeStage,
                                         style: { display: selectedTools === i ? 'block' : 'none' },
                                         selectedTools: selectedTools,
+                                        currentStageStyle: props.currentStageStyle,
                                     })}
                                 </div>
                             </div>

@@ -10,10 +10,14 @@ const rainbowColors = [
 ]
 
 export default function TitleSection(props) {
-    const [selectedColor, setSelectedColor] = useState('#000000');
+    const [selectedColor, setSelectedColor] = useState('');
     const [isPaletteOpen, setIsPaletteOpen] = useState(false);
     const { open, close, isSupported } = useEyeDropper();
     const [error, setError] = useState(null);
+    const currentColor = props.selectedTools === 2 ? props.currentStageStyle?.titleColor : props.selectedTools === 3 ? props.currentStageStyle?.subTitleColor : '';
+    const currentPos = props.selectedTools === 2 ? props.currentStageStyle?.titlePosition : props.selectedTools === 3 ? props.currentStageStyle?.subTitlePosition : {};
+    
+
     // useEyeDropper will reject/cleanup the open() promise on unmount,
     // so setState never fires when the component is unmounted.
     const pickColor = useCallback(() => {
@@ -42,48 +46,42 @@ export default function TitleSection(props) {
         console.log(color)
     }
 
+    const onPositionChange = (e, axis) => {
+        const value = e.target.value;
+        const position = { ...currentPos, [axis]: value };
+        props.handleTextPositionChange(props.selectedTools, position);
+    }
+
     return (
-        <div>
+        <div className='flex flex-col gap-4'>
             <div>
                 <div className='text-lg font-bold'>텍스트</div>
             </div>
             <div>
                 <div className='text-lg font-bold'>색상</div>
-                <div className=''>
+                <div className='my-2'>
                     <div className='flex items-center gap-2'>
-                        {!isPaletteOpen && <div className={`h-7 w-7 p-px`} >
-                        <div className="h-full w-full grid grid-cols-5 rounded-md overflow-hidden" onClick={() => { setIsPaletteOpen(!isPaletteOpen); }}>
-                            {rainbowColors.map((color, index) => {
-                                return (
-                                    <div key={index} className="h-full w-full">
-                                        <div className="h-full w-full " style={{ backgroundColor: color }}></div>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                        
-                    </div>}
-                    {isPaletteOpen && selectedColor && <div className="h-7 w-7 p-px" onClick={() => setIsPaletteOpen(!isPaletteOpen)}>
+                    <div className="h-7 w-7 p-px" onClick={() => setIsPaletteOpen(!isPaletteOpen)}>
 
-                        <div className="h-full w-full rounded-md" style={{ backgroundColor: selectedColor }}>
-                        </div>
+                            <div className="h-full w-full rounded-md" style={{ backgroundColor: currentColor }}>
+                            </div>
 
-                    </div>}
-                    <span className='text-gray-600 text-base uppercase'>{selectedColor}</span>
+                        </div>
+                        <span className='text-gray-600 text-base uppercase'>{currentColor}</span>
                     </div>
-                    {isPaletteOpen  && <div className="custom-picker absolute z-10 w-48 h-fit bg-white flex flex-col drop-shadow-md">
+                    {isPaletteOpen && <div className="custom-picker absolute z-10 w-48 h-fit bg-white flex flex-col drop-shadow-md">
 
                         <div className="flex w-full items-center justify-end">
                             <Icon icon="cross" onClick={() => setIsPaletteOpen(false)} className="p-1 text-gray-400" />
                         </div>
-                        <HexColorPicker color={selectedColor} onChange={onColorChange} />
+                        <HexColorPicker color={currentColor} onChange={onColorChange} />
                         <div className='flex w-full px-4 pb-4 gap-2 justify-end'>
                             {isSupported() &&
                                 <button onClick={pickColor}>
                                     <Image src="/images/bxs--eyedropper.svg" alt="eyedropper" width={20} height={20} />
                                 </button>
                             }
-                            <HexColorInput color={selectedColor} onChange={onColorChange} prefixed className='bg-gray-200 w-32 rounded px-4 text-center text-gray-800 uppercase' />
+                            <HexColorInput color={currentColor} onChange={onColorChange} prefixed className='bg-gray-200 w-32 rounded px-4 text-center text-gray-800 uppercase' />
                         </div>
                     </div>}
 
@@ -91,6 +89,14 @@ export default function TitleSection(props) {
             </div>
             <div>
                 <div className='text-lg font-bold'>위치</div>
+                <div className='my-2 flex justify-between gap-3'>
+                        <label className='flex flex-grow font-bold'>X
+                            <input type='text' className='font-normal w-full border-b-2 mx-4 focus:outline-none' value={currentPos.x} onChange={(e) => onPositionChange(e, 'x')}></input>
+                        </label>
+                        <label className='flex flex-grow font-bold'>Y
+                            <input type='text' className='font-normal w-full border-b-2 mx-4 focus:outline-none' value={currentPos.y} onChange={(e) => onPositionChange(e, 'y')}></input>
+                        </label>
+                </div>
             </div>
         </div>
     );

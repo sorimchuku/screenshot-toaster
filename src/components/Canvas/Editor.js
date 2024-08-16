@@ -21,7 +21,7 @@ export default function Editor() {
     const [template, setTemplate] = useState('');
     const [isSaveError, setIsSaveError] = useState(false);
     const sampleImage = 'images/screenshot-sample.png';
-
+    const currentStageStyle = stages[activeStage]?.style;
     const prevStateRef = useRef({ template, uploadedImages, stages, selectedDevice });
 
     const defaultRatio = 9 / 19.5;
@@ -225,7 +225,7 @@ export default function Editor() {
     const handleStageDelete = (index) => {
         const updatedStages = stages.filter((_, i) => i !== index);
         setStages(updatedStages);
-        if(index !== 0){
+        if(index === stages.length - 1) {
         setActiveStage(activeStage - 1);
         }
     }
@@ -303,6 +303,21 @@ export default function Editor() {
         setStages(updatedStages);
     }
 
+    const changeTextPosition = (toolId, position, activeStage) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (toolId === 2) {
+            updatedStage.style = { ...updatedStage.style, titlePosition: position };
+        } else if (toolId === 3) {
+            updatedStage.style = { ...updatedStage.style, subTitlePosition: position };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
 
     return (
         <div className="body-container max-w-full h-full flex relative">
@@ -315,9 +330,9 @@ export default function Editor() {
                 updateLayoutAtIndex={updateLayoutAtIndex}
                 changeStageColor={changeStageColor}
                 toggleTitleSubtitle={toggleTitleSubtitle}
-                title={stages[activeStage]?.style?.title ?? true}
-                subTitle={stages[activeStage]?.style?.subTitle ?? true}
                 changeTextColor={changeTextColor}
+                currentStageStyle={currentStageStyle}
+                changeTextPosition={changeTextPosition}
             />
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
