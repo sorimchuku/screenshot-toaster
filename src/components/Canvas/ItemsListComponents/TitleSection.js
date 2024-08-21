@@ -18,8 +18,6 @@ export default function TitleSection(props) {
     const currentFontSize = props.selectedTools === 2 ? props.currentStageStyle?.titleSize : props.selectedTools === 3 ? props.currentStageStyle?.subTitleSize : '';
     const currentWeight = props.selectedTools === 2 ? props.currentStageStyle?.titleWeight : props.selectedTools === 3 ? props.currentStageStyle?.subTitleWeight : '';
 
-    // const [alignment, setAlignment] = useState('left'); // 초기 상태를 'left'로 설정
-
     const currentAlign = props.selectedTools === 2 ? props.currentStageStyle?.titleAlign : props.selectedTools === 3 ? props.currentStageStyle?.subTitleAlign : '';
 
 

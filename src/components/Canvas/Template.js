@@ -1,5 +1,5 @@
 // Template.js
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useImperativeHandle } from 'react';
 import { Stage, Layer, Rect } from 'react-konva';
 import ImageComponent from './ImageComponent';
 import Title from './Title';
@@ -12,7 +12,7 @@ import defaultImage from '../../../public/images/screenshot-sample.png';
 //     },
 // });
 
-const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, device }) => {
+const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize, isEdit, style, device }, ref) => {
     const [template, setTemplate] = useState(null);
     const [textNode1, setTextNode1] = useState(null);
     const [textNode2, setTextNode2] = useState(null);
@@ -29,6 +29,11 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
     const scale = stageSize.width / 300;
     const stageRef = useRef();
 
+    useImperativeHandle(ref, () => ({
+        toDataURL: (pixelRatio = 1) => stageRef.current.toDataURL( { pixelRatio}),
+        width: () => stageRef.current.width(),
+    }));
+
     const originalHeight = imageDimensions.height || 16;
     const originalWidth = imageDimensions.width || 9;
     const imageRatio = originalHeight / originalWidth;
@@ -40,7 +45,6 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
             setImageDimensions(newDimensions);
         }
     };
-
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -69,9 +73,17 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
         setTemplate(foundTemplate);
     }, [templateName]);
 
+    useEffect(() => {
+        if (ref) {
+            ref.current = stageRef.current;
+        }
+    }, [ref]);
+
     if (!template || !template.stages) {
         return null;
     }
+
+
 
     return (
         <Stage width={stageSize.width} height={stageSize.height} ref={stageRef}>
@@ -164,6 +176,6 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
             </Layer>
         </Stage>
     );
-};
+});
 
 export default Template;

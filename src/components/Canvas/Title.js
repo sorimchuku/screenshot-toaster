@@ -71,7 +71,7 @@ const Title = (props) => {
                             margin: 0,
                             resize: 'none',
                             overflow: 'hidden',
-                            lineHeight: 1,
+                            lineHeight: 1.3,
                         }}
                     />
                 </Html>
@@ -86,6 +86,7 @@ const Title = (props) => {
                     fill={color}
                     align={align}
                     width={width}
+                    lineHeight={1.3}
                 />
             )}
             {(props.isEdit && (showOutline)) && (

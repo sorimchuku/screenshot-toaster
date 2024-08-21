@@ -17,11 +17,12 @@ export default function Editor() {
     const [stageScale, setStageScale] = useState(1);
 
     const scrollContainerRef = useRef();
+    const stageRefs = useRef([]);
     const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice } = useGlobalContext();
     const [template, setTemplate] = useState('');
     const [isSaveError, setIsSaveError] = useState(false);
     const sampleImage = 'images/screenshot-sample.png';
-    const currentStageStyle = stages[activeStage]?.style;
+    const currentStageStyle = stages ?  stages[activeStage]?.style : null;
     const prevStateRef = useRef({ template, uploadedImages, stages, selectedDevice });
 
     const defaultRatio = 9 / 19.5;
@@ -378,6 +379,27 @@ export default function Editor() {
         setStages(updatedStages);
     }
 
+    const exportStagesToImages = () => {
+        console.log('button clicked');
+        stageRefs.current.forEach((stageRef, index) => {
+            
+            if (stageRef) {
+                const dataURL = stageRef.toDataURL(1080 / stageRef.width());
+                
+                downloadImage(dataURL, `stage-${index}.png`);
+            }
+        });
+    };
+
+    const downloadImage = (dataURL, filename) => {
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
 
     return (
         <div className="body-container max-w-full h-full flex relative">
@@ -400,7 +422,8 @@ export default function Editor() {
             />
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
-                {stages.map((stage, index) => (
+                    <button onClick={exportStagesToImages}>Export Stages</button>
+                {stages?.map((stage, index) => (
                     
                     <div className="flex flex-col items-end relative " key={'stage' + index}>
                         {index === activeStage &&
@@ -425,7 +448,7 @@ export default function Editor() {
                             }
                         <div onClick={() => handleStageClick(index)} onTouchStart={() => handleStageClick(index)} key={index}
                             className={`stage-wrap bg-slate-200 shadow ${index === activeStage ? 'outline outline-2 outline-blue-300' : ''}`}>
-                            <Template templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} style={stage.style} device={selectedDevice?.id || 0} />
+                            <Template ref={el => (stageRefs.current[index] = el)} templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} style={stage.style} device={selectedDevice?.id || 0} />
                         </div>
                     </div>
                     
