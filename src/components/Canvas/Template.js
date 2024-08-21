@@ -177,5 +177,5 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
         </Stage>
     );
 });
-
+Template.displayName = 'Template';
 export default Template;
