@@ -186,6 +186,7 @@ export default function Home() {
                                 priority={true}
                                 width={300}
                                 height={300}
+                                unoptimized={true}
                             />
                         </div>
 

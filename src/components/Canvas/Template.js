@@ -150,7 +150,8 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
                 {style.title !== false && <Title
                     text={title}
                     x={style.titlePosition.x === 'center' ? (stageSize.width - scale * style.titleWidth) / 2 : scale * style.titlePosition.x}
-                    y={scale *style.titlePosition.y}
+                    y={style.textAlignY === 'bottom' ? (stageSize.height - scale * style.titleSize) - scale *style.titlePosition.y
+                         : scale *style.titlePosition.y}
                     fontSize={scale *style.titleSize}
                     width={scale *style.titleWidth}
                     align={style.titleAlign}
@@ -163,7 +164,8 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
                 {style.subTitle !== false && <Title
                     text={subTitle}
                     x={style.subTitlePosition.x === 'center' ? (stageSize.width - scale * style.subTitleWidth) / 2 : scale *style.subTitlePosition.x}
-                    y={scale *style.subTitlePosition.y}
+                    y={style.textAlignY === 'bottom' ? (stageSize.height - scale * style.subTitleSize) - scale *style.subTitlePosition.y
+                        : scale *style.subTitlePosition.y}
                     fontSize={scale *style.subTitleSize}
                     width={scale *style.subTitleWidth}
                     align={style.subTitleAlign}
