@@ -6,11 +6,6 @@ import Title from './Title';
 import { templates } from './Data/templates.js';
 import defaultImage from '../../../public/images/screenshot-sample.png';
 
-// WebFont.load({
-//     google: {
-//         families: ['Pretendard', 'Dongle', 'Noto Sans KR', 'Noto Serif KR', 'Black Han Sans', 'Bagel Fat One', 'Nanum Pen Script'],
-//     },
-// });
 
 const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize, isEdit, style, device }, ref) => {
     const [template, setTemplate] = useState(null);
@@ -55,6 +50,17 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
                     },
                 });
             });
+
+            const testToDataURL = async () => {
+                try {
+                    const dataURL = stageRef.current.toDataURL({ pixelRatio: 1 });
+                    console.log('Data URL:', dataURL);
+                } catch (error) {
+                    console.error('Error generating data URL:', error);
+                }
+            };
+
+            testToDataURL();
         }
     }, []);
 

@@ -422,7 +422,7 @@ export default function Editor() {
             />
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
-                    <button onClick={exportStagesToImages}>Export Stages</button>
+                    <button onClick={exportStagesToImages} className="border-2">내보내기</button>
                 {stages?.map((stage, index) => (
                     
                     <div className="flex flex-col items-end relative " key={'stage' + index}>
