@@ -45,7 +45,7 @@ const Title = (props) => {
             onMouseLeave={handleMouseLeave}
             onClick={handleTextClick}
         >
-            {isEditing ? (
+            {props.isEdit && isEditing ? (
                 <Html>
                     <textarea
                         ref={inputRef}
