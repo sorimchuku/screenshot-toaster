@@ -14,6 +14,7 @@ export default function Editor() {
     const [activeStage, setActiveStage] = useState(0);
     const [stageSize, setStageSize] = useState({ width: 240, height: 540 });
     const [stageScale, setStageScale] = useState(1);
+    const [selectedTools, setSelectedTools] = useState(null);
 
     const scrollContainerRef = useRef();
     const stageRefs = useRef([]);
@@ -418,15 +419,13 @@ export default function Editor() {
         });
     };
 
-    const downloadImage = (dataURL, filename) => {
-        const link = document.createElement('a');
-        link.href = dataURL;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
+    const changeSelectedTool = (id) => {
+        if (selectedTools === id) {
+            setSelectedTools(null);
+        } else {
+            setSelectedTools(id);
+        }
+    }
 
     return (
         <div className="body-container max-w-full h-full flex relative">
@@ -446,6 +445,8 @@ export default function Editor() {
                 changeTextSize={changeTextSize}
                 changeTextWeight={changeTextWeight}
                 changeTextAlignment={changeTextAlignment}
+                selectedTools={selectedTools}
+                changeSelectedTool={changeSelectedTool}
             />
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
@@ -474,7 +475,7 @@ export default function Editor() {
                             }
                         <div onClick={() => handleStageClick(index)} onTouchStart={() => handleStageClick(index)} key={index}
                             className={`stage-wrap bg-slate-200 shadow ${index === activeStage ? 'outline outline-2 outline-blue-300' : ''}`}>
-                            <Template ref={el => (stageRefs.current[index] = el)} templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} style={stage.style} device={selectedDevice?.id || 0} />
+                            <Template ref={el => (stageRefs.current[index] = el)} templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} style={stage.style} device={selectedDevice?.id || 0} changeSelectedTool={changeSelectedTool} />
                         </div>
                     </div>
                     

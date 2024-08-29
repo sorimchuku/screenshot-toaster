@@ -3,6 +3,7 @@ import { Text, Rect, Group } from 'react-konva';
 import { Html } from 'react-konva-utils';
 
 const Title = (props) => {
+    const {changeSelectedTool, toolId} = props;
     const [showOutline, setShowOutline] = useState(false);
     const [textRect, setTextRect] = useState({ x: 0, y: 0, width: 0, height: 0 });
     const [text, setText] = useState(props.text);
@@ -12,6 +13,7 @@ const Title = (props) => {
     useEffect(() => {
         if (isEditing && inputRef.current) {
             inputRef.current.focus();
+            changeSelectedTool(toolId);
         }
     }, [isEditing]);
 

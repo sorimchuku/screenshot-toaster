@@ -10,8 +10,7 @@ import { Icon } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 
 export default function SideBar(props) {
-    const [selectedTools, setSelectedTools] = useState(null);
-    // componentsMap keys must be same with components key value in /Data/tools.js
+    const { selectedTools, changeSelectedTool } = props;
     const componentsMap = {
         BackgroundSection: BackgroundSection,
         TitleSection: TitleSection,
@@ -19,14 +18,6 @@ export default function SideBar(props) {
         UploadSection: UploadSection,
         LayoutSelectSection: LayoutSelectSection,
     };
-
-    const changeSelectedTool = (id) => {
-        if (selectedTools === id) {
-            setSelectedTools(null);
-        } else {
-            setSelectedTools(id);
-        }
-    }
 
     const handleImageClick = (imageUrl) => {
         props.updateImageAtIndex(imageUrl, props.activeStage);

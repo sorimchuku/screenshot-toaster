@@ -7,7 +7,7 @@ import { templates } from './Data/templates.js';
 import defaultImage from '../../../public/images/screenshot-sample.png';
 
 
-const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize, isEdit, style, device }, ref) => {
+const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize, isEdit, style, device, changeSelectedTool }, ref) => {
     const [template, setTemplate] = useState(null);
     const [textNode1, setTextNode1] = useState(null);
     const [textNode2, setTextNode2] = useState(null);
@@ -154,6 +154,7 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
             </Layer>
             <Layer>
                 {style.title !== false && <Title
+                    changeSelectedTool={changeSelectedTool} toolId={2}
                     text={title}
                     x={style.titlePosition.x === 'center' ? (stageSize.width - scale * style.titleWidth) / 2 : scale * style.titlePosition.x}
                     y={style.textAlignY === 'bottom' ? (stageSize.height - scale * style.titleSize) - scale *style.titlePosition.y
@@ -168,6 +169,7 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
                     fontFamily={style.titleFont ?? 'Pretendard'}
                 /> }
                 {style.subTitle !== false && <Title
+                changeSelectedTool={changeSelectedTool} toolId={3}
                     text={subTitle}
                     x={style.subTitlePosition.x === 'center' ? (stageSize.width - scale * style.subTitleWidth) / 2 : scale *style.subTitlePosition.x}
                     y={style.textAlignY === 'bottom' ? (stageSize.height - scale * style.subTitleSize) - scale *style.subTitlePosition.y
