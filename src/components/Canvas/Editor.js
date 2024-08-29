@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect, use } from "react";
-import { useRouter } from "next/router";
 import SideBar from "./Sidebar";
 import { getUserFiles, database, getUserId } from "@/firebase";
 import { ref, get, set } from 'firebase/database';
@@ -8,7 +7,7 @@ import { useGlobalContext } from "../context/GlobalContext";
 import { Icon } from "@blueprintjs/core";
 import { v4 as uuidv4 } from 'uuid';
 import { templates } from "./Data/templates";
-
+import JSZip from "jszip";
 export default function Editor() {
     const [uploadedImages, setUploadedImages] = useState([]);
     const [stages, setStages] = useState([]);
@@ -18,7 +17,7 @@ export default function Editor() {
 
     const scrollContainerRef = useRef();
     const stageRefs = useRef([]);
-    const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice } = useGlobalContext();
+    const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice, saveEventRef, exportEventRef } = useGlobalContext();
     const [template, setTemplate] = useState('');
     const [isSaveError, setIsSaveError] = useState(false);
     const sampleImage = 'images/screenshot-sample.png';
@@ -91,8 +90,8 @@ export default function Editor() {
                 if (snapshot.exists()) {
                     const editorState = snapshot.val();
                     console.log('Editor state fetched successfully:', editorState);
-                    setUploadedImages(editorState.uploadedImages);
-                    setStages(editorState.stages);
+                    setUploadedImages(editorState.uploadedImages ?? []);
+                    setStages(editorState.stages ?? []);
                     setSelectedDevice(editorState.selectedDevice);
                     console.log('Editor state fetched successfully:', editorState)
                 } else {
@@ -136,7 +135,7 @@ export default function Editor() {
             if (!userId) return;
             const intervalId = setInterval(() => {
                 saveUserEdit(userId, prevStateRef.current.uploadedImages ?? [], prevStateRef.current.stages ?? [], prevStateRef.current.selectedDevice ?? null);
-            }, 30000);
+            }, 180000);
 
             return () => clearInterval(intervalId);
         };
@@ -146,7 +145,18 @@ export default function Editor() {
 
     useEffect(() => {
         prevStateRef.current = { template,  uploadedImages, stages, selectedDevice };
+        saveEventRef.current = async () => {
+            const userId = await getUserId();
+            if (!userId) return;
+            await saveUserEdit(userId, prevStateRef.current.uploadedImages ?? [], prevStateRef.current.stages ?? [], prevStateRef.current.selectedDevice ?? null);
+        };
     }, [template,  uploadedImages, stages, selectedDevice]);
+
+    useEffect(() => {
+        exportEventRef.current = () => {
+            exportStagesToImages();
+        };
+    }, []);
 
     useEffect(() => {
         const updateRatio = () => {
@@ -379,15 +389,32 @@ export default function Editor() {
         setStages(updatedStages);
     }
 
-    const exportStagesToImages = () => {
+    const exportStagesToImages = async () => {
         console.log('button clicked');
-        stageRefs.current.forEach((stageRef, index) => {
-            
+        const zip = new JSZip();
+        const deviceName = prevStateRef.current.selectedDevice?.name ?? 'default';
+        const folder = zip.folder(deviceName)
+
+        const promises = stageRefs.current.map(async (stageRef, index) => {
             if (stageRef) {
                 const dataURL = stageRef.toDataURL(1080 / stageRef.width());
-                
-                downloadImage(dataURL, `stage-${index}.png`);
+                const filename = `${deviceName}-${index + 1}.png`;
+                const responce = await fetch(dataURL);
+                const blob = await responce.blob();
+                folder.file(filename, blob);
+                // downloadImage(dataURL, `${deviceName ?? 'default'}-${index + 1}.png`);
             }
+        });
+
+        await Promise.all(promises);
+
+        zip.generateAsync({ type: 'blob' }).then((content) => {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = `${'Shottoaster'}.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         });
     };
 
@@ -422,7 +449,6 @@ export default function Editor() {
             />
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
-                    <button onClick={exportStagesToImages} className="border-2">내보내기</button>
                 {stages?.map((stage, index) => (
                     
                     <div className="flex flex-col items-end relative " key={'stage' + index}>

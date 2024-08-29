@@ -1,5 +1,5 @@
 // context/GlobalContext.js
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useRef } from 'react';
 
 const GlobalContext = createContext();
 
@@ -11,12 +11,26 @@ export const TemplateProvider = ({ children }) => {
     const [isSaving, setIsSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState('');
     const [selectedDevice, setSelectedDevice] = useState(null);
+    const saveEventRef = useRef(null);
+    const exportEventRef = useRef(null);
 
     const startSaving = () => {
         setIsSaving(true);
     };
     const finishSaving = () => {
         setIsSaving(false);
+    };
+
+    const triggerSaveEvent = () => {
+        if (saveEventRef.current) {
+            saveEventRef.current();
+        }
+    };
+
+    const triggerExportEvent = () => {
+        if (exportEventRef.current) {
+            exportEventRef.current();
+        }
     };
 
     const value = {
@@ -29,6 +43,10 @@ export const TemplateProvider = ({ children }) => {
         setLastSaved,
         selectedDevice,
         setSelectedDevice,
+        saveEventRef,
+        triggerSaveEvent,
+        exportEventRef,
+        triggerExportEvent,
     };
 
     return (
