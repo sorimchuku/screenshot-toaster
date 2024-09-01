@@ -1,12 +1,13 @@
 // Template.js
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useImperativeHandle } from 'react';
 import { Stage, Layer, Rect } from 'react-konva';
 import ImageComponent from './ImageComponent';
 import Title from './Title';
 import { templates } from './Data/templates.js';
 import defaultImage from '../../../public/images/screenshot-sample.png';
 
-const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, device }) => {
+
+const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize, isEdit, style, device, changeSelectedTool }, ref) => {
     const [template, setTemplate] = useState(null);
     const [textNode1, setTextNode1] = useState(null);
     const [textNode2, setTextNode2] = useState(null);
@@ -23,17 +24,45 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
     const scale = stageSize.width / 300;
     const stageRef = useRef();
 
+    useImperativeHandle(ref, () => ({
+        toDataURL: (pixelRatio = 1) => stageRef.current.toDataURL( { pixelRatio}),
+        width: () => stageRef.current.width(),
+    }));
+
     const originalHeight = imageDimensions.height || 16;
     const originalWidth = imageDimensions.width || 9;
     const imageRatio = originalHeight / originalWidth;
 
-    const aspectRatio = 1 / style.ratio;
+    const aspectRatio = 1 / style?.ratio;
     
     const handleDimensionsChange = (newDimensions) => {
         if (newDimensions.width !== imageDimensions.width || newDimensions.height !== imageDimensions.height) {
             setImageDimensions(newDimensions);
         }
     };
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            import('webfontloader').then(WebFont => {
+                WebFont.load({
+                    google: {
+                        families: ['Pretendard', 'Dongle', 'Noto Sans KR', 'Noto Serif KR', 'Black Han Sans', 'Bagel Fat One', 'Nanum Pen Script'],
+                    },
+                });
+            });
+
+            const testToDataURL = async () => {
+                try {
+                    const dataURL = stageRef.current.toDataURL({ pixelRatio: 1 });
+                    console.log('Data URL:', dataURL);
+                } catch (error) {
+                    console.error('Error generating data URL:', error);
+                }
+            };
+
+            testToDataURL();
+        }
+    }, []);
 
     useEffect(() => {
         if (textNode1 && textNode1.x !== (stageSize.width - textNode1.width) / 2) {
@@ -50,11 +79,17 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
         setTemplate(foundTemplate);
     }, [templateName]);
 
+    useEffect(() => {
+        if (ref) {
+            ref.current = stageRef.current;
+        }
+    }, [ref]);
+
     if (!template || !template.stages) {
         return null;
     }
 
-    // const style = template.stages[stageIndex] || template.stages[template.stages.length - 1];
+
 
     return (
         <Stage width={stageSize.width} height={stageSize.height} ref={stageRef}>
@@ -118,10 +153,12 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
                 />
             </Layer>
             <Layer>
-                <Title
+                {style.title !== false && <Title
+                    changeSelectedTool={changeSelectedTool} toolId={2}
                     text={title}
-                    x={style.titleX === 'center' ? (stageSize.width - scale * style.titleWidth) / 2 : scale * style.titleX}
-                    y={scale *style.titleY}
+                    x={style.titlePosition.x === 'center' ? (stageSize.width - scale * style.titleWidth) / 2 : scale * style.titlePosition.x}
+                    y={style.textAlignY === 'bottom' ? (stageSize.height - scale * style.titleSize) - scale *style.titlePosition.y
+                         : scale *style.titlePosition.y}
                     fontSize={scale *style.titleSize}
                     width={scale *style.titleWidth}
                     align={style.titleAlign}
@@ -129,11 +166,14 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
                     color={style.titleColor}
                     weight={style.titleWeight}
                     isEdit={isEdit}
-                />
-                <Title
+                    fontFamily={style.titleFont ?? 'Pretendard'}
+                /> }
+                {style.subTitle !== false && <Title
+                changeSelectedTool={changeSelectedTool} toolId={3}
                     text={subTitle}
-                    x={style.subTitleX === 'center' ? (stageSize.width - scale * style.subTitleWidth) / 2 : scale *style.subTitleX}
-                    y={scale *style.subTitleY}
+                    x={style.subTitlePosition.x === 'center' ? (stageSize.width - scale * style.subTitleWidth) / 2 : scale *style.subTitlePosition.x}
+                    y={style.textAlignY === 'bottom' ? (stageSize.height - scale * style.subTitleSize) - scale *style.subTitlePosition.y
+                        : scale *style.subTitlePosition.y}
                     fontSize={scale *style.subTitleSize}
                     width={scale *style.subTitleWidth}
                     align={style.subTitleAlign}
@@ -141,10 +181,11 @@ const Template = ({ templateName, stageIndex, image, stageSize, isEdit, style, d
                     color={style.subTitleColor}
                     weight={style.subTitleWeight}
                     isEdit={isEdit}
-                />
+                    fontFamily={style.subTitleFont ?? 'Pretendard'}
+                /> }
             </Layer>
         </Stage>
     );
-};
-
+});
+Template.displayName = 'Template';
 export default Template;

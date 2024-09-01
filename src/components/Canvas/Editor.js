@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect, use } from "react";
-import { useRouter } from "next/router";
 import SideBar from "./Sidebar";
 import { getUserFiles, database, getUserId } from "@/firebase";
 import { ref, get, set } from 'firebase/database';
@@ -8,20 +7,22 @@ import { useGlobalContext } from "../context/GlobalContext";
 import { Icon } from "@blueprintjs/core";
 import { v4 as uuidv4 } from 'uuid';
 import { templates } from "./Data/templates";
-
+import JSZip from "jszip";
 export default function Editor() {
     const [uploadedImages, setUploadedImages] = useState([]);
     const [stages, setStages] = useState([]);
     const [activeStage, setActiveStage] = useState(0);
     const [stageSize, setStageSize] = useState({ width: 240, height: 540 });
     const [stageScale, setStageScale] = useState(1);
-    const router = useRouter();
+    const [selectedTools, setSelectedTools] = useState(null);
+
     const scrollContainerRef = useRef();
-    const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice } = useGlobalContext();
+    const stageRefs = useRef([]);
+    const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice, saveEventRef, exportEventRef } = useGlobalContext();
     const [template, setTemplate] = useState('');
     const [isSaveError, setIsSaveError] = useState(false);
     const sampleImage = 'images/screenshot-sample.png';
-
+    const currentStageStyle = stages ?  stages[activeStage]?.style : null;
     const prevStateRef = useRef({ template, uploadedImages, stages, selectedDevice });
 
     const defaultRatio = 9 / 19.5;
@@ -63,8 +64,8 @@ export default function Editor() {
             const loadImagesFromFirebase = async () => {
                 const userId = await getUserId();
                 if (!userId) return;
-                const files = await getUserFiles(userId);
-                const images = files.map(file => file.url);
+                const images = await getUserFiles(userId);
+                // const images = files.map(file => file);
                 setTemplate(templateName);
                 setUploadedImages(images);
                 const newStages = Array.from({ length: images.length }, (_, index) => newStage(templateName, images[index], index));
@@ -90,8 +91,8 @@ export default function Editor() {
                 if (snapshot.exists()) {
                     const editorState = snapshot.val();
                     console.log('Editor state fetched successfully:', editorState);
-                    setUploadedImages(editorState.uploadedImages);
-                    setStages(editorState.stages);
+                    setUploadedImages(editorState.uploadedImages ?? []);
+                    setStages(editorState.stages ?? []);
                     setSelectedDevice(editorState.selectedDevice);
                     console.log('Editor state fetched successfully:', editorState)
                 } else {
@@ -134,8 +135,8 @@ export default function Editor() {
             const userId = await getUserId();
             if (!userId) return;
             const intervalId = setInterval(() => {
-                saveUserEdit(userId, prevStateRef.current.uploadedImages, prevStateRef.current.stages, prevStateRef.current.selectedDevice);
-            }, 30000);
+                saveUserEdit(userId, prevStateRef.current.uploadedImages ?? [], prevStateRef.current.stages ?? [], prevStateRef.current.selectedDevice ?? null);
+            }, 180000);
 
             return () => clearInterval(intervalId);
         };
@@ -145,7 +146,18 @@ export default function Editor() {
 
     useEffect(() => {
         prevStateRef.current = { template,  uploadedImages, stages, selectedDevice };
+        saveEventRef.current = async () => {
+            const userId = await getUserId();
+            if (!userId) return;
+            await saveUserEdit(userId, prevStateRef.current.uploadedImages ?? [], prevStateRef.current.stages ?? [], prevStateRef.current.selectedDevice ?? null);
+        };
     }, [template,  uploadedImages, stages, selectedDevice]);
+
+    useEffect(() => {
+        exportEventRef.current = () => {
+            exportStagesToImages();
+        };
+    }, []);
 
     useEffect(() => {
         const updateRatio = () => {
@@ -225,7 +237,7 @@ export default function Editor() {
     const handleStageDelete = (index) => {
         const updatedStages = stages.filter((_, i) => i !== index);
         setStages(updatedStages);
-        if(index !== 0){
+        if(index === stages.length - 1) {
         setActiveStage(activeStage - 1);
         }
     }
@@ -273,6 +285,147 @@ export default function Editor() {
         setStages(updatedStages);
     }
 
+    const toggleTitleSubtitle = (toolId, checked) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (toolId === 2) {
+            updatedStage.style = { ...updatedStage.style, title: checked };
+        } else if (toolId === 3) {
+            updatedStage.style = { ...updatedStage.style, subTitle: checked };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    };
+
+    const changeTextColor = (toolId, color, activeStage) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (toolId === 2) {
+            updatedStage.style = { ...updatedStage.style, titleColor: color };
+        } else if (toolId === 3) {
+            updatedStage.style = { ...updatedStage.style, subTitleColor: color };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
+    const changeTextPosition = (toolId, position, activeStage) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (toolId === 2) {
+            updatedStage.style = { ...updatedStage.style, titlePosition: position };
+        } else if (toolId === 3) {
+            updatedStage.style = { ...updatedStage.style, subTitlePosition: position };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
+    const changeTextFont = (toolId, font, activeStage) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (toolId === 2) {
+            updatedStage.style = { ...updatedStage.style, titleFont: font };
+        } else if (toolId === 3) {
+            updatedStage.style = { ...updatedStage.style, subTitleFont: font };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
+    const changeTextSize = (toolId, size, activeStage) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (toolId === 2) {
+            updatedStage.style = { ...updatedStage.style, titleSize: size };
+        } else if (toolId === 3) {
+            updatedStage.style = { ...updatedStage.style, subTitleSize: size };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
+    const changeTextWeight = (toolId, weight, activeStage) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (toolId === 2) {
+            updatedStage.style = { ...updatedStage.style, titleWeight: weight };
+        } else if (toolId === 3) {
+            updatedStage.style = { ...updatedStage.style, subTitleWeight: weight };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
+    const changeTextAlignment = (toolId, alignment, activeStage) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (toolId === 2) {
+            updatedStage.style = { ...updatedStage.style, titleAlign: alignment };
+        } else if (toolId === 3) {
+            updatedStage.style = { ...updatedStage.style, subTitleAlign: alignment };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
+    const exportStagesToImages = async () => {
+        console.log('button clicked');
+        const zip = new JSZip();
+        const deviceName = prevStateRef.current.selectedDevice?.name ?? 'default';
+        const folder = zip.folder(deviceName)
+
+        const promises = stageRefs.current.map(async (stageRef, index) => {
+            if (stageRef) {
+                const dataURL = stageRef.toDataURL(1080 / stageRef.width());
+                const filename = `${deviceName}-${index + 1}.png`;
+                const responce = await fetch(dataURL);
+                const blob = await responce.blob();
+                folder.file(filename, blob);
+                // downloadImage(dataURL, `${deviceName ?? 'default'}-${index + 1}.png`);
+            }
+        });
+
+        await Promise.all(promises);
+
+        zip.generateAsync({ type: 'blob' }).then((content) => {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = `${'Shottoaster'}.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    };
+
+    const changeSelectedTool = (id) => {
+        if (selectedTools === id) {
+            setSelectedTools(null);
+        } else {
+            setSelectedTools(id);
+        }
+    }
 
     return (
         <div className="body-container max-w-full h-full flex relative">
@@ -284,12 +437,22 @@ export default function Editor() {
                 activeStage={activeStage}
                 updateLayoutAtIndex={updateLayoutAtIndex}
                 changeStageColor={changeStageColor}
+                toggleTitleSubtitle={toggleTitleSubtitle}
+                changeTextColor={changeTextColor}
+                currentStageStyle={currentStageStyle}
+                changeTextPosition={changeTextPosition}
+                changeTextFont={changeTextFont}
+                changeTextSize={changeTextSize}
+                changeTextWeight={changeTextWeight}
+                changeTextAlignment={changeTextAlignment}
+                selectedTools={selectedTools}
+                changeSelectedTool={changeSelectedTool}
             />
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
-                {stages.map((stage, index) => (
+                {stages?.map((stage, index) => (
                     
-                    <div className="flex flex-col items-end " key={'stage' + index}>
+                    <div className="flex flex-col items-end relative " key={'stage' + index}>
                         {index === activeStage &&
                         <div className="flex absolute z-10 -translate-y-12 bg-white border-2 rounded-xl px-4 py-2 mb-2 items-center gap-3">
                             <div className="flex gap-2 cursor-pointer">
@@ -312,7 +475,7 @@ export default function Editor() {
                             }
                         <div onClick={() => handleStageClick(index)} onTouchStart={() => handleStageClick(index)} key={index}
                             className={`stage-wrap bg-slate-200 shadow ${index === activeStage ? 'outline outline-2 outline-blue-300' : ''}`}>
-                            <Template templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} style={stage.style} device={selectedDevice?.id || 0} />
+                            <Template ref={el => (stageRefs.current[index] = el)} templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} style={stage.style} device={selectedDevice?.id || 0} changeSelectedTool={changeSelectedTool} />
                         </div>
                     </div>
                     

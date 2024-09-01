@@ -3,7 +3,7 @@ import { Image } from "react-konva";
 import useImage from 'use-image';
 
 const ImageComponent = ({ image, shapeProps, onDimensionsChange }) => {
-    const [img, status] = useImage(image);
+    const [img, status] = useImage(image, 'anonymous');
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const shapeRef = useRef();
 

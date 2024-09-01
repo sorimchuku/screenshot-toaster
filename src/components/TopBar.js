@@ -7,29 +7,35 @@ import { devices } from "./Canvas/Data/devices";
 
 const TopBar = () => {
   const router = useRouter();
-  const { isSaving, lastSaved, selectedDevice, setSelectedDevice } = useGlobalContext();
+  const { isSaving, lastSaved, selectedDevice, setSelectedDevice, triggerSaveEvent, triggerExportEvent } = useGlobalContext();
 
   const handleDeviceChange = (e) => {
     const newDevice = devices.find(device => device.id === parseInt(e.target.value));
     setSelectedDevice(newDevice);
   };
 
+  const handleSave = () => {
+    triggerSaveEvent();
+  };
+
+  const handleExport = () => {
+    triggerExportEvent();
+  };
 
   return (
     <nav className="top-bar flex items-center justify-between flex-wrap bg-white py-6 px-24 border-b">
       <div className="flex items-center flex-shrink-0 text-black mr-6">
         <button onClick={() => router.push('/')} className="text-3xl font-bold racking-tight h-9 w-auto">
-          <Image src='../../images/logo_long.svg'
+          <Image src='/images/logo_long.svg'
             alt="Shottoaster"
             width={200}
             height={36}
-            priority={true}
           />
         </button>
       </div>
       {router.pathname === '/editor' && (
         <div className="editor-top flex gap-6 items-center">
-          <div className=" text-right text-base text-gray-400 flex items-center gap-2">
+          <div className=" text-right text-base text-gray-400 flex items-center gap-2 cursor-pointer" onClick={handleSave}>
             {isSaving ? <Spinner size={16} /> : <Icon icon="history" className="" />}
             <span>
               {isSaving ? '저장중...' : lastSaved === '' ? '자동 저장' : `${lastSaved} 저장됨`}
@@ -46,7 +52,7 @@ const TopBar = () => {
             </select>
               
           </div>
-          <div className=" bg-black text-white px-10 py-2 text-lg rounded-full">내보내기</div>
+          <div className=" bg-black text-white px-10 py-2 text-lg rounded-full cursor-pointer" onClick={handleExport}>내보내기</div>
         </div>
       )}
 
