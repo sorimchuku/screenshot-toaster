@@ -80,7 +80,7 @@ const saveFileInfoToDatabase = async (fileInfo, uploadTime) => {
     // const userFilesRef = databaseRef(database, `users/${userId}/files/${uploadTime}`);
     const userEditorRef = databaseRef(database, `users/${userId}/editor/uploadedImages`);
     // await set(userFilesRef, fileInfo);
-    await push(userEditorRef, fileInfo.url);
+    await push(userEditorRef, fileInfo);
 };
 
 const getUserFiles = async () => {

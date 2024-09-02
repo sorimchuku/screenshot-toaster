@@ -21,12 +21,12 @@ export default function SelectTemplate() {
         const fetchImages = async () => {
             const userId = await getUserId();
             const userImages = await getUserImagesFour(userId);
-            const imageUrls = userImages.map(file => file.url);
-            if (imageUrls.length < 4) {
-                const placeholders = sampleImages.slice(0, 4 - imageUrls.length);
-                setImages([...imageUrls, ...placeholders]);
+            // const imageUrls = userImages.map(file => file.url);
+            if (userImages.length < 4) {
+                const placeholders = sampleImages.slice(0, 4 - userImages.length);
+                setImages([...userImages, ...placeholders]);
             } else {
-                setImages(imageUrls);
+                setImages(userImages);
             }
         };
 

@@ -109,7 +109,7 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
             </Layer>
             <Layer>
                 <ImageComponent
-                    image={image ||defaultImage}
+                    image={image?.url ||defaultImage}
                     shapeProps={{
                         x: style.x === 'center' ? ((stageSize.width - scale * style.width) / 2) : style.align === 'right' ? stageSize.width - scale * style.x : scale * style.x,
                         y: scale *style.y,

@@ -92,8 +92,11 @@ export default function Editor() {
                 if (snapshot.exists()) {
                     const editorState = snapshot.val();
                     console.log('Editor state fetched successfully:', editorState);
-                    setUploadedImages(editorState.uploadedImages ?? []);
-                    console.log('Uploaded images fetched successfully:', editorState.uploadedImages, uploadedImages);
+                    const images = Array.isArray(editorState.uploadedImages)
+                            ? editorState.uploadedImages
+                            : [editorState.uploadedImages];
+
+                        setUploadedImages(images);
                     setStages(editorState.stages ?? []);
                     setSelectedDevice(editorState.selectedDevice);
                     console.log('Editor state fetched successfully:', editorState)

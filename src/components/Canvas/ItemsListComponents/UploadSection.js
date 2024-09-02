@@ -3,6 +3,8 @@ import { IconNames } from '@blueprintjs/icons';
 import { Icon, Spinner } from '@blueprintjs/core';
 import { uploadFile } from "@/firebase";
 import { deleteFile } from "@/firebase";
+import { Slide, toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function UploadSection(props) {
     const [deleteMode, setDeleteMode] = useState({});
@@ -44,11 +46,18 @@ export default function UploadSection(props) {
     const UploadButton = () => {
         const handleUpload = async (e) => {
             let img = e.target.files[0];
+            const uploadedImages = Array.isArray(props.uploadedImages) ? props.uploadedImages : [];
+        // 파일 이름 중복 확인
+        if (uploadedImages.some(image => image.name === img.name)) {
+            toast("이미 등록된 파일이에요.");
+            return;
+        }
+
             setIsUploading(true);
             try {
                 const fileInfo = await uploadFile(img);
                 console.log('File uploaded successfully:', fileInfo);
-                props.setUploadedImages((prevState) => [...prevState, fileInfo.url]);
+                props.setUploadedImages((prevState) => [...prevState, fileInfo]);
             } catch (error) {
                 console.error('Failed to upload file:', error);
             } finally {
@@ -76,7 +85,7 @@ export default function UploadSection(props) {
     };
 
     const UploadedImages = () => {
-        const uploadedImages = Array.isArray(props.uploadedImages) ? props.uploadedImages : [];
+        const uploadedImages = Array.isArray(props.uploadedImages) ? props.uploadedImages : [props.uploadedImages];
         return uploadedImages?.map((item, i) => (
             <div className="imageContainer group relative w-full h-[68px]" key={i}>
                 <button onClick={(e) =>{ e.stopPropagation(); handleDeleteClick(i);}} className="absolute top-0 right-0 p-1 z-50 collapse group-hover:visible transition-all">
@@ -85,13 +94,14 @@ export default function UploadSection(props) {
                         : <Icon icon={IconNames.CROSS} className="bg-black rounded-full text-white" />}
                 </button>
                 <img
-                    src={item}
+                    item={item}
+                    src={item.url}
                     alt=""
                     className="itemsImage w-full h-full object-cover rounded-md  transition-all group-hover:brightness-50"
                     draggable="true"
                     elementcategory={item}
                     onClick={(e) => { deleteMode[i] ? handleImageClick(i) :
-                        props.handleImageClick(e.target.src);
+                        props.handleImageClick(item);
                     }}
                 />
                 
@@ -100,9 +110,12 @@ export default function UploadSection(props) {
     };
 
     return (
+        <><ToastContainer
+        hideProgressBar={true}
+        transition={Slide} />
         <div className="itemsSection grid grid-cols-3 gap-1">
                 <UploadedImages />
             <UploadButton />
-        </div>
+        </div></>
     );
 }
