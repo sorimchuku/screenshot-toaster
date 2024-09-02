@@ -21,7 +21,6 @@ export default function SelectTemplate() {
         const fetchImages = async () => {
             const userId = await getUserId();
             const userImages = await getUserImagesFour(userId);
-            // const imageUrls = userImages.map(file => file.url);
             if (userImages.length < 4) {
                 const placeholders = sampleImages.slice(0, 4 - userImages.length);
                 setImages([...userImages, ...placeholders]);
@@ -93,7 +92,7 @@ export default function SelectTemplate() {
                                     return(
                                         <div key={innerIndex} 
                                         className={`stage-wrap rounded ${template === selectedTemplate ? 'grayscale-0' : 'grayscale'}`}>
-                                        <Template  templateName={template} stageSize={stageSize} stageScale={stageScale} stageIndex={innerIndex} image={images[imageIndex]} isEdit={false} style={style} />
+                                        <Template  templateName={template} stageSize={stageSize} stageScale={stageScale} stageIndex={innerIndex} image={images[imageIndex]} alt={`Screenshot ${imageIndex + 1}`} isEdit={false} style={style} />
                                     </div>
                                     )
                                     
