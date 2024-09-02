@@ -15,15 +15,16 @@ export default function Editor() {
     const [stageSize, setStageSize] = useState({ width: 240, height: 540 });
     const [stageScale, setStageScale] = useState(1);
     const [selectedTools, setSelectedTools] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const scrollContainerRef = useRef();
-    const stageRefs = useRef([]);
     const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice, saveEventRef, exportEventRef } = useGlobalContext();
     const [template, setTemplate] = useState('');
     const [isSaveError, setIsSaveError] = useState(false);
     const sampleImage = 'images/screenshot-sample.png';
     const currentStageStyle = stages ?  stages[activeStage]?.style : null;
     const prevStateRef = useRef({ template, uploadedImages, stages, selectedDevice });
+    const scrollContainerRef = useRef();
+    const stageRefs = useRef([]);
 
     const defaultRatio = 9 / 19.5;
     useEffect(() => {
@@ -92,6 +93,7 @@ export default function Editor() {
                     const editorState = snapshot.val();
                     console.log('Editor state fetched successfully:', editorState);
                     setUploadedImages(editorState.uploadedImages ?? []);
+                    console.log('Uploaded images fetched successfully:', editorState.uploadedImages, uploadedImages);
                     setStages(editorState.stages ?? []);
                     setSelectedDevice(editorState.selectedDevice);
                     console.log('Editor state fetched successfully:', editorState)
@@ -100,10 +102,14 @@ export default function Editor() {
                 }
             } catch (error) {
                 console.error('Error fetching editor state:', error);
+            } finally {
+                setIsLoading(false);
             }
         };
         fetchEditorState();
-    } else return;
+    } else {
+        setIsLoading(false);
+    };
     }, []);
 
     useEffect(() => {
@@ -429,7 +435,7 @@ export default function Editor() {
 
     return (
         <div className="body-container max-w-full h-full flex relative">
-            <SideBar
+            {!isLoading && <SideBar
                 uploadedImages={uploadedImages}
                 setUploadedImages={setUploadedImages}
                 handleAddPage={handleAddPage}
@@ -447,7 +453,7 @@ export default function Editor() {
                 changeTextAlignment={changeTextAlignment}
                 selectedTools={selectedTools}
                 changeSelectedTool={changeSelectedTool}
-            />
+            />}
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
                 {stages?.map((stage, index) => (
