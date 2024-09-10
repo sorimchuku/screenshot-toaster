@@ -27,9 +27,9 @@ export const TemplateProvider = ({ children }) => {
         }
     };
 
-    const triggerExportEvent = () => {
+    const triggerExportEvent = (exportDevices) => {
         if (exportEventRef.current) {
-            exportEventRef.current();
+            exportEventRef.current(exportDevices);
         }
     };
 

@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { useGlobalContext } from "./context/GlobalContext";
 import { Icon, Spinner } from "@blueprintjs/core";
 import { devices } from "./Canvas/Data/devices";
+import DeviceSelection from "./DeviceSelection";
 
 const TopBar = () => {
   const router = useRouter();
   const { isSaving, lastSaved, selectedDevice, setSelectedDevice, triggerSaveEvent, triggerExportEvent } = useGlobalContext();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleDeviceChange = (e) => {
     const newDevice = devices.find(device => device.id === parseInt(e.target.value));
@@ -19,7 +21,11 @@ const TopBar = () => {
   };
 
   const handleExport = () => {
-    triggerExportEvent();
+    setIsModalOpen(true);
+  };
+
+  const handleSelectDevices = (exportDevices) => {
+    triggerExportEvent(exportDevices);
   };
 
   return (
@@ -55,6 +61,7 @@ const TopBar = () => {
           <div className=" bg-black text-white px-10 py-2 text-lg rounded-full cursor-pointer" onClick={handleExport}>내보내기</div>
         </div>
       )}
+      <DeviceSelection isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} onSelectDevices={handleSelectDevices} />
 
     </nav>
   );
