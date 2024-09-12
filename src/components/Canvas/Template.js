@@ -51,7 +51,7 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
             stageRef.current.height(stageSize.height);
             stageRef.current.draw();
         }
-    }, [stageSize]);
+    }, [stageSize, device]);
 
     const originalHeight = imageDimensions.height || 16;
     const originalWidth = imageDimensions.width || 9;

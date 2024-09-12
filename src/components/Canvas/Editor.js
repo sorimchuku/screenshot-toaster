@@ -400,41 +400,31 @@ export default function Editor() {
 
     const exportStagesToImages = async (exportDevices) => {
         const zip = new JSZip();
+        const originalDevice = selectedDevice;
 
-        const promises =  exportDevices.map(async (deviceId) => {
+        for (const deviceId of exportDevices) {
             const device = devices.find(device => String(device.id) === deviceId);
+            await new Promise(resolve => {
+                setSelectedDevice(device);
+                setTimeout(resolve, 100); // Wait for the device change to take effect
+            });
+
             const folder = zip.folder(device.name);
             const deviceRatio = device.ratio;
-            const deviceStageSize = { width: 1080, height: 1080 /deviceRatio };
+            const deviceStageSize = { width: 1080, height: 1080 / deviceRatio };
 
-        const devicePromises = stageRefs.current.map(async (stageRef, index) => {
-            if (stageRef) {
-                // 스테이지 크기를 기종 비율에 맞게 조정
-                stageRef.setSize(stageRef.width(), stageRef.width() / deviceRatio);
-                stageRef.device = device.id;
-                // 스테이지 스타일을 기종에 맞게 조정
-                stageRef.style = {
-                    ...stageRef.style,
-                    width: deviceStageSize.width,
-                    height: deviceStageSize.height,
-                    ratio: deviceRatio,
-                    // 추가적인 스타일 조정이 필요할 경우 여기에 추가
-                };
+            const devicePromises = stageRefs.current.map(async (stageRef, index) => {
+                if (stageRef) {
+                    const dataURL = stageRef.toDataURL({ pixelRatio: deviceStageSize.width / stageRef.width() });
+                    const filename = `${device.name}-${index + 1}.png`;
+                    const response = await fetch(dataURL);
+                    const blob = await response.blob();
+                    folder.file(filename, blob);
+                }
+            });
 
-                // 스테이지를 다시 그려서 새로운 비율에 맞는 이미지를 생성
-                stageRef.redraw();
-
-                const dataURL = stageRef.toDataURL({ pixelRatio: deviceStageSize.width / stageRef.width() });
-                const filename = `${device.name}-${index + 1}.png`;
-                const response = await fetch(dataURL);
-                const blob = await response.blob();
-                folder.file(filename, blob);
-            }
-        });
-
-        await Promise.all(devicePromises);
-    });
-    await Promise.all(promises);
+            await Promise.all(devicePromises);
+        }
 
         zip.generateAsync({ type: 'blob' }).then((content) => {
             const link = document.createElement('a');
@@ -444,6 +434,8 @@ export default function Editor() {
             link.click();
             document.body.removeChild(link);
         });
+        
+        setSelectedDevice(originalDevice);
     };
 
 

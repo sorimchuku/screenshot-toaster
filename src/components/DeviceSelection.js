@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Modal from 'react-modal';
 import { devices } from "./Canvas/Data/devices";
 
 const DeviceSelection = ({ isOpen, onRequestClose, onSelectDevices }) => {
@@ -19,24 +18,31 @@ const DeviceSelection = ({ isOpen, onRequestClose, onSelectDevices }) => {
         onRequestClose();
     };
 
+    if (!isOpen) {
+        return null;
+    }
+
     return (
-        <Modal isOpen={isOpen} onRequestClose={onRequestClose}>
-            <h2>기종 선택</h2>
-            <div>
-                {devices.map((device) => (
-                    <div key={device.id}>
-                        <input
-                            type="checkbox"
-                            value={String(device.id)}
-                            checked={selectedDevices.includes(String(device.id))}
-                            onChange={handleDeviceChange}
-                        />
-                        <label>{device.name}</label>
+            <div className="modal-overlay fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-40">
+                <div className="modal-content bg-white p-5 rounded-lg shadow z-50">
+                    <h2>기종 선택</h2>
+                    <div>
+                        {devices.map((device) => (
+                            <div key={device.id}>
+                                <input
+                                    type="checkbox"
+                                    value={String(device.id)}
+                                    checked={selectedDevices.includes(String(device.id))}
+                                    onChange={handleDeviceChange}
+                                />
+                                <label>{device.name}</label>
+                            </div>
+                        ))}
                     </div>
-                ))}
+                    <button className='mt-2' onClick={handleExport} disabled={selectedDevices.length === 0}>내보내기</button>
+                    <button className='mt-2' onClick={onRequestClose}>닫기</button>
+                </div>
             </div>
-            <button onClick={handleExport}>내보내기</button>
-        </Modal>
     );
 };
 
