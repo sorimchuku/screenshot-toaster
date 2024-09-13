@@ -7,6 +7,7 @@ import { Icon, Spinner } from "@blueprintjs/core";
 import { ref, get, set } from 'firebase/database';
 import { uploadFile, deleteUserFiles, getUserFiles, checkUserSignIn, database} from '../firebase';
 import { useGlobalContext } from "./context/GlobalContext";
+import imageCompression from "browser-image-compression";
 
 export default function Home() {
     const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -16,6 +17,7 @@ export default function Home() {
     const [isUserSignedIn, setIsUserSignedIn] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isMobileOk, setIsMobileOk] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const { uploadedImages, setUploadedImages } = useGlobalContext();
 
     const router = useRouter();
@@ -84,28 +86,45 @@ export default function Home() {
         router.push('/editor');
     }
 
+    const compressImage = async (imageFile) => {
+        const options = {
+            maxSizeMB: 0.5,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true
+        };
+        try {
+            const compressedFile = await imageCompression(imageFile, options);
+            return compressedFile;
+        } catch (error) {
+            console.error('Error compressing image:', error);
+            throw error;
+        }
+    }
+
     const handleFilesUpload = async (files) => {
         setIsUploading(true);
-        const newUploadedFiles = [];
-        for (const file of files) {
-            // Check if the file is already in uploadedFiles
-            if (uploadedFiles.some(uploadedFile => uploadedFile.path === file.path)) {
-                toast("이미 등록된 파일이에요.");
-                continue;
-            }
-
+        const newUploadedFiles = new Array(files.length); // Create an array with the same length as files
+        const uploadPromises = files.map(async (file, index) => {
             try {
-                const uploadedFile = await uploadFile(file);
-                newUploadedFiles.push(uploadedFile);
+                const compressedFile = await compressImage(file);
+                const uploadedFile = await uploadFile(compressedFile, index);
+                newUploadedFiles[index] = { ...uploadedFile, originalIndex: index };
+                setUploadProgress(prevProgress => prevProgress + 1); // Update progress
+                return uploadedFile;
             } catch (error) {
                 console.error('Error uploading file:', error);
                 toast('업로드에 실패했습니다. 다시 시도해 주세요.');
+                return null;
             }
-        }
+        });
+    
+        await Promise.all(uploadPromises);
+    
         setUploadedFiles(prevFiles => [...prevFiles, ...newUploadedFiles]);
         setIsUploading(false);
         return newUploadedFiles;
     };
+    
 
 
     return (
@@ -121,7 +140,7 @@ export default function Home() {
             {isUploading && <div className={`loading fixed z-50 top-0 flex items-center justify-center bg-white bg-opacity-50 ${isMobile ? 'h-screen w-screen' : 'h-full w-full'}`}>
                 <div className="loading-container my-auto mx-auto self-center justify-self-center">
                     <Spinner size={Spinner.SIZE_LARGE} className="pb-2" />
-                    <div className="text-2xl self-center font-bold text-neutral-500">업로드 중...</div>
+                    <div className="text-2xl self-center font-bold text-neutral-500">업로드 중... {uploadProgress}/{selectedFiles.length}</div>
                 </div>
 
             </div>}

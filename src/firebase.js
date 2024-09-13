@@ -39,7 +39,7 @@ const getUserId = () => {
     });
 };
 
-const uploadFile = async (file) => {
+const uploadFile = async (file, index) => {
     const userId = await getUserId();
     if (!userId) {
         console.error('User UID is undefined. File upload aborted.');
@@ -64,7 +64,7 @@ const uploadFile = async (file) => {
             async () => {
                 try {
                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    const fileInfo = { name: file.name, url: downloadURL, path: `images/${userId}/${uploadTime}_${file.name}` };
+                    const fileInfo = { name: file.name, url: downloadURL, path: `images/${userId}/${uploadTime}_${file.name}`, originalIndex: index ?? -1 };
                     await saveFileInfoToDatabase(fileInfo, uploadTime);
                     resolve(fileInfo);
                 } catch (error) {
@@ -80,7 +80,7 @@ const saveFileInfoToDatabase = async (fileInfo, uploadTime) => {
     // const userFilesRef = databaseRef(database, `users/${userId}/files/${uploadTime}`);
     const userEditorRef = databaseRef(database, `users/${userId}/editor/uploadedImages`);
     // await set(userFilesRef, fileInfo);
-    await push(userEditorRef, fileInfo.url);
+    await push(userEditorRef, fileInfo);
 };
 
 const getUserFiles = async () => {
@@ -93,6 +93,7 @@ const getUserFiles = async () => {
             const fileData = childSnapshot.val();
             files.push(fileData);
         });
+        files.sort((a, b) => a.originalIndex - b.originalIndex);
         return files;
     } catch (error) {
         console.error('Error getting user files:', error);
@@ -101,14 +102,15 @@ const getUserFiles = async () => {
 };
 
 const getUserImagesFour = async (userId, limit = 4) => {
-    const imagesRef = ref(storage, `images/${userId}`);
-    const res = await listAll(imagesRef);
-    const imageFiles = res.items.slice(0, limit);
-    const downloadURLs = await Promise.all(imageFiles.map(async fileRef => {
-        const url = await getDownloadURL(fileRef);
-        const name = fileRef.name;
-        return { url, name };
+    const userFiles = await getUserFiles(userId);
+    const sortedFiles = userFiles.sort((a, b) => a.originalIndex - b.originalIndex);
+    const firstFourFiles = sortedFiles.slice(0, limit);
+
+    const downloadURLs = await Promise.all(firstFourFiles.map(async file => {
+        const url = await getDownloadURL(ref(storage, file.path));
+        return { url, name: file.name };
     }));
+
     return downloadURLs;
 };
 

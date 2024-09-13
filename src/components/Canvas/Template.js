@@ -51,16 +51,6 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
                 });
             });
 
-            const testToDataURL = async () => {
-                try {
-                    const dataURL = stageRef.current.toDataURL({ pixelRatio: 1 });
-                    console.log('Data URL:', dataURL);
-                } catch (error) {
-                    console.error('Error generating data URL:', error);
-                }
-            };
-
-            testToDataURL();
         }
     }, []);
 
@@ -118,13 +108,13 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
                 />
             </Layer>
             <Layer>
-                <ImageComponent 
-                    image={image ||defaultImage}
+                <ImageComponent
+                    image={image?.url ||defaultImage}
                     shapeProps={{
                         x: style.x === 'center' ? ((stageSize.width - scale * style.width) / 2) : style.align === 'right' ? stageSize.width - scale * style.x : scale * style.x,
                         y: scale *style.y,
                         width: scale * style.width ? scale * style.width : scale * 500,
-                        height: style.width ? scale * style.width * (imageRatio) : scale * 500 * imageRatio,
+                        height: style.width ? (scale * style.width * (imageRatio)) : (scale * 500 * imageRatio),
                         rotation: style.rotation ? style.rotation : 0,
                     }}
                     onDimensionsChange={handleDimensionsChange}
@@ -133,7 +123,7 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
                     x={style.x === 'center' ? ((stageSize.width - scale * style.width) / 2) : style.align === 'right' ? stageSize.width - scale * style.x : scale * style.x}
                     y={scale *style.y}
                     width={style.width ? scale * style.width : scale * 500}
-                    height={style.width ? scale * style.width * (aspectRatio) : scale * 500 * aspectRatio}
+                    height={style.width ? scale * (style.width * aspectRatio - 2) : scale * (500 * aspectRatio - 2)}
                     fill="grey"
                     cornerRadius={style. cornerRadius ? scale * style.cornerRadius : scale * 20}
                     rotation={style.rotation ? style.rotation : 0}
