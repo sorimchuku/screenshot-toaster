@@ -18,7 +18,7 @@ export default function Editor() {
     const [selectedTools, setSelectedTools] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice, saveEventRef, exportEventRef } = useGlobalContext();
+    const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice, saveMethod, setSaveMethod, saveEventRef, exportEventRef } = useGlobalContext();
     const [template, setTemplate] = useState('');
     const [isSaveError, setIsSaveError] = useState(false);
     const sampleImage = 'images/screenshot-sample.png';
@@ -148,6 +148,8 @@ export default function Editor() {
                 saveUserEdit(userId, prevStateRef.current.uploadedImages ?? [], prevStateRef.current.stages ?? [], prevStateRef.current.selectedDevice ?? null);
             }, 180000);
 
+            setSaveMethod('auto');
+
             return () => clearInterval(intervalId);
         };
 
@@ -208,8 +210,8 @@ export default function Editor() {
                 selectedDevice: selectedDevice,
             });
             const now = new Date();
-            const hours = now.getHours().toString();
-            const minutes = now.getMinutes().toString();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
             const formattedTime = `${hours}:${minutes}`; // hh:mm 형식으로 조합
 
             setLastSaved(formattedTime);

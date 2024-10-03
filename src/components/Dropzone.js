@@ -86,7 +86,7 @@ const Dropzone = ({ selectedFiles, setSelectedFiles }) => {
             />
             {selectedFiles.length === 0 ? (
                 <label htmlFor="fileUpload" className="cursor-pointer text-neutral-400 text-lg h-full w-full flex items-center justify-center flex-col">
-                    <Icon icon={IconNames.MEDIA} size={50} />
+                    <Icon icon={IconNames.MOBILE_PHONE} size={50} className='mb-2' />
                     <div className="">클릭 또는 드래그 드롭으로</div>
                     <div className="">스크린샷 이미지 업로드</div>
                 </label>

@@ -155,12 +155,12 @@ export default function Home() {
                             <div>샷토스터로 앱스토어 스크린샷을</div>
                             <div>손쉽게 만들어 보세요</div>
                         </h2>
-                        <div className="mb-4">원본 화면 캡처샷 업로드로 스토어 등록용 스크린샷을 제작할 수 있어요</div>
+                        <div className="mb-4">앱 화면 캡처샷 업로드로 스토어 등록용 스크린샷을 제작할 수 있어요</div>
                         <div onClick={handleGoToExistingEdit}
                             className={`existing-info-box flex justify-between bg-blue-200 rounded p-2 cursor-pointer transform transition-all duration-1000
                             ${isEditExisting ? 'translate-x-0 opacity-100' : 'invisible -translate-x-full opacity-0'}`}>
                             <div className="flex items-center">
-                                <div className="image-container w-16 mx-2 flex items-center justify-center bg-transparent rounded">
+                                <div className="image-container w-auto ml-4 mr-2 flex items-center justify-center bg-transparent rounded">
                                     <Image className="w-[50px] h-auto"
                                         src={prevEditIcon}
                                         width={50}
@@ -172,7 +172,7 @@ export default function Home() {
                                     <div className=" text-base">새로운 캡처샷을 업로드하면 기존의 프로젝트는 삭제돼요 X(</div>
                                 </div>
                             </div>
-                            <div className="flex text-blue-400 font-bold items-center ml-8">
+                            <div className="flex text-blue-400 font-bold items-center ml-8 mr-2">
                                 <span>이동하기</span>
                                 <Icon icon="chevron-right" size={20} />
                             </div>
@@ -181,7 +181,7 @@ export default function Home() {
                     </div>
                     <div className="right-box h-auto w-1/2 flex-col justify-between px-8">
                         <div className="storeicons-container flex items-center justify-end">
-                            <span className="mr-12">for</span>
+                            <span className="mr-2">for</span>
                             <Image
                                 alt="appstore-icon"
                                 className="object-contain mx-4 w-[40px] h-auto"
@@ -197,14 +197,14 @@ export default function Home() {
                                 height={40}
                             />
                         </div>
-                        <div className="gif-container flex justify-end mt-6 min-w-72">
+                        <div className="gif-container flex justify-end mt-6">
                             <Image
                                 alt="toaster-gif"
-                                className="object-contain w-[300px] h-auto"
+                                className="object-contain w-[450px] h-auto"
                                 src='/images/shottoastergif.gif'
                                 priority={true}
-                                width={300}
-                                height={300}
+                                width={500}
+                                height={500}
                                 unoptimized={true}
                             />
                         </div>
@@ -218,7 +218,7 @@ export default function Home() {
                     <button onClick={handleUploadButtonClick}
                         disabled={selectedFiles?.length === 0}
                         className="upload-button rounded-full py-3 px-16 bg-black text-white text-xl font-bold disabled:bg-neutral-400">
-                        템플릿 선택하기
+                        다음 단계로
                     </button>
                 </div>
             </div>

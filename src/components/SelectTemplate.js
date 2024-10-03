@@ -74,7 +74,7 @@ export default function SelectTemplate() {
                         <div className="text-lg text-center mt-4">색, 폰트, 순서는 이 다음에 변경 가능해요.</div>
                     </div>
                     <div onClick={() => handleGoClick()}
-                    className='flex cursor-pointer bg-black px-8 py-2 h-fit rounded-full text-lg text-white items-center justify-center'>선택 완료</div>
+                    className='flex cursor-pointer bg-black px-8 py-2 h-fit rounded-full text-lg text-white items-center justify-center'>다음 단계로</div>
                 </div>
                 
                 <div className='template-container grid grid-cols-2 w-full items-center gap-2 flex-grow flex-shrink-0 basis-auto'>
