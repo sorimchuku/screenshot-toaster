@@ -27,9 +27,10 @@ const DeviceSelection = ({ isOpen, onRequestClose, onSelectDevices }) => {
     }
 
     return (
-            <div className="modal-overlay fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-40">
-                <div className="modal-content flex flex-col bg-white px-20 py-16 rounded-lg shadow z-50">
-                    <h2 className="font-bold text-xl">기종 선택</h2>
+        <div className="modal-overlay fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-40">
+            <div className="modal-content flex flex-col bg-white px-20 py-16 rounded-lg shadow z-50">
+                <h2 className="font-bold text-xl">기종 선택</h2>
+
                 <div className='grid grid-cols-2 gap-y-3 gap-x-5 text-lg py-12'>
                     <div>
                         <div className='font-bold text-xl mb-4'>아이폰</div>
@@ -62,8 +63,8 @@ const DeviceSelection = ({ isOpen, onRequestClose, onSelectDevices }) => {
                     <button className='mt-2 text-lg bg-black rounded-full px-8 py-2 text-white disabled:bg-gray-300' onClick={handleExport} disabled={selectedDevices.length === 0}>내보내기</button>
                     <button className='mt-2 text-lg bg-gray-200 rounded-full px-8 py-2 text-black' onClick={onRequestClose}>닫기</button>
                 </div>
-                </div>
             </div>
+        </div>
     );
 };
 

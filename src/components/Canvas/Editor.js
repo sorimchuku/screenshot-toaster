@@ -8,6 +8,7 @@ import { Icon } from "@blueprintjs/core";
 import { v4 as uuidv4 } from 'uuid';
 import { templates } from "./Data/templates";
 import JSZip from "jszip";
+import { devices } from "./Data/devices";
 export default function Editor() {
     const [uploadedImages, setUploadedImages] = useState([]);
     const [stages, setStages] = useState([]);
@@ -163,10 +164,8 @@ export default function Editor() {
     }, [template,  uploadedImages, stages, selectedDevice]);
 
     useEffect(() => {
-        exportEventRef.current = () => {
-            exportStagesToImages();
-        };
-    }, []);
+        exportEventRef.current = exportStagesToImages;
+    }, [exportEventRef.current]);
 
     useEffect(() => {
         const updateRatio = () => {
@@ -399,24 +398,33 @@ export default function Editor() {
         setStages(updatedStages);
     }
 
-    const exportStagesToImages = async () => {
-        console.log('button clicked');
+    const exportStagesToImages = async (exportDevices) => {
         const zip = new JSZip();
-        const deviceName = prevStateRef.current.selectedDevice?.name ?? 'default';
-        const folder = zip.folder(deviceName)
+        const originalDevice = selectedDevice;
 
-        const promises = stageRefs.current.map(async (stageRef, index) => {
-            if (stageRef) {
-                const dataURL = stageRef.toDataURL(1080 / stageRef.width());
-                const filename = `${deviceName}-${index + 1}.png`;
-                const responce = await fetch(dataURL);
-                const blob = await responce.blob();
-                folder.file(filename, blob);
-                // downloadImage(dataURL, `${deviceName ?? 'default'}-${index + 1}.png`);
-            }
-        });
+        for (const deviceId of exportDevices) {
+            const device = devices.find(device => String(device.id) === deviceId);
+            await new Promise(resolve => {
+                setSelectedDevice(device);
+                setTimeout(resolve, 100); // Wait for the device change to take effect
+            });
 
-        await Promise.all(promises);
+            const folder = zip.folder(device.name);
+            const deviceRatio = device.ratio;
+            const deviceStageSize = { width: 1080, height: 1080 / deviceRatio };
+
+            const devicePromises = stageRefs.current.map(async (stageRef, index) => {
+                if (stageRef) {
+                    const dataURL = stageRef.toDataURL({ pixelRatio: deviceStageSize.width / stageRef.width() });
+                    const filename = `${device.name}-${index + 1}.png`;
+                    const response = await fetch(dataURL);
+                    const blob = await response.blob();
+                    folder.file(filename, blob);
+                }
+            });
+
+            await Promise.all(devicePromises);
+        }
 
         zip.generateAsync({ type: 'blob' }).then((content) => {
             const link = document.createElement('a');
@@ -426,7 +434,10 @@ export default function Editor() {
             link.click();
             document.body.removeChild(link);
         });
+        
+        setSelectedDevice(originalDevice);
     };
+
 
     const changeSelectedTool = (id) => {
         if (selectedTools === id) {
@@ -463,7 +474,7 @@ export default function Editor() {
                     
                     <div className="flex flex-col items-end relative " key={'stage' + index}>
                         {index === activeStage &&
-                        <div className="flex absolute z-10 -translate-y-12 bg-white border-2 rounded-xl px-4 py-2 mb-2 items-center gap-3">
+                        <div className="flex absolute -translate-y-12 bg-white border-2 rounded-xl px-4 py-2 mb-2 items-center gap-3">
                             <div className="flex gap-2 cursor-pointer">
                                 <div onClick={() => handleStageMove(index, 'prev')} key={'prev' + index}
                                     className=" text-gray-900 ">

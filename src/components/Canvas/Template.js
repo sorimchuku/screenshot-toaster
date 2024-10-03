@@ -25,9 +25,33 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
     const stageRef = useRef();
 
     useImperativeHandle(ref, () => ({
-        toDataURL: (pixelRatio = 1) => stageRef.current.toDataURL( { pixelRatio}),
+        toDataURL: (options) => {
+            if (stageRef.current) {
+                return stageRef.current.toDataURL(options);
+            }
+        },
         width: () => stageRef.current.width(),
+        setSize: (width, height) => {
+            if (stageRef.current) {
+                stageRef.current.width(width);
+                stageRef.current.height(height);
+            }
+        },
+        redraw: () => {
+            if (stageRef.current) {
+                console.log(stageRef.current.device);
+                stageRef.current.draw();
+            }
+        },
     }));
+
+    useEffect(() => {
+        if (stageRef.current) {
+            stageRef.current.width(stageSize.width);
+            stageRef.current.height(stageSize.height);
+            stageRef.current.draw();
+        }
+    }, [stageSize, device]);
 
     const originalHeight = imageDimensions.height || 16;
     const originalWidth = imageDimensions.width || 9;
