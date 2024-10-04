@@ -455,6 +455,7 @@ export default function Editor() {
 
     return (
         <div className="body-container max-w-full h-full flex relative">
+            <div className="sidebar-wrap w-[340px] min-w-[340px] h-full overflow-y-scroll z-[1] bg-neutral-100 border-r-2 relative overflow-x-hidden">
             {!isLoading && <SideBar
                 uploadedImages={uploadedImages}
                 setUploadedImages={setUploadedImages}
@@ -474,6 +475,7 @@ export default function Editor() {
                 selectedTools={selectedTools}
                 changeSelectedTool={changeSelectedTool}
             />}
+            </div>
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
                 {stages?.map((stage, index) => (
