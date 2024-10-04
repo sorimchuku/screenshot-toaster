@@ -39,6 +39,17 @@ const Title = (props) => {
         setText(e.target.value);
     };
 
+    const adjustTextareaHeight = () => {
+        if (inputRef.current) {
+            inputRef.current.style.height = 'auto';
+            inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+        }
+    };
+
+    useEffect(() => {
+        adjustTextareaHeight();
+    }, [text]);
+
     const { x, y, fontSize, width, align, color, weight, fontFamily } = props;
 
     return (

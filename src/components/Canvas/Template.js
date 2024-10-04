@@ -13,7 +13,7 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
     const [textNode2, setTextNode2] = useState(null);
     const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
     const [title, setTitle] = useState('제목 입력');
-    const [subTitle, setSubTitle] = useState('소제목을 입력하세요.\n두 줄까지 추가할 수 있어요.');
+    const [subTitle, setSubTitle] = useState('소제목을 입력하세요.\n두 줄 이상 입력할 수 있어요.');
     const mockup = {
         0: 'images/mockup_9_19-5.png',
         1: 'images/mockup_9_19-5.png',
