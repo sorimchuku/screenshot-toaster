@@ -400,7 +400,7 @@ export default function Editor() {
         setStages(updatedStages);
     }
 
-    const exportStagesToImages = async (exportDevices) => {
+    const exportStagesToImages = async (exportDevices, fileName) => {
         const zip = new JSZip();
         const originalDevice = selectedDevice;
 
@@ -430,8 +430,12 @@ export default function Editor() {
 
         zip.generateAsync({ type: 'blob' }).then((content) => {
             const link = document.createElement('a');
+            let fileNameText = "Shottoaster";
+            if (fileName.length > 0) {
+                fileNameText = fileName.replace(/ /g, '-');
+            }
             link.href = URL.createObjectURL(content);
-            link.download = `${'Shottoaster'}.zip`;
+            link.download = `${fileNameText}.zip`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

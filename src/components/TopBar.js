@@ -25,8 +25,8 @@ const TopBar = () => {
     setIsModalOpen(true);
   };
 
-  const handleSelectDevices = (exportDevices) => {
-    triggerExportEvent(exportDevices);
+  const handleSelectDevices = (exportDevices, fileName) => {
+    triggerExportEvent(exportDevices, fileName);
   };
 
   return (
