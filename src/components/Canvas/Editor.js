@@ -70,7 +70,18 @@ export default function Editor() {
                 // const images = files.map(file => file);
                 setTemplate(templateName);
                 setUploadedImages(images);
-                const newStages = Array.from({ length: images.length }, (_, index) => newStage(templateName, images[index], index));
+                let newStages = Array.from({ length: images.length }, (_, index) => newStage(templateName, images[index], index));
+                newStages = newStages.map((stage, index) => {
+                    if (stage.style.twins) {
+                        if (index === 0 || index === 1) {
+                            return newStage(templateName, images[0], index);
+                        } 
+                    } else {
+                        return newStage(templateName, images[index - 1], index);
+                    }
+                    return stage;
+                });
+
                 setStages(newStages);
                 console.log('Images loaded from Firebase:', newStages);
                 
