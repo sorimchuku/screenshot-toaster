@@ -62,8 +62,8 @@ export default function SideBar(props) {
 
 
     return (
-        <div className="sidebar-wrap w-[340px] min-w-[340px] h-full overflow-y-scroll z-[1] bg-neutral-100 border-r-2 relative">
-            <div className="itemsListBody h-full w-full flex flex-col px-8 py-6 gap-6">
+        <div className="sidebar-wrap w-[340px] min-w-[340px] h-full z-[1] bg-neutral-100 border-r-2 relative">
+            <div className="itemsListBody h-fit w-full flex flex-col px-8 py-6 gap-6 absolute">
                 <div onClick={props.handleAddPage}
                     className='addpage cursor-pointer flex px-6 py-3 bg-white rounded-full justify-center items-center gap-2 font-bold text-neutral-500 text-base'>
                     <Icon icon={IconNames.PLUS} />

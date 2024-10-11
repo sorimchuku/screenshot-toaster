@@ -11,6 +11,7 @@ export const TemplateProvider = ({ children }) => {
     const [isSaving, setIsSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState('');
     const [selectedDevice, setSelectedDevice] = useState(null);
+    const [saveMethod, setSaveMethod] = useState('auto');
     const saveEventRef = useRef(null);
     const exportEventRef = useRef(null);
 
@@ -27,9 +28,9 @@ export const TemplateProvider = ({ children }) => {
         }
     };
 
-    const triggerExportEvent = () => {
+    const triggerExportEvent = (exportDevices, fileName) => {
         if (exportEventRef.current) {
-            exportEventRef.current();
+            exportEventRef.current(exportDevices, fileName);
         }
     };
 
@@ -43,6 +44,8 @@ export const TemplateProvider = ({ children }) => {
         setLastSaved,
         selectedDevice,
         setSelectedDevice,
+        saveMethod,
+        setSaveMethod,
         saveEventRef,
         triggerSaveEvent,
         exportEventRef,

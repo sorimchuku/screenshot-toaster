@@ -8,6 +8,7 @@ import { Icon } from "@blueprintjs/core";
 import { v4 as uuidv4 } from 'uuid';
 import { templates } from "./Data/templates";
 import JSZip from "jszip";
+import { devices } from "./Data/devices";
 export default function Editor() {
     const [uploadedImages, setUploadedImages] = useState([]);
     const [stages, setStages] = useState([]);
@@ -17,7 +18,7 @@ export default function Editor() {
     const [selectedTools, setSelectedTools] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice, saveEventRef, exportEventRef } = useGlobalContext();
+    const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice, saveMethod, setSaveMethod, saveEventRef, exportEventRef } = useGlobalContext();
     const [template, setTemplate] = useState('');
     const [isSaveError, setIsSaveError] = useState(false);
     const sampleImage = 'images/screenshot-sample.png';
@@ -69,7 +70,18 @@ export default function Editor() {
                 // const images = files.map(file => file);
                 setTemplate(templateName);
                 setUploadedImages(images);
-                const newStages = Array.from({ length: images.length }, (_, index) => newStage(templateName, images[index], index));
+                let newStages = Array.from({ length: images.length }, (_, index) => newStage(templateName, images[index], index));
+                newStages = newStages.map((stage, index) => {
+                    if (stage.style.twins) {
+                        if (index === 0 || index === 1) {
+                            return newStage(templateName, images[0], index);
+                        } 
+                    } else {
+                        return newStage(templateName, images[index - 1], index);
+                    }
+                    return stage;
+                });
+
                 setStages(newStages);
                 console.log('Images loaded from Firebase:', newStages);
                 
@@ -147,6 +159,8 @@ export default function Editor() {
                 saveUserEdit(userId, prevStateRef.current.uploadedImages ?? [], prevStateRef.current.stages ?? [], prevStateRef.current.selectedDevice ?? null);
             }, 180000);
 
+            setSaveMethod('auto');
+
             return () => clearInterval(intervalId);
         };
 
@@ -163,10 +177,8 @@ export default function Editor() {
     }, [template,  uploadedImages, stages, selectedDevice]);
 
     useEffect(() => {
-        exportEventRef.current = () => {
-            exportStagesToImages();
-        };
-    }, []);
+        exportEventRef.current = exportStagesToImages;
+    }, [exportEventRef.current]);
 
     useEffect(() => {
         const updateRatio = () => {
@@ -209,8 +221,8 @@ export default function Editor() {
                 selectedDevice: selectedDevice,
             });
             const now = new Date();
-            const hours = now.getHours().toString();
-            const minutes = now.getMinutes().toString();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
             const formattedTime = `${hours}:${minutes}`; // hh:mm 형식으로 조합
 
             setLastSaved(formattedTime);
@@ -399,34 +411,50 @@ export default function Editor() {
         setStages(updatedStages);
     }
 
-    const exportStagesToImages = async () => {
-        console.log('button clicked');
+    const exportStagesToImages = async (exportDevices, fileName) => {
         const zip = new JSZip();
-        const deviceName = prevStateRef.current.selectedDevice?.name ?? 'default';
-        const folder = zip.folder(deviceName)
+        const originalDevice = selectedDevice;
 
-        const promises = stageRefs.current.map(async (stageRef, index) => {
-            if (stageRef) {
-                const dataURL = stageRef.toDataURL(1080 / stageRef.width());
-                const filename = `${deviceName}-${index + 1}.png`;
-                const responce = await fetch(dataURL);
-                const blob = await responce.blob();
-                folder.file(filename, blob);
-                // downloadImage(dataURL, `${deviceName ?? 'default'}-${index + 1}.png`);
-            }
-        });
+        for (const deviceId of exportDevices) {
+            const device = devices.find(device => String(device.id) === deviceId);
+            await new Promise(resolve => {
+                setSelectedDevice(device);
+                setTimeout(resolve, 100); // Wait for the device change to take effect
+            });
 
-        await Promise.all(promises);
+            const folder = zip.folder(device.name);
+            const deviceRatio = device.ratio;
+            const deviceStageSize = { width: 1080, height: 1080 / deviceRatio };
+
+            const devicePromises = stageRefs.current.map(async (stageRef, index) => {
+                if (stageRef) {
+                    const dataURL = stageRef.toDataURL({ pixelRatio: deviceStageSize.width / stageRef.width() });
+                    const filename = `${device.name}-${index + 1}.png`;
+                    const response = await fetch(dataURL);
+                    const blob = await response.blob();
+                    folder.file(filename, blob);
+                }
+            });
+
+            await Promise.all(devicePromises);
+        }
 
         zip.generateAsync({ type: 'blob' }).then((content) => {
             const link = document.createElement('a');
+            let fileNameText = "Shottoaster";
+            if (fileName.length > 0) {
+                fileNameText = fileName.replace(/ /g, '-');
+            }
             link.href = URL.createObjectURL(content);
-            link.download = `${'Shottoaster'}.zip`;
+            link.download = `${fileNameText}.zip`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         });
+        
+        setSelectedDevice(originalDevice);
     };
+
 
     const changeSelectedTool = (id) => {
         if (selectedTools === id) {
@@ -438,6 +466,7 @@ export default function Editor() {
 
     return (
         <div className="body-container max-w-full h-full flex relative">
+            <div className="sidebar-wrap w-[340px] min-w-[340px] h-full overflow-y-scroll z-[1] bg-neutral-100 border-r-2 relative overflow-x-hidden">
             {!isLoading && <SideBar
                 uploadedImages={uploadedImages}
                 setUploadedImages={setUploadedImages}
@@ -457,13 +486,14 @@ export default function Editor() {
                 selectedTools={selectedTools}
                 changeSelectedTool={changeSelectedTool}
             />}
+            </div>
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
                 {stages?.map((stage, index) => (
                     
                     <div className="flex flex-col items-end relative " key={'stage' + index}>
                         {index === activeStage &&
-                        <div className="flex absolute z-10 -translate-y-12 bg-white border-2 rounded-xl px-4 py-2 mb-2 items-center gap-3">
+                        <div className="flex absolute -translate-y-12 bg-white border-2 rounded-xl px-4 py-2 mb-2 items-center gap-3">
                             <div className="flex gap-2 cursor-pointer">
                                 <div onClick={() => handleStageMove(index, 'prev')} key={'prev' + index}
                                     className=" text-gray-900 ">

@@ -32,7 +32,10 @@ const Dropzone = ({ selectedFiles, setSelectedFiles }) => {
             const files = [];
             for (let i = 0; i < event.dataTransfer.items.length; i++) {
                 if (event.dataTransfer.items[i].kind === 'file') {
-                    files.push(event.dataTransfer.items[i].getAsFile());
+                    const file = event.dataTransfer.items[i].getAsFile();
+                    if (!selectedFiles.some(f => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified)) {
+                        files.push(file);
+                    }
                 }
             }
 
@@ -47,15 +50,20 @@ const Dropzone = ({ selectedFiles, setSelectedFiles }) => {
     };
 
     const handleFileSelect = (event) => {
-        const files = event.target.files;
+        const files = Array.from(event.target.files);
         if (files && files.length > 0) {
+            const nonDuplicateFiles = files.filter(file => 
+                !selectedFiles.some(f => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified)
+            );
+
+
             if (selectedFiles.length + files.length > MAX_FILES) {
                 toast(`이미지는 ${MAX_FILES}개까지만 업로드할 수 있어요.`);
                 return;
             }
 
             // 파일들을 로컬 상태에 저장합니다.
-            setSelectedFiles(prevFiles => [...prevFiles, ...Array.from(files)]);
+            setSelectedFiles(prevFiles => [...prevFiles, ...nonDuplicateFiles]);
         }
     };
 
@@ -74,6 +82,7 @@ const Dropzone = ({ selectedFiles, setSelectedFiles }) => {
             className={`h-full w-full border-2 border-dashed rounded-xl p-6 text-center content-center flex-col ${isDragging ? 'bg-gray-200' : 'bg-gray-50'}`}
         >
             <ToastContainer
+            position='top-center'
                 hideProgressBar={true}
                 transition={Slide} />
             <input
@@ -86,7 +95,7 @@ const Dropzone = ({ selectedFiles, setSelectedFiles }) => {
             />
             {selectedFiles.length === 0 ? (
                 <label htmlFor="fileUpload" className="cursor-pointer text-neutral-400 text-lg h-full w-full flex items-center justify-center flex-col">
-                    <Icon icon={IconNames.MEDIA} size={50} />
+                    <Icon icon={IconNames.MOBILE_PHONE} size={50} className='mb-2' />
                     <div className="">클릭 또는 드래그 드롭으로</div>
                     <div className="">스크린샷 이미지 업로드</div>
                 </label>

@@ -1,25 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { useGlobalContext } from "./context/GlobalContext";
 import { Icon, Spinner } from "@blueprintjs/core";
 import { devices } from "./Canvas/Data/devices";
+import DeviceSelection from "./DeviceSelection";
 
 const TopBar = () => {
   const router = useRouter();
-  const { isSaving, lastSaved, selectedDevice, setSelectedDevice, triggerSaveEvent, triggerExportEvent } = useGlobalContext();
+  const { isSaving, lastSaved, selectedDevice, setSelectedDevice, triggerSaveEvent, triggerExportEvent, saveMethod, setSaveMethod } = useGlobalContext();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleDeviceChange = (e) => {
     const newDevice = devices.find(device => device.id === parseInt(e.target.value));
     setSelectedDevice(newDevice);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setSaveMethod('manual');
     triggerSaveEvent();
   };
 
   const handleExport = () => {
-    triggerExportEvent();
+    setIsModalOpen(true);
+  };
+
+  const handleSelectDevices = (exportDevices, fileName) => {
+    triggerExportEvent(exportDevices, fileName);
   };
 
   return (
@@ -38,14 +45,14 @@ const TopBar = () => {
           <div className=" text-right text-base text-gray-400 flex items-center gap-2 cursor-pointer" onClick={handleSave}>
             {isSaving ? <Spinner size={16} /> : <Icon icon="history" className="" />}
             <span>
-              {isSaving ? '저장중...' : lastSaved === '' ? '자동 저장' : `${lastSaved} 저장됨`}
+              {isSaving ? '저장중...' : lastSaved === '' ? '자동 저장' : saveMethod === 'manual' ? `${lastSaved} 저장됨` : `${lastSaved} 자동 저장됨`}
             </span>
 
 
           </div>
           <div className="text-lg rounded-lg bg-gray-100 border-2 border-gray-200 flex items-center gap-2 focus:outline-none">
             <select onChange={handleDeviceChange} className="bg-transparent focus:outline-none mx-4 my-2" value={selectedDevice ? selectedDevice.id : ''}>
-              <option value="" className="">기종 선택</option>
+              <option value="" className="">미리보기 기종 선택</option>
               {devices.map(device => (
                 <option key={device.id} value={device.id} className="device-select text-lg">{device.name}</option>
               ))}
@@ -55,6 +62,7 @@ const TopBar = () => {
           <div className=" bg-black text-white px-10 py-2 text-lg rounded-full cursor-pointer" onClick={handleExport}>내보내기</div>
         </div>
       )}
+      <DeviceSelection isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} onSelectDevices={handleSelectDevices} />
 
     </nav>
   );

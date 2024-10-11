@@ -131,12 +131,14 @@ export default function TitleSection(props) {
             </div>
             <div>
                 <div className='text-lg font-bold'>위치</div>
-                <div className='my-2 flex justify-between gap-3'>
+                <div className='my-2 flex flex-col justify-start gap-3'>
                     <label className='flex flex-grow font-bold'>X
-                        <input type='number' className='font-normal w-full border-b-2 mx-4 focus:outline-none' value={currentPos.x} onChange={(e) => onPositionChange(e, 'x')}></input>
+                    <input type='number' value={currentPos.x} onChange={(e) => onPositionChange(e, 'x')} className='font-normal w-8 border-b-2  mx-4 focus:outline-none'></input>
+                        <input type='range' min={0} max={100} className='font-normal w-full focus:outline-none' value={currentPos.x} onChange={(e) => onPositionChange(e, 'x')}></input>
                     </label>
                     <label className='flex flex-grow font-bold'>Y
-                        <input type='number' className='font-normal w-full border-b-2 mx-4 focus:outline-none' value={currentPos.y} onChange={(e) => onPositionChange(e, 'y')}></input>
+                        <input type='number' value={currentPos.y} onChange={(e) => onPositionChange(e, 'y')} className='font-normal w-8 border-b-2  mx-4 focus:outline-none'></input>
+                        <input type='range' min={0} max={600} className='font-normal w-full  focus:outline-none' value={currentPos.y} onChange={(e) => onPositionChange(e, 'y')}></input>
                     </label>
                 </div>
             </div>
