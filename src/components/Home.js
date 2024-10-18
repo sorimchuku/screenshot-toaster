@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Dropzone from "./Dropzone";
+// import Lottie from "react-lottie-player";
+import Lottie from "./Lottie";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { toast, ToastContainer, Slide } from "react-toastify";
@@ -8,6 +10,7 @@ import { ref, get, set } from 'firebase/database';
 import { uploadFile, deleteUserFiles, getUserFiles, checkUserSignIn, database} from '../firebase';
 import { useGlobalContext } from "./context/GlobalContext";
 import imageCompression from "browser-image-compression";
+import lottieJson from "../../public/lottie/toaster-main.json";
 
 export default function Home() {
     const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -22,6 +25,7 @@ export default function Home() {
 
     const router = useRouter();
     const prevEditIcon = '/images/prev_edit_icon.png';
+    const mainLottie = '/lottie/toaster-main.json';
 
     useEffect(() => {
         const userAgent = typeof window.navigator === 'undefined' ? '' : navigator.userAgent;
@@ -198,7 +202,7 @@ export default function Home() {
                             />
                         </div>
                         <div className="gif-container flex justify-end mt-6">
-                            <Image
+                            {/* <Image
                                 alt="toaster-gif"
                                 className="object-contain w-[450px] h-auto"
                                 src='/images/shottoastergif.gif'
@@ -206,7 +210,11 @@ export default function Home() {
                                 width={500}
                                 height={500}
                                 unoptimized={true}
-                            />
+                            /> */}
+                            <div className="w-[450px] h-auto">
+                            <Lottie animationData={lottieJson}/>
+                            </div>
+                            
                         </div>
 
                     </div>
