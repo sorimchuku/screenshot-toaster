@@ -28,6 +28,7 @@ export default function Home() {
     const mainLottie = '/lottie/toaster-main.json';
 
     useEffect(() => {
+        localStorage.setItem('initialized', false);
         const userAgent = typeof window.navigator === 'undefined' ? '' : navigator.userAgent;
         const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
         checkUserSignIn((user) => {

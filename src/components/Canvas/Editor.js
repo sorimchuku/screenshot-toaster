@@ -77,7 +77,7 @@ export default function Editor() {
                             return newStage(templateName, images[0], index);
                         } 
                     } else {
-                        return newStage(templateName, images[index - 1], index);
+                        return newStage(templateName, images[index], index);
                     }
                     return stage;
                 });
