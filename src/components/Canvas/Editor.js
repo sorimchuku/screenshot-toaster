@@ -456,8 +456,8 @@ export default function Editor() {
     };
 
 
-    const changeSelectedTool = (id) => {
-        if (selectedTools === id) {
+    const changeSelectedTool = (id, isEdit = false) => {
+        if (selectedTools === id && isEdit === false) {
             setSelectedTools(null);
         } else {
             setSelectedTools(id);

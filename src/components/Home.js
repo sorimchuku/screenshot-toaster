@@ -145,7 +145,6 @@ export default function Home() {
             </div>}
             {isUploading && <div className={`loading fixed z-50 top-0 flex items-center justify-center bg-white bg-opacity-50 ${isMobile ? 'h-screen w-screen' : 'h-full w-full'}`}>
                 <div className="loading-container my-auto mx-auto self-center justify-self-center">
-                    {/* <Spinner size={Spinner.SIZE_LARGE} className="pb-2" /> */}
                     <div className="w-36 h-36 pb-2">
                         <Lottie animationData={loadingLottie} />
                     </div>

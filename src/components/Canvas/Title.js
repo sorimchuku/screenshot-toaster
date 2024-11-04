@@ -13,7 +13,7 @@ const Title = (props) => {
     useEffect(() => {
         if (isEditing && inputRef.current) {
             inputRef.current.focus();
-            changeSelectedTool(toolId);
+            changeSelectedTool(toolId, true);
         }
     }, [isEditing]);
 
