@@ -29,6 +29,10 @@ export default function SideBar(props) {
     props.changeStageColor(color, props.activeStage);
   }
 
+  const handleAllColorChange = (color) => {
+    props.changeAllStageColor(color);
+  }
+
   const handleToggleTitle = (e, toolId) => {
     const { checked } = e.target;
     props.toggleTitleSubtitle(toolId, checked);
@@ -36,6 +40,10 @@ export default function SideBar(props) {
 
   const handleTextColorChange = (toolId, color) => {
     props.changeTextColor(toolId, color, props.activeStage);
+  }
+
+  const handleAllTextColorChange = (toolId, color) => {
+    props.changeAllTextColor(toolId, color);
   }
 
   const handleTextPositionChange = (toolId, position) => {
@@ -98,7 +106,9 @@ export default function SideBar(props) {
                     handleImageClick: handleImageClick,
                     handleLayoutClick: handleLayoutClick,
                     handleColorChange: handleColorChange,
+                    handleAllColorChange: handleAllColorChange,
                     handleTextColorChange: handleTextColorChange,
+                    handleAllTextColorChange: handleAllTextColorChange,
                     handleTextPositionChange: handleTextPositionChange,
                     handleFontChange: handleFontChange,
                     handleTextSizeChange: handleTextSizeChange,

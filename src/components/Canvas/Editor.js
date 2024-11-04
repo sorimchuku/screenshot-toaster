@@ -306,6 +306,11 @@ export default function Editor() {
         setStages(updatedStages);
     }
 
+    const changeAllStageColor = (color) => {
+        const updatedStages = stages.map(stage => ({ ...stage, style: { ...stage.style, bgColor: color } }));
+        setStages(updatedStages);
+    }
+
     const toggleTitleSubtitle = (toolId, checked) => {
         if (activeStage === null) return;
         const updatedStages = [...stages];
@@ -333,6 +338,18 @@ export default function Editor() {
         }
 
         updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
+    const changeAllTextColor = (toolId, color) => {
+        const updatedStages = stages.map(stage => {
+            if (toolId === 2) {
+                return { ...stage, style: { ...stage.style, titleColor: color } };
+            } else if (toolId === 3) {
+                return { ...stage, style: { ...stage.style, subTitleColor: color } };
+            }
+            return stage;
+        });
         setStages(updatedStages);
     }
 
@@ -475,8 +492,10 @@ export default function Editor() {
                 activeStage={activeStage}
                 updateLayoutAtIndex={updateLayoutAtIndex}
                 changeStageColor={changeStageColor}
+                changeAllStageColor={changeAllStageColor}
                 toggleTitleSubtitle={toggleTitleSubtitle}
                 changeTextColor={changeTextColor}
+                changeAllTextColor={changeAllTextColor}
                 currentStageStyle={currentStageStyle}
                 changeTextPosition={changeTextPosition}
                 changeTextFont={changeTextFont}

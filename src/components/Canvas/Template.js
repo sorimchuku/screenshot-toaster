@@ -135,10 +135,10 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
                 <ImageComponent
                     image={image?.url ||defaultImage}
                     shapeProps={{
-                        x: style.x === 'center' ? ((stageSize.width - scale * style.width) / 2) : style.align === 'right' ? stageSize.width - scale * style.x : scale * style.x,
-                        y: scale *style.y,
-                        width: scale * style.width ? scale * style.width : scale * 500,
-                        height: style.width ? (scale * style.width * (imageRatio)) : (scale * 500 * imageRatio),
+                        x: style.x === 'center' ? ((stageSize.width - scale * style.width + 6) / 2) : style.align === 'right' ? stageSize.width - scale * (style.x - 3) : scale * (style.x + 3),
+                        y: scale * style.y + 3,
+                        width: scale * style.width ? scale * (style.width - 6) : scale * (500 - 6),
+                        height: style.width ? (scale * (style.width * (imageRatio) - 6)) : (scale * (500 * imageRatio - 6)),
                         rotation: style.rotation ? style.rotation : 0,
                     }}
                     onDimensionsChange={handleDimensionsChange}

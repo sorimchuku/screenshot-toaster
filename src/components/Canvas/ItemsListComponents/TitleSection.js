@@ -110,6 +110,7 @@ export default function TitleSection(props) {
 
                         </div>
                         <span className='text-gray-600 text-base uppercase'>{currentColor}</span>
+                        <button className="border-2 px-2 rounded-full  text-gray-500" onClick={() => props.handleAllTextColorChange(props.selectedTools, currentColor)}>전체 적용</button>
                     </div>
                     {isPaletteOpen && <div className="custom-picker absolute z-10 w-48 h-fit bg-white flex flex-col drop-shadow-md">
 
