@@ -4,8 +4,6 @@ import { Stage, Layer, Rect } from 'react-konva';
 import ImageComponent from './ImageComponent';
 import Title from './Title';
 import { templates } from './Data/templates.js';
-import defaultImage from '../../../public/images/screenshot-sample.png';
-
 
 const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize, isEdit, style, device, changeSelectedTool }, ref) => {
     const [template, setTemplate] = useState(null);
@@ -23,6 +21,8 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
     }
     const scale = stageSize.width / 300;
     const stageRef = useRef();
+
+    const defaultImage = 'images/screenshot-sample.png';
 
     useImperativeHandle(ref, () => ({
         toDataURL: (options) => {
@@ -135,8 +135,8 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
                 <ImageComponent
                     image={image?.url ||defaultImage}
                     shapeProps={{
-                        x: style.x === 'center' ? ((stageSize.width - scale * style.width + 6) / 2) : style.align === 'right' ? stageSize.width - scale * (style.x - 3) : scale * (style.x + 3),
-                        y: scale * style.y + 3,
+                        x: style.x === 'center' ? ((stageSize.width - scale *  (style.width - 6)) / 2) : style.align === 'right' ? stageSize.width - scale * (style.x - 3) : scale * (style.x + 3),
+                        y: scale * (style.y + 3),
                         width: scale * style.width ? scale * (style.width - 6) : scale * (500 - 6),
                         height: style.width ? (scale * (style.width * (imageRatio) - 6)) : (scale * (500 * imageRatio - 6)),
                         rotation: style.rotation ? style.rotation : 0,
