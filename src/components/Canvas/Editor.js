@@ -157,9 +157,9 @@ export default function Editor() {
             if (!userId) return;
             const intervalId = setInterval(() => {
                 saveUserEdit(userId, prevStateRef.current.uploadedImages ?? [], prevStateRef.current.stages ?? [], prevStateRef.current.selectedDevice ?? null);
+                setSaveMethod('auto');
             }, 180000);
 
-            setSaveMethod('auto');
 
             return () => clearInterval(intervalId);
         };

@@ -3,7 +3,6 @@ import { tools } from './Data/tools';
 
 import BackgroundSection from './ItemsListComponents/BackgroundSection'
 import TitleSection from './ItemsListComponents/TitleSection';
-import SubTitleSection from './ItemsListComponents/SubTitleSection';
 import UploadSection from './ItemsListComponents/UploadSection';
 import LayoutSelectSection from './ItemsListComponents/LayoutSelectSection';
 import { Icon } from '@blueprintjs/core';
@@ -14,7 +13,6 @@ export default function SideBar(props) {
   const componentsMap = {
     BackgroundSection: BackgroundSection,
     TitleSection: TitleSection,
-    SubTitleSection: SubTitleSection,
     UploadSection: UploadSection,
     LayoutSelectSection: LayoutSelectSection,
   };

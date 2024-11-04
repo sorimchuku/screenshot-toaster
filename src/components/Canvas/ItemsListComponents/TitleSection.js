@@ -133,11 +133,25 @@ export default function TitleSection(props) {
                 <div className='text-lg font-bold'>위치</div>
                 <div className='my-2 flex flex-col justify-start gap-3'>
                     <label className='flex flex-grow font-bold'>X
-                    <input type='number' value={currentPos.x} onChange={(e) => onPositionChange(e, 'x')} className='font-normal w-8 border-b-2  mx-4 focus:outline-none'></input>
+                    <input type='number' value={currentPos.x} onChange={(e) => onPositionChange(e, 'x')} className='font-normal w-8 border-b-2  mx-4 focus:outline-none' min={0} max={100} onInput={(e) => {
+                            if (e.target.value > 100) {
+                                e.target.value = 100;
+                            }
+                            if (e.target.value < 0) {
+                                e.target.value = 0;
+                            }
+                    }}></input>
                         <input type='range' min={0} max={100} className='font-normal w-full focus:outline-none' value={currentPos.x} onChange={(e) => onPositionChange(e, 'x')}></input>
                     </label>
                     <label className='flex flex-grow font-bold'>Y
-                        <input type='number' value={currentPos.y} onChange={(e) => onPositionChange(e, 'y')} className='font-normal w-8 border-b-2  mx-4 focus:outline-none'></input>
+                        <input type='number' value={currentPos.y} onChange={(e) => onPositionChange(e, 'y')} className='font-normal w-8 border-b-2  mx-4 focus:outline-none' min={0} max={600} onInput={(e) => {
+                            if (e.target.value > 600) {
+                                e.target.value = 600;
+                            }
+                            if (e.target.value < 0) {
+                                e.target.value = 0;
+                            }
+                        }}></input>
                         <input type='range' min={0} max={600} className='font-normal w-full  focus:outline-none' value={currentPos.y} onChange={(e) => onPositionChange(e, 'y')}></input>
                     </label>
                 </div>
