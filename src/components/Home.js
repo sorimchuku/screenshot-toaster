@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Dropzone from "./Dropzone";
+// import Lottie from "react-lottie-player";
+import Lottie from "./Lottie";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { toast, ToastContainer, Slide } from "react-toastify";
@@ -8,6 +10,8 @@ import { ref, get, set } from 'firebase/database';
 import { uploadFile, deleteUserFiles, getUserFiles, checkUserSignIn, database} from '../firebase';
 import { useGlobalContext } from "./context/GlobalContext";
 import imageCompression from "browser-image-compression";
+import loadingLottie from "../../public/lottie/toaster-loading.json";
+import testLottie from "../../public/lottie/testlottie.json";
 
 export default function Home() {
     const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -22,8 +26,10 @@ export default function Home() {
 
     const router = useRouter();
     const prevEditIcon = '/images/prev_edit_icon.png';
+    const mainLottie = '/lottie/toaster-main.json';
 
     useEffect(() => {
+        localStorage.setItem('initialized', false);
         const userAgent = typeof window.navigator === 'undefined' ? '' : navigator.userAgent;
         const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
         checkUserSignIn((user) => {
@@ -139,7 +145,9 @@ export default function Home() {
             </div>}
             {isUploading && <div className={`loading fixed z-50 top-0 flex items-center justify-center bg-white bg-opacity-50 ${isMobile ? 'h-screen w-screen' : 'h-full w-full'}`}>
                 <div className="loading-container my-auto mx-auto self-center justify-self-center">
-                    <Spinner size={Spinner.SIZE_LARGE} className="pb-2" />
+                    <div className="w-36 h-36 pb-2">
+                        <Lottie animationData={loadingLottie} />
+                    </div>
                     <div className="text-2xl self-center font-bold text-neutral-500">업로드 중... {uploadProgress}/{selectedFiles.length}</div>
                 </div>
 
@@ -207,6 +215,10 @@ export default function Home() {
                                 height={500}
                                 unoptimized={true}
                             />
+                            {/* <div className="w-[450px] h-auto">
+                            <Lottie animationData={lottieJson}/>
+                            </div> */}
+                            
                         </div>
 
                     </div>

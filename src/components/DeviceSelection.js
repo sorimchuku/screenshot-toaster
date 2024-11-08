@@ -63,6 +63,7 @@ const DeviceSelection = ({ isOpen, onRequestClose, onSelectDevices }) => {
                     <div className='col-span-2 inline-flex gap-3 mt-2 items-center w-fit'>
                         <span className="font-bold text-xl">내보낼 파일명</span>
                         <input className='border text-lg rounded px-2' type="text" value={fileName} placeholder='Shottoaster' onChange={(e) => setFileName(e.target.value)} />
+                        <span className='text-lg'>.zip</span>
                     </div>
                 </div>
                 

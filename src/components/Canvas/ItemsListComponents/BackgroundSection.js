@@ -50,6 +50,7 @@ export default function BackgroundSection(props) {
         console.log(color)
     }
 
+
     return (
         <div className="itemsSection">
             <div className="grid grid-cols-6 justify-center justify-items-center gap-2">
@@ -61,7 +62,7 @@ export default function BackgroundSection(props) {
                     )
                 })}
                 <div className=''>
-                    {!isPaletteOpen && <div className={`h-7 w-7 p-px `} >
+                    {!currentColor && <div className={`h-7 w-7 p-px `} >
                         <div className="h-full w-full grid grid-cols-5 rounded-md overflow-hidden" onClick={() => { setIsPaletteOpen(!isPaletteOpen);}}>
                             {rainbowColors.map((color, index) => {
                                 return (
@@ -73,12 +74,13 @@ export default function BackgroundSection(props) {
                         </div>
 
                     </div>}
-                    {isPaletteOpen && <div className="h-7 w-7 p-px" onClick={() => setIsPaletteOpen(!isPaletteOpen)}>
+                    {currentColor && <div className="h-7 w-7 p-px" onClick={() => setIsPaletteOpen(!isPaletteOpen)}>
 
                         <div className="h-full w-full rounded-md border" style={{ backgroundColor: currentColor }}>
                         </div>
 
                     </div>}
+                    
                     {isPaletteOpen && (props.selectedTools === 0) && <div className="custom-picker absolute z-10 w-48 h-fit bg-white flex flex-col drop-shadow-md">
                         
                         <div className="flex w-full items-center justify-end">
@@ -96,6 +98,12 @@ export default function BackgroundSection(props) {
                     </div>}
 
                 </div>
+                <div className='flex gap-2 col-span-5 w-full h-full content-center items-center'>
+                <span className='text-gray-600 text-base uppercase'>{currentColor}</span>
+                <button className="border-2 px-2 rounded-full  text-gray-500" onClick={() => props.handleAllColorChange(currentColor)}>전체 적용</button>
+                </div>
+
+                
             </div>
         </div>
     );

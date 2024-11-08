@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Image } from "react-konva";
+import { Image, Layer, Transformer } from "react-konva";
 import useImage from 'use-image';
 
 const ImageComponent = ({ image, shapeProps, onDimensionsChange }) => {

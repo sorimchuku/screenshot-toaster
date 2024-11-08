@@ -45,7 +45,7 @@ const TopBar = () => {
           <div className=" text-right text-base text-gray-400 flex items-center gap-2 cursor-pointer" onClick={handleSave}>
             {isSaving ? <Spinner size={16} /> : <Icon icon="history" className="" />}
             <span>
-              {isSaving ? '저장중...' : lastSaved === '' ? '자동 저장' : saveMethod === 'manual' ? `${lastSaved} 저장됨` : `${lastSaved} 자동 저장됨`}
+              {isSaving ? '저장중...' : lastSaved === '' ? '자동 저장' : saveMethod === 'auto' ? `${lastSaved} 자동 저장됨` : `${lastSaved} 저장됨`}
             </span>
 
 

@@ -77,7 +77,7 @@ export default function Editor() {
                             return newStage(templateName, images[0], index);
                         } 
                     } else {
-                        return newStage(templateName, images[index - 1], index);
+                        return newStage(templateName, images[index], index);
                     }
                     return stage;
                 });
@@ -157,9 +157,9 @@ export default function Editor() {
             if (!userId) return;
             const intervalId = setInterval(() => {
                 saveUserEdit(userId, prevStateRef.current.uploadedImages ?? [], prevStateRef.current.stages ?? [], prevStateRef.current.selectedDevice ?? null);
+                setSaveMethod('auto');
             }, 180000);
 
-            setSaveMethod('auto');
 
             return () => clearInterval(intervalId);
         };
@@ -291,7 +291,11 @@ export default function Editor() {
     const updateLayoutAtIndex = (template, activeStage) => {
         if (activeStage === null) return;
         const updatedStages = [...stages];
-        const newStyle = { ...template.style, ratio: selectedDevice?.ratio || defaultRatio };
+        const currentBgColor = updatedStages[activeStage].style.bgColor;
+        const currentTitleColor = updatedStages[activeStage].style.titleColor;
+        const currentSubTitleColor = updatedStages[activeStage].style.subTitleColor;
+        const newStyle = { ...template.style, ratio: selectedDevice?.ratio || defaultRatio, bgColor: currentBgColor, titleColor: currentTitleColor, subTitleColor: currentSubTitleColor };
+        // const newStyle = { ...template.style, ratio: selectedDevice?.ratio || defaultRatio, bgColor: currentBgColor };
         const updatedStage = { ...updatedStages[activeStage], templateName: template.templateName, layoutIndex: template.index, style: newStyle };
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
@@ -303,6 +307,11 @@ export default function Editor() {
         console.log(updatedStages);
         const updatedStage = { ...updatedStages[activeStage], style: { ...updatedStages[activeStage].style, bgColor: color } };
         updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
+    const changeAllStageColor = (color) => {
+        const updatedStages = stages.map(stage => ({ ...stage, style: { ...stage.style, bgColor: color } }));
         setStages(updatedStages);
     }
 
@@ -333,6 +342,18 @@ export default function Editor() {
         }
 
         updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+    }
+
+    const changeAllTextColor = (toolId, color) => {
+        const updatedStages = stages.map(stage => {
+            if (toolId === 2) {
+                return { ...stage, style: { ...stage.style, titleColor: color } };
+            } else if (toolId === 3) {
+                return { ...stage, style: { ...stage.style, subTitleColor: color } };
+            }
+            return stage;
+        });
         setStages(updatedStages);
     }
 
@@ -456,8 +477,8 @@ export default function Editor() {
     };
 
 
-    const changeSelectedTool = (id) => {
-        if (selectedTools === id) {
+    const changeSelectedTool = (id, isEdit = false) => {
+        if (selectedTools === id && isEdit === false) {
             setSelectedTools(null);
         } else {
             setSelectedTools(id);
@@ -475,8 +496,10 @@ export default function Editor() {
                 activeStage={activeStage}
                 updateLayoutAtIndex={updateLayoutAtIndex}
                 changeStageColor={changeStageColor}
+                changeAllStageColor={changeAllStageColor}
                 toggleTitleSubtitle={toggleTitleSubtitle}
                 changeTextColor={changeTextColor}
+                changeAllTextColor={changeAllTextColor}
                 currentStageStyle={currentStageStyle}
                 changeTextPosition={changeTextPosition}
                 changeTextFont={changeTextFont}
