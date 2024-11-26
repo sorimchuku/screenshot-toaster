@@ -17,12 +17,14 @@ export default function Editor() {
     const [stageScale, setStageScale] = useState(1);
     const [selectedTools, setSelectedTools] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [history, setHistory] = useState([]);
+    const [currentStep, setCurrentStep] = useState(-1);
 
     const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice, saveMethod, setSaveMethod, saveEventRef, exportEventRef } = useGlobalContext();
     const [template, setTemplate] = useState('');
     const [isSaveError, setIsSaveError] = useState(false);
     const sampleImage = 'images/screenshot-sample.png';
-    const currentStageStyle = stages ?  stages[activeStage]?.style : null;
+    const currentStageStyle = stages ? stages[activeStage]?.style : null;
     const prevStateRef = useRef({ template, uploadedImages, stages, selectedDevice });
     const scrollContainerRef = useRef();
     const stageRefs = useRef([]);
@@ -61,7 +63,7 @@ export default function Editor() {
     useEffect(() => {
         const isInitialized = localStorage.getItem('initialized');
         localStorage.setItem('pageLoaded', 'true');
-        
+
         if (isInitialized !== 'true') {
             const loadImagesFromFirebase = async () => {
                 const userId = await getUserId();
@@ -75,7 +77,7 @@ export default function Editor() {
                     if (stage.style.twins) {
                         if (index === 0 || index === 1) {
                             return newStage(templateName, images[0], index);
-                        } 
+                        }
                     } else {
                         return newStage(templateName, images[index], index);
                     }
@@ -84,9 +86,10 @@ export default function Editor() {
 
                 setStages(newStages);
                 console.log('Images loaded from Firebase:', newStages);
-                
+
                 await saveUserEdit(userId, images, newStages, selectedDevice);
                 localStorage.setItem('initialized', 'true');
+                saveHistory(newStages);
             };
             loadImagesFromFirebase();
         } else return;
@@ -94,37 +97,38 @@ export default function Editor() {
 
     useEffect(() => {
         const isInitialized = localStorage.getItem('initialized');
-        if(isInitialized === 'true') {
-        const fetchEditorState = async () => {
-            const userId = await getUserId();
-            if (!userId) return; // userId가 없으면 종료
-            const editorStateRef = ref(database, `users/${userId}/editor`);
-            try {
-                const snapshot = await get(editorStateRef);
-                if (snapshot.exists()) {
-                    const editorState = snapshot.val();
-                    console.log('Editor state fetched successfully:', editorState);
-                    const images = Array.isArray(editorState.uploadedImages)
+        if (isInitialized === 'true') {
+            const fetchEditorState = async () => {
+                const userId = await getUserId();
+                if (!userId) return; // userId가 없으면 종료
+                const editorStateRef = ref(database, `users/${userId}/editor`);
+                try {
+                    const snapshot = await get(editorStateRef);
+                    if (snapshot.exists()) {
+                        const editorState = snapshot.val();
+                        console.log('Editor state fetched successfully:', editorState);
+                        const images = Array.isArray(editorState.uploadedImages)
                             ? editorState.uploadedImages
                             : [editorState.uploadedImages];
 
                         setUploadedImages(images);
-                    setStages(editorState.stages ?? []);
-                    setSelectedDevice(editorState.selectedDevice);
-                    console.log('Editor state fetched successfully:', editorState)
-                } else {
-                    console.log("No editor state available for this user.");
+                        setStages(editorState.stages ?? []);
+                        setSelectedDevice(editorState.selectedDevice);
+                        console.log('Editor state fetched successfully:', editorState)
+                        saveHistory(editorState.stages ?? []);
+                    } else {
+                        console.log("No editor state available for this user.");
+                    }
+                } catch (error) {
+                    console.error('Error fetching editor state:', error);
+                } finally {
+                    setIsLoading(false);
                 }
-            } catch (error) {
-                console.error('Error fetching editor state:', error);
-            } finally {
-                setIsLoading(false);
-            }
+            };
+            fetchEditorState();
+        } else {
+            setIsLoading(false);
         };
-        fetchEditorState();
-    } else {
-        setIsLoading(false);
-    };
     }, []);
 
     useEffect(() => {
@@ -168,13 +172,13 @@ export default function Editor() {
     }, []);
 
     useEffect(() => {
-        prevStateRef.current = { template,  uploadedImages, stages, selectedDevice };
+        prevStateRef.current = { template, uploadedImages, stages, selectedDevice };
         saveEventRef.current = async () => {
             const userId = await getUserId();
             if (!userId) return;
             await saveUserEdit(userId, prevStateRef.current.uploadedImages ?? [], prevStateRef.current.stages ?? [], prevStateRef.current.selectedDevice ?? null);
         };
-    }, [template,  uploadedImages, stages, selectedDevice]);
+    }, [template, uploadedImages, stages, selectedDevice]);
 
     useEffect(() => {
         exportEventRef.current = exportStagesToImages;
@@ -199,10 +203,10 @@ export default function Editor() {
         const initialStyle = foundTemplate.stages[layoutIndex] || foundTemplate.stages[foundTemplate.stages.length - 1];
         const newInitialStyle = { ...initialStyle, ratio: selectedDevice?.ratio || defaultRatio };
         const stage = {
-            id:stageId,
-            image:image || sampleImage,
+            id: stageId,
+            image: image || sampleImage,
             templateName: newTemplateName,
-            layoutIndex:layoutIndex,
+            layoutIndex: layoutIndex,
             style: newInitialStyle,
         }
         return stage;
@@ -210,11 +214,11 @@ export default function Editor() {
 
     const saveUserEdit = async (userId, uploadedImages, stages, selectedDevice) => {
         startSaving();
-        if(!userId) return;
+        if (!userId) return;
         const userRef = ref(database, `users/${userId}`);
         const editorStateRef = ref(database, `users/${userId}/editor`);
         try {
-            await set(userRef, {uid: userId});
+            await set(userRef, { uid: userId });
             await set(editorStateRef, {
                 uploadedImages: uploadedImages,
                 stages: stages,
@@ -238,10 +242,11 @@ export default function Editor() {
     useEffect(() => {
         if (scrollContainerRef.current) {
             requestAnimationFrame(() => {
-            const clientWidth = scrollContainerRef.current.clientWidth;
-            scrollContainerRef.current.scrollLeft = (activeStage * stageSize.width) + (stageSize.width / 2) - (clientWidth / 2);
-        });}
-    }, [activeStage]); 
+                const clientWidth = scrollContainerRef.current.clientWidth;
+                scrollContainerRef.current.scrollLeft = (activeStage * stageSize.width) + (stageSize.width / 2) - (clientWidth / 2);
+            });
+        }
+    }, [activeStage]);
 
     const handleAddPage = () => {
         const stage = newStage(); // 새로운 스테이지 생성
@@ -249,6 +254,7 @@ export default function Editor() {
         updatedStages.splice(activeStage + 1, 0, stage); // 활성화된 스테이지 다음 위치에 새 스테이지 삽입
         setStages(updatedStages); // 수정된 배열을 상태에 설정
         setActiveStage(activeStage + 1); // 새로운 스테이지를 활성화된 스테이지로 설정
+        saveHistory(updatedStages);
     };
 
     const handleStageClick = (index) => {
@@ -258,9 +264,10 @@ export default function Editor() {
     const handleStageDelete = (index) => {
         const updatedStages = stages.filter((_, i) => i !== index);
         setStages(updatedStages);
-        if(index === stages.length - 1) {
-        setActiveStage(activeStage - 1);
+        if (index === stages.length - 1) {
+            setActiveStage(activeStage - 1);
         }
+        saveHistory(updatedStages);
     }
 
     const handleStageMove = (currentIndex, direction) => {
@@ -279,6 +286,7 @@ export default function Editor() {
         setStages(updatedStages);
         // 이동된 스테이지를 활성화
         setActiveStage(newIndex);
+        saveHistory(updatedStages);
     };
 
     const updateImageAtIndex = (newImage, index) => {
@@ -286,6 +294,7 @@ export default function Editor() {
         const updatedStage = { ...updatedStages[index], image: newImage }; // 해당 index의 stage 업데이트
         updatedStages[index] = updatedStage; // 업데이트된 stage를 배열에 할당
         setStages(updatedStages); // 상태 업데이트
+        saveHistory(updatedStages);
     };
 
     const updateLayoutAtIndex = (template, activeStage) => {
@@ -295,20 +304,23 @@ export default function Editor() {
         const updatedStage = { ...updatedStages[activeStage], templateName: template.templateName, layoutIndex: template.index, style: newStyle };
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
+        saveHistory(updatedStages);
     }
-    
+
     const changeStageColor = (color, activeStage) => {
-        if (activeStage  === null ) return;
+        if (activeStage === null) return;
         const updatedStages = [...stages];
         console.log(updatedStages);
         const updatedStage = { ...updatedStages[activeStage], style: { ...updatedStages[activeStage].style, bgColor: color } };
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
+        saveHistory(updatedStages);
     }
 
     const changeAllStageColor = (color) => {
         const updatedStages = stages.map(stage => ({ ...stage, style: { ...stage.style, bgColor: color } }));
         setStages(updatedStages);
+        saveHistory(updatedStages);
     }
 
     const toggleTitleSubtitle = (toolId, checked) => {
@@ -339,6 +351,7 @@ export default function Editor() {
 
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
+        saveHistory(updatedStages);
     }
 
     const changeAllTextColor = (toolId, color) => {
@@ -351,6 +364,7 @@ export default function Editor() {
             return stage;
         });
         setStages(updatedStages);
+        saveHistory(updatedStages);
     }
 
     const changeTextPosition = (toolId, position, activeStage) => {
@@ -366,6 +380,7 @@ export default function Editor() {
 
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
+        saveHistory(updatedStages);
     }
 
     const changeTextFont = (toolId, font, activeStage) => {
@@ -381,6 +396,7 @@ export default function Editor() {
 
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
+        saveHistory(updatedStages);
     }
 
     const changeTextSize = (toolId, size, activeStage) => {
@@ -396,6 +412,7 @@ export default function Editor() {
 
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
+        saveHistory(updatedStages);
     }
 
     const changeTextWeight = (toolId, weight, activeStage) => {
@@ -411,6 +428,7 @@ export default function Editor() {
 
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
+        saveHistory(updatedStages);
     }
 
     const changeTextAlignment = (toolId, alignment, activeStage) => {
@@ -426,6 +444,7 @@ export default function Editor() {
 
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
+        saveHistory(updatedStages);
     }
 
     const exportStagesToImages = async (exportDevices, fileName) => {
@@ -468,7 +487,7 @@ export default function Editor() {
             link.click();
             document.body.removeChild(link);
         });
-        
+
         setSelectedDevice(originalDevice);
     };
 
@@ -481,62 +500,103 @@ export default function Editor() {
         }
     }
 
+
+    const saveHistory = (stages) => {
+        const newHistory = history.slice(0, currentStep + 1);
+        newHistory.push(
+            {stages}
+        );
+
+        // 히스토리 길이를 50으로 제한
+        if (newHistory.length > 50) {
+            newHistory.shift(); // 가장 오래된 항목 제거
+        }
+
+        setHistory(newHistory);
+        setCurrentStep(newHistory.length - 1);
+        console.log('History saved:', newHistory);
+    };
+
+    const undo = () => {
+        if (currentStep > 0) {
+            const previousState = history[currentStep - 1];
+            setStages(previousState.stages);
+            setCurrentStep(currentStep - 1);
+        }
+    };
+
+    const redo = () => {
+        if (currentStep < history.length - 1) {
+            const nextState = history[currentStep + 1];
+            setStages(nextState.stages);
+            setCurrentStep(currentStep + 1);
+            console.log('Redo:', currentStep);
+        }
+    };
+
+    useEffect(() => {
+        console.log('Current step:', currentStep);
+    }, [currentStep]);
+
+
     return (
         <div className="body-container max-w-full h-full flex relative">
             <div className="sidebar-wrap w-[340px] min-w-[340px] h-full overflow-y-scroll z-[1] bg-neutral-100 border-r-2 relative overflow-x-hidden">
-            {!isLoading && <SideBar
-                uploadedImages={uploadedImages}
-                setUploadedImages={setUploadedImages}
-                handleAddPage={handleAddPage}
-                updateImageAtIndex={updateImageAtIndex}
-                activeStage={activeStage}
-                updateLayoutAtIndex={updateLayoutAtIndex}
-                changeStageColor={changeStageColor}
-                changeAllStageColor={changeAllStageColor}
-                toggleTitleSubtitle={toggleTitleSubtitle}
-                changeTextColor={changeTextColor}
-                changeAllTextColor={changeAllTextColor}
-                currentStageStyle={currentStageStyle}
-                changeTextPosition={changeTextPosition}
-                changeTextFont={changeTextFont}
-                changeTextSize={changeTextSize}
-                changeTextWeight={changeTextWeight}
-                changeTextAlignment={changeTextAlignment}
-                selectedTools={selectedTools}
-                changeSelectedTool={changeSelectedTool}
-            />}
+                {!isLoading && <SideBar
+                    uploadedImages={uploadedImages}
+                    setUploadedImages={setUploadedImages}
+                    handleAddPage={handleAddPage}
+                    updateImageAtIndex={updateImageAtIndex}
+                    activeStage={activeStage}
+                    updateLayoutAtIndex={updateLayoutAtIndex}
+                    changeStageColor={changeStageColor}
+                    changeAllStageColor={changeAllStageColor}
+                    toggleTitleSubtitle={toggleTitleSubtitle}
+                    changeTextColor={changeTextColor}
+                    changeAllTextColor={changeAllTextColor}
+                    currentStageStyle={currentStageStyle}
+                    changeTextPosition={changeTextPosition}
+                    changeTextFont={changeTextFont}
+                    changeTextSize={changeTextSize}
+                    changeTextWeight={changeTextWeight}
+                    changeTextAlignment={changeTextAlignment}
+                    selectedTools={selectedTools}
+                    changeSelectedTool={changeSelectedTool}
+                />}
             </div>
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
+                <button onClick={undo}>Undo</button>
+                <button onClick={redo}>Redo</button>
                 {stages?.map((stage, index) => (
-                    
+
                     <div className="flex flex-col items-end relative " key={'stage' + index}>
                         {index === activeStage &&
-                        <div className="flex absolute -translate-y-12 bg-white border-2 rounded-xl px-4 py-2 mb-2 items-center gap-3">
-                            <div className="flex gap-2 cursor-pointer">
-                                <div onClick={() => handleStageMove(index, 'prev')} key={'prev' + index}
-                                    className=" text-gray-900 ">
-                                    <Icon icon="chevron-left" /> 
+                            <div className="flex absolute -translate-y-12 bg-white border-2 rounded-xl px-4 py-2 mb-2 items-center gap-3">
+                                <div className="flex gap-2 cursor-pointer">
+                                    <div onClick={() => handleStageMove(index, 'prev')} key={'prev' + index}
+                                        className=" text-gray-900 ">
+                                        <Icon icon="chevron-left" />
+                                    </div>
+                                    <div onClick={() => handleStageMove(index, 'next')} key={'next' + index}
+                                        className=" text-gray-900 ">
+                                        <Icon icon="chevron-right" />
+                                    </div>
                                 </div>
-                                <div onClick={() => handleStageMove(index, 'next')} key={'next' + index}
-                                    className=" text-gray-900 ">
-                                    <Icon icon="chevron-right" />
-                                </div>
-                            </div>
-                            <div className="text-gray-400">|</div>
+                                <div className="text-gray-400">|</div>
                                 <div onClick={() => handleStageDelete(index)} key={'delete' + index}
                                     className=" text-red-600 cursor-pointer">
                                     <Icon icon="trash" />
                                 </div>
-                        </div>
-                            
-                            }
+                            </div>
+
+                        }
                         <div onClick={() => handleStageClick(index)} onTouchStart={() => handleStageClick(index)} key={index}
                             className={`stage-wrap bg-slate-200 shadow ${index === activeStage ? 'outline outline-2 outline-blue-300' : ''}`}>
                             <Template ref={el => (stageRefs.current[index] = el)} templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} style={stage.style} device={selectedDevice?.id || 0} changeSelectedTool={changeSelectedTool} />
                         </div>
                     </div>
-                    
+
                 ))}
             </div>
         </div>
