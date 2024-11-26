@@ -17,10 +17,8 @@ export default function Editor() {
     const [stageScale, setStageScale] = useState(1);
     const [selectedTools, setSelectedTools] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [history, setHistory] = useState([]);
-    const [currentStep, setCurrentStep] = useState(-1);
 
-    const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice, saveMethod, setSaveMethod, saveEventRef, exportEventRef } = useGlobalContext();
+    const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice, saveMethod, setSaveMethod, saveEventRef, exportEventRef, history, setHistory, currentStep, setCurrentStep  } = useGlobalContext();
     const [template, setTemplate] = useState('');
     const [isSaveError, setIsSaveError] = useState(false);
     const sampleImage = 'images/screenshot-sample.png';
@@ -517,26 +515,12 @@ export default function Editor() {
         console.log('History saved:', newHistory);
     };
 
-    const undo = () => {
-        if (currentStep > 0) {
-            const previousState = history[currentStep - 1];
-            setStages(previousState.stages);
-            setCurrentStep(currentStep - 1);
-        }
-    };
-
-    const redo = () => {
-        if (currentStep < history.length - 1) {
-            const nextState = history[currentStep + 1];
-            setStages(nextState.stages);
-            setCurrentStep(currentStep + 1);
-            console.log('Redo:', currentStep);
-        }
-    };
-
     useEffect(() => {
-        console.log('Current step:', currentStep);
-    }, [currentStep]);
+        if (currentStep >= 0 && currentStep < history.length) {
+            const { stages } = history[currentStep];
+            setStages(stages);
+        }
+    }, [currentStep, history]);
 
 
     return (
@@ -566,8 +550,6 @@ export default function Editor() {
             </div>
             <div className="workspace-wrap w-full overflow-y-hidden overflow-x-auto flex  items-center gap-4 px-10 pb-9 pt-10"
                 ref={scrollContainerRef}>
-                <button onClick={undo}>Undo</button>
-                <button onClick={redo}>Redo</button>
                 {stages?.map((stage, index) => (
 
                     <div className="flex flex-col items-end relative " key={'stage' + index}>
