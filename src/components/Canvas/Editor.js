@@ -291,11 +291,7 @@ export default function Editor() {
     const updateLayoutAtIndex = (template, activeStage) => {
         if (activeStage === null) return;
         const updatedStages = [...stages];
-        const currentBgColor = updatedStages[activeStage].style.bgColor;
-        const currentTitleColor = updatedStages[activeStage].style.titleColor;
-        const currentSubTitleColor = updatedStages[activeStage].style.subTitleColor;
-        const newStyle = { ...template.style, ratio: selectedDevice?.ratio || defaultRatio, bgColor: currentBgColor, titleColor: currentTitleColor, subTitleColor: currentSubTitleColor };
-        // const newStyle = { ...template.style, ratio: selectedDevice?.ratio || defaultRatio, bgColor: currentBgColor };
+        const newStyle = { ...template.style, ratio: selectedDevice?.ratio || defaultRatio };
         const updatedStage = { ...updatedStages[activeStage], templateName: template.templateName, layoutIndex: template.index, style: newStyle };
         updatedStages[activeStage] = updatedStage;
         setStages(updatedStages);
