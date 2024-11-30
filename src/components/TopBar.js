@@ -8,7 +8,7 @@ import DeviceSelection from "./DeviceSelection";
 
 const TopBar = () => {
   const router = useRouter();
-  const { isSaving, lastSaved, selectedDevice, setSelectedDevice, triggerSaveEvent, triggerExportEvent, saveMethod, setSaveMethod } = useGlobalContext();
+  const { isSaving, lastSaved, selectedDevice, setSelectedDevice, triggerSaveEvent, triggerExportEvent, saveMethod, setSaveMethod, undo, redo} = useGlobalContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleDeviceChange = (e) => {
@@ -42,6 +42,14 @@ const TopBar = () => {
       </div>
       {router.pathname === '/editor' && (
         <div className="editor-top flex gap-6 items-center">
+          <div className="gap-4 flex items-center">
+            <button onClick={undo}>
+              <Icon icon="undo" size={20} className="text-gray-500" />
+            </button>
+            <button onClick={redo}>
+              <Icon icon="redo" size={20} className="text-gray-500" />
+            </button>
+          </div>
           <div className=" text-right text-base text-gray-400 flex items-center gap-2 cursor-pointer" onClick={handleSave}>
             {isSaving ? <Spinner size={16} /> : <Icon icon="history" className="" />}
             <span>

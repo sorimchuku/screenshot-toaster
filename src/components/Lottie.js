@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import Lottie from "lottie-web";
 
 // Lottie 컴포넌트 정의
 const LottieComponent = ({
@@ -17,6 +16,22 @@ const LottieComponent = ({
 
   // Lottie 애니메이션 로드 및 초기화
   useEffect(() => {
+
+if (typeof window === 'undefined') {
+            return;
+        }
+
+        import('lottie-web').then(Lottie => {
+            if (!animationData) {
+                return;
+            }
+
+            if (animationInstance) {
+                animationInstance.destroy();
+            }
+
+
+
     // Lottie 애니메이션 옵션 설정
     const animationOptions = {
       container: animationContainer.current,
@@ -38,6 +53,7 @@ const LottieComponent = ({
     return () => {
       animation.destroy();
     };
+  });
   }, [animationData, loop, autoplay]);
 
   // Lottie 인터랙션 관리

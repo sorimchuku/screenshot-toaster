@@ -11,7 +11,6 @@ import { uploadFile, deleteUserFiles, getUserFiles, checkUserSignIn, database} f
 import { useGlobalContext } from "./context/GlobalContext";
 import imageCompression from "browser-image-compression";
 import loadingLottie from "../../public/lottie/toaster-loading.json";
-import testLottie from "../../public/lottie/testlottie.json";
 
 export default function Home() {
     const [uploadedFiles, setUploadedFiles] = useState([]);

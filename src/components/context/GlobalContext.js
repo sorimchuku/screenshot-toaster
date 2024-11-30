@@ -12,6 +12,9 @@ export const TemplateProvider = ({ children }) => {
     const [lastSaved, setLastSaved] = useState('');
     const [selectedDevice, setSelectedDevice] = useState(null);
     const [saveMethod, setSaveMethod] = useState('auto');
+    const [history, setHistory] = useState([]);
+    const [currentStep, setCurrentStep] = useState(-1);
+
     const saveEventRef = useRef(null);
     const exportEventRef = useRef(null);
 
@@ -34,6 +37,19 @@ export const TemplateProvider = ({ children }) => {
         }
     };
 
+    const undo = () => {
+        if (currentStep > 0) {
+            setCurrentStep(currentStep - 1);
+        }
+    }
+
+    const redo = () => {
+        if (currentStep < history.length - 1) {
+            setCurrentStep(currentStep + 1);
+        }
+    }
+
+
     const value = {
         templateName,
         setTemplateName,
@@ -50,6 +66,12 @@ export const TemplateProvider = ({ children }) => {
         triggerSaveEvent,
         exportEventRef,
         triggerExportEvent,
+        history,
+        setHistory,
+        currentStep,
+        setCurrentStep,
+        undo,
+        redo,
     };
 
     return (
