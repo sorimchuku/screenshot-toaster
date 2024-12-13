@@ -6,7 +6,7 @@ import Template from "./Template";
 import { useGlobalContext } from "../context/GlobalContext";
 import { Icon } from "@blueprintjs/core";
 import { v4 as uuidv4 } from 'uuid';
-import { templates } from "./Data/templates";
+import { templates, textData } from "./Data/templates";
 import JSZip from "jszip";
 import { devices } from "./Data/devices";
 export default function Editor() {
@@ -18,7 +18,7 @@ export default function Editor() {
     const [selectedTools, setSelectedTools] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice, saveMethod, setSaveMethod, saveEventRef, exportEventRef, history, setHistory, currentStep, setCurrentStep  } = useGlobalContext();
+    const { templateName, startSaving, finishSaving, setLastSaved, selectedDevice, setSelectedDevice, saveMethod, setSaveMethod, saveEventRef, exportEventRef, history, currentStep, saveHistory,  } = useGlobalContext();
     const [template, setTemplate] = useState('');
     const [isSaveError, setIsSaveError] = useState(false);
     const sampleImage = 'images/screenshot-sample.png';
@@ -206,6 +206,7 @@ export default function Editor() {
             templateName: newTemplateName,
             layoutIndex: layoutIndex,
             style: newInitialStyle,
+            text: textData,
         }
         return stage;
     }
@@ -445,6 +446,22 @@ export default function Editor() {
         saveHistory(updatedStages);
     }
 
+    const changeText = (type, text, activeStage) => {
+        if (activeStage === null) return;
+        const updatedStages = [...stages];
+        const updatedStage = { ...updatedStages[activeStage] };
+
+        if (type === 'title') {
+            updatedStage.text = { ...updatedStage.text, title: text };
+        } else if (type === 'subTitle') {
+            updatedStage.text = { ...updatedStage.text, subTitle: text };
+        }
+
+        updatedStages[activeStage] = updatedStage;
+        setStages(updatedStages);
+        saveHistory(updatedStages);
+    }
+
     const exportStagesToImages = async (exportDevices, fileName) => {
         const zip = new JSZip();
         const originalDevice = selectedDevice;
@@ -497,23 +514,6 @@ export default function Editor() {
             setSelectedTools(id);
         }
     }
-
-
-    const saveHistory = (stages) => {
-        const newHistory = history.slice(0, currentStep + 1);
-        newHistory.push(
-            {stages}
-        );
-
-        // 히스토리 길이를 50으로 제한
-        if (newHistory.length > 50) {
-            newHistory.shift(); // 가장 오래된 항목 제거
-        }
-
-        setHistory(newHistory);
-        setCurrentStep(newHistory.length - 1);
-        console.log('History saved:', newHistory);
-    };
 
     useEffect(() => {
         if (currentStep >= 0 && currentStep < history.length) {
@@ -575,7 +575,7 @@ export default function Editor() {
                         }
                         <div onClick={() => handleStageClick(index)} onTouchStart={() => handleStageClick(index)} key={index}
                             className={`stage-wrap bg-slate-200 shadow ${index === activeStage ? 'outline outline-2 outline-blue-300' : ''}`}>
-                            <Template ref={el => (stageRefs.current[index] = el)} templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} style={stage.style} device={selectedDevice?.id || 0} changeSelectedTool={changeSelectedTool} />
+                            <Template ref={el => (stageRefs.current[index] = el)} templateName={stage.templateName} stageSize={stageSize} stageScale={stageScale} stageIndex={stage.layoutIndex} image={stage.image} isEdit={true} style={stage.style} text={stage.text} changeText={changeText} device={selectedDevice?.id || 0} changeSelectedTool={changeSelectedTool} />
                         </div>
                     </div>
 

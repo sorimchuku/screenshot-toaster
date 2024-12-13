@@ -3,10 +3,10 @@ import { Text, Rect, Group } from 'react-konva';
 import { Html } from 'react-konva-utils';
 
 const Title = (props) => {
-    const {changeSelectedTool, toolId} = props;
+    const {changeSelectedTool, toolId, changeText, type, text} = props;
     const [showOutline, setShowOutline] = useState(false);
     const [textRect, setTextRect] = useState({ x: 0, y: 0, width: 0, height: 0 });
-    const [text, setText] = useState(props.text);
+    const [editText, setEditText] = useState(text);
     const [isEditing, setIsEditing] = useState(false);
     const inputRef = useRef(null);
 
@@ -19,6 +19,7 @@ const Title = (props) => {
 
     const handleBlur = () => {
         setIsEditing(false);
+        changeText(type, editText);
     };
 
     const handleMouseEnter = (node) => {
@@ -36,7 +37,7 @@ const Title = (props) => {
     };
 
     const handleChange = (e) => {
-        setText(e.target.value);
+        setEditText(e.target.value);
     };
 
     const adjustTextareaHeight = () => {
@@ -63,7 +64,7 @@ const Title = (props) => {
                     <textarea
                         ref={inputRef}
                         type="text"
-                        value={text}
+                        value={editText}
                         onBlur={handleBlur}
                         onChange={handleChange}
                         style={{

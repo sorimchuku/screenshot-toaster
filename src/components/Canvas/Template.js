@@ -5,13 +5,11 @@ import ImageComponent from './ImageComponent';
 import Title from './Title';
 import { templates } from './Data/templates.js';
 
-const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize, isEdit, style, device, changeSelectedTool }, ref) => {
+const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize, isEdit, style, device, changeSelectedTool, text, changeText }, ref) => {
     const [template, setTemplate] = useState(null);
     const [textNode1, setTextNode1] = useState(null);
     const [textNode2, setTextNode2] = useState(null);
     const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
-    const [title, setTitle] = useState('제목 입력');
-    const [subTitle, setSubTitle] = useState('소제목을 입력하세요.\n두 줄 이상 입력할 수 있어요.');
     const mockup = {
         0: 'images/mockup_9_19-5.png',
         1: 'images/mockup_9_19-5.png',
@@ -103,6 +101,10 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
         return null;
     }
 
+    const handleChangeText = (type, value) => {
+        changeText(type, value, stageIndex);
+    }
+
 
 
     return (
@@ -169,7 +171,9 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
             <Layer>
                 {style.title !== false && <Title
                     changeSelectedTool={changeSelectedTool} toolId={2}
-                    text={title}
+                    text={text?.title}
+                    type='title'
+                    changeText={handleChangeText}
                     x={style.titlePosition.x === 'center' ? (stageSize.width - scale * style.titleWidth) / 2 : scale * style.titlePosition.x}
                     y={style.textAlignY === 'bottom' ? (stageSize.height - scale * style.titleSize) - scale *style.titlePosition.y
                          : scale *style.titlePosition.y}
@@ -184,7 +188,9 @@ const Template = React.forwardRef(({ templateName, stageIndex, image, stageSize,
                 /> }
                 {style.subTitle !== false && <Title
                 changeSelectedTool={changeSelectedTool} toolId={3}
-                    text={subTitle}
+                    text={text?.subTitle}
+                    type='subTitle'
+                    changeText={handleChangeText}
                     x={style.subTitlePosition.x === 'center' ? (stageSize.width - scale * style.subTitleWidth) / 2 : scale *style.subTitlePosition.x}
                     y={style.textAlignY === 'bottom' ? (stageSize.height - scale * style.subTitleSize) - scale *style.subTitlePosition.y
                         : scale *style.subTitlePosition.y}

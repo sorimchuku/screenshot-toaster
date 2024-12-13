@@ -1,3 +1,8 @@
+export const textData = {
+    title: '제목 입력',
+    subTitle: '소제목을 입력하세요.\n두 줄 이상 입력할 수 있어요.',
+}
+
 export const templates = [
     {
         name: "template1",

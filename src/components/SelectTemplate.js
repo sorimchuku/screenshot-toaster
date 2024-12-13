@@ -4,8 +4,7 @@ import Image from 'next/image';
 import { getUserImagesFour, getUserId } from '../firebase';
 import Template from './Canvas/Template';
 import { useGlobalContext } from './context/GlobalContext';
-import { templates as templatesData } from './Canvas/Data/templates.js';
-
+import { templates as templatesData, textData } from './Canvas/Data/templates.js';
 
 export default function SelectTemplate() {
 	const templates = ['template1', 'template2', 'template3', 'template4'];
@@ -92,7 +91,7 @@ export default function SelectTemplate() {
 										return (
 											<div key={innerIndex}
 												className={`stage-wrap rounded ${template === selectedTemplate ? 'grayscale-0' : 'grayscale'}`}>
-												<Template templateName={template} stageSize={stageSize} stageScale={stageScale} stageIndex={innerIndex} image={images[imageIndex]} alt={`Screenshot ${imageIndex + 1}`} isEdit={false} style={style} />
+												<Template templateName={template} stageSize={stageSize} stageScale={stageScale} stageIndex={innerIndex} image={images[imageIndex]} text={textData} alt={`Screenshot ${imageIndex + 1}`} isEdit={false} style={style} />
 											</div>
 										)
 
