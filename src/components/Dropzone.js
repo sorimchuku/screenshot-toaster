@@ -40,7 +40,9 @@ const Dropzone = ({ selectedFiles, setSelectedFiles }) => {
             }
 
             if (selectedFiles.length + files.length > MAX_FILES) {
-                toast(`이미지는 ${MAX_FILES}개까지만 업로드할 수 있어요.`);
+                toast.error(`이미지는 ${MAX_FILES}개까지만 업로드할 수 있어요.`, {
+                    icon: ({ theme, type}) => <Image src='/images/icon_error2.svg' width={30} height={30} />
+                });
                 return;
             }
 
@@ -58,7 +60,9 @@ const Dropzone = ({ selectedFiles, setSelectedFiles }) => {
 
 
             if (selectedFiles.length + files.length > MAX_FILES) {
-                toast(`이미지는 ${MAX_FILES}개까지만 업로드할 수 있어요.`);
+                toast.error(`이미지는 ${MAX_FILES}개까지만 업로드할 수 있어요.`, {
+                    icon: ({ theme, type }) => <Image src='/images/icon_error2.svg' width={30} height={30} />
+                });
                 return;
             }
 
@@ -82,6 +86,7 @@ const Dropzone = ({ selectedFiles, setSelectedFiles }) => {
             className={`h-full w-full border-2 border-dashed rounded-xl p-6 text-center content-center flex-col ${isDragging ? 'bg-gray-200' : 'bg-gray-50'}`}
         >
             <ToastContainer
+            style={{ width: '320px', whiteSpace: 'nowrap'}}
             position='top-center'
                 hideProgressBar={true}
                 transition={Slide} />

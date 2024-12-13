@@ -24,8 +24,7 @@ export default function Home() {
     const { uploadedImages, setUploadedImages } = useGlobalContext();
 
     const router = useRouter();
-    const prevEditIcon = '/images/prev_edit_icon.png';
-    const mainLottie = '/lottie/toaster-main.json';
+    const prevEditIcon = '/images/prevedit.svg';
 
     useEffect(() => {
         localStorage.setItem('initialized', false);
@@ -142,7 +141,7 @@ export default function Home() {
                 </div>
 
             </div>}
-            {isUploading && <div className={`loading fixed z-50 top-0 flex items-center justify-center bg-white bg-opacity-50 ${isMobile ? 'h-screen w-screen' : 'h-full w-full'}`}>
+            { isUploading && <div className={`loading fixed z-50 top-0 flex items-center justify-center bg-white bg-opacity-90 ${isMobile ? 'h-screen w-screen' : 'h-full w-full'}`}>
                 <div className="loading-container my-auto mx-auto self-center justify-self-center">
                     <div className="w-36 h-36 pb-2">
                         <Lottie animationData={loadingLottie} />
@@ -167,8 +166,8 @@ export default function Home() {
                             className={`existing-info-box flex justify-between bg-blue-200 rounded p-2 cursor-pointer transform transition-all duration-1000
                             ${isEditExisting ? 'translate-x-0 opacity-100' : 'invisible -translate-x-full opacity-0'}`}>
                             <div className="flex items-center">
-                                <div className="image-container w-auto ml-4 mr-2 flex items-center justify-center bg-transparent rounded">
-                                    <Image className="w-[50px] h-auto"
+                                <div className="image-container w-auto ml-4 mr-4 flex items-center justify-center bg-transparent rounded">
+                                    <Image className="w-[24px] h-auto"
                                         src={prevEditIcon}
                                         width={50}
                                         height={50}

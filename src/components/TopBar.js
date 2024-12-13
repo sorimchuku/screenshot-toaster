@@ -44,10 +44,10 @@ const TopBar = () => {
         <div className="editor-top flex gap-6 items-center">
           <div className="gap-4 flex items-center">
             <button onClick={undo}>
-              <Icon icon="undo" size={20} className="text-gray-500" />
+              <Icon icon="undo" size={20} className="text-gray-700" /> {/* 비활성화: 400 */}
             </button>
             <button onClick={redo}>
-              <Icon icon="redo" size={20} className="text-gray-500" />
+              <Icon icon="redo" size={20} className="text-gray-400" />
             </button>
           </div>
           <div className=" text-right text-base text-gray-400 flex items-center gap-2 cursor-pointer" onClick={handleSave}>
