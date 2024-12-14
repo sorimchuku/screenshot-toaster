@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { useGlobalContext } from "./context/GlobalContext";
@@ -8,8 +8,26 @@ import DeviceSelection from "./DeviceSelection";
 
 const TopBar = () => {
   const router = useRouter();
-  const { isSaving, lastSaved, selectedDevice, setSelectedDevice, triggerSaveEvent, triggerExportEvent, saveMethod, setSaveMethod, undo, redo} = useGlobalContext();
+  const { isSaving, lastSaved, selectedDevice, setSelectedDevice, triggerSaveEvent, triggerExportEvent, saveMethod, setSaveMethod, undo, redo, history, currentStep } = useGlobalContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [disabled, setDisabled] = useState({
+    undo: true,
+    redo: true,
+  })
+
+  useEffect(() => {
+    if(currentStep > 0) {
+      setDisabled((prev) => ({...prev, undo: false}) )
+    } else {
+      setDisabled((prev) => ({...prev, undo: true}))
+    }
+
+    if (currentStep < history.length - 1) {
+      setDisabled((prev) => ({...prev, redo: false}))
+    } else {
+      setDisabled((prev) => ({...prev, redo: true}))
+    }
+  }, [history, currentStep]);
 
   const handleDeviceChange = (e) => {
     const newDevice = devices.find(device => device.id === parseInt(e.target.value));
@@ -44,10 +62,10 @@ const TopBar = () => {
         <div className="editor-top flex gap-6 items-center">
           <div className="gap-4 flex items-center">
             <button onClick={undo}>
-              <Icon icon="undo" size={20} className="text-gray-700" /> {/* 비활성화: 400 */}
+              <Icon icon="undo" size={20} className={disabled.undo ? 'text-gray-400' : 'text-gray-700'} /> {/* 비활성화: 400 */}
             </button>
             <button onClick={redo}>
-              <Icon icon="redo" size={20} className="text-gray-400" />
+              <Icon icon="redo" size={20} className={disabled.redo ? 'text-gray-400' : 'text-gray-700'} />
             </button>
           </div>
           <div className=" text-right text-base text-gray-400 flex items-center gap-2 cursor-pointer" onClick={handleSave}>
