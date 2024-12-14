@@ -129,7 +129,7 @@ export const templates = [
                 subTitleAlign: 'left',
                 bgColor: '#01BE64',
                 rotation: 21,
-                cornerRadius: 24,
+                cornerRadius: 32,
                 twins:true,
             },
             {
@@ -155,7 +155,7 @@ export const templates = [
                 subTitleAlign: 'right',
                 bgColor: '#01BE64',
                 rotation: 21,
-                cornerRadius: 24,
+                cornerRadius: 32,
                 twins:true,
             },
             {
@@ -179,7 +179,7 @@ export const templates = [
                 subTitleWeight: 'normal',
                 subTitleAlign: 'center',
                 bgColor: '#FAFAFA',
-                cornerRadius: 24,
+                cornerRadius: 32,
             },
         ],
     },
@@ -210,7 +210,7 @@ export const templates = [
                 subTitleAlign: 'left',
                 bgColor: '#FDFDFA',
                 rotation: -7,
-                cornerRadius: 24,
+                cornerRadius: 32,
             },
             {
                 x: 60,
@@ -235,7 +235,7 @@ export const templates = [
                 subTitleAlign: 'right',
                 bgColor: '#FDFDFA',
                 rotation: 25,
-                cornerRadius: 24,
+                cornerRadius: 32,
             },
             {
                 x: 'center',
@@ -258,7 +258,7 @@ export const templates = [
                 subTitleWeight: 'normal',
                 subTitleAlign: 'center',
                 bgColor: '#FAFAFA',
-                cornerRadius: 24,
+                cornerRadius: 32,
             },
         ],
     },
@@ -290,7 +290,7 @@ export const templates = [
             },
             {
                 x: 220,
-                y: 170,
+                y: 200,
                 width: 220,
                 height: 600,
                 ratio: 9 / 16,
@@ -310,7 +310,7 @@ export const templates = [
                 subTitleWeight: 'normal',
                 subTitleAlign: 'left',
                 bgColor: '#01BE64',
-                cornerRadius: 24,
+                cornerRadius: 32,
             },
             {
                 x: 220,
@@ -334,7 +334,7 @@ export const templates = [
                 subTitleWeight: 'normal',
                 subTitleAlign: 'left',
                 bgColor: '#86C9FE',
-                cornerRadius: 24,
+                cornerRadius: 32,
             }, {
                 x: 220,
                 y: 170,
@@ -357,7 +357,7 @@ export const templates = [
                 subTitleWeight: 'normal',
                 subTitleAlign: 'left',
                 bgColor: '#01BE64',
-                cornerRadius: 24,
+                cornerRadius: 32,
             },
         ],
     }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { templates } from '../Data/templates';
+import { templates, textData } from '../Data/templates';
 import Template from '../Template';
 import { Icon } from '@blueprintjs/core';
 
@@ -38,7 +38,7 @@ export default function LayoutSelectSection(props) {
           return (
             <div key={'sample' + index} onClick={() => props.handleLayoutClick(template)} onTouchStart={() => props.handleLayoutClick(template)}
               className={`stage-wrap rounded transition-all hover:brightness-50`}>
-              <Template templateName={template.templateName} stageSize={stageSize} stageScale={1} stageIndex={template.index} image={sampleImage} isEdit={false} style={template.style} />
+              <Template templateName={template.templateName} stageSize={stageSize} stageScale={1} stageIndex={template.index} text={textData} image={sampleImage} isEdit={false} style={template.style} />
             </div>
           )
         })}

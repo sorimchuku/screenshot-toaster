@@ -6,8 +6,8 @@ const DeviceSelection = ({ isOpen, onRequestClose, onSelectDevices }) => {
     const [selectedDevices, setSelectedDevices] = useState([]);
     const [fileName, setFileName] = useState('Shottoaster');
 
-    const firstColumnDevices = [devices[0], devices[1]];
-    const secondColumnDevices = [devices[2], devices[3]];
+    const firstColumnDevices = [devices[0], devices[1], devices[2]];
+    const secondColumnDevices = [devices[3], devices[4]];
 
     const handleDeviceChange = (event) => {
         const value = event.target.value;
