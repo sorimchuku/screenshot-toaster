@@ -27,7 +27,7 @@ export default function Editor() {
     const scrollContainerRef = useRef();
     const stageRefs = useRef([]);
 
-    const defaultRatio = 9 / 19.5;
+    const defaultRatio = 9 / 19.6;
     useEffect(() => {
         const updateStageSize = () => {
             const userAgent = typeof window.navigator === 'undefined' ? '' : navigator.userAgent;
@@ -151,8 +151,7 @@ export default function Editor() {
         return () => {
             window.removeEventListener('beforeunload', handleBeforeUnload);
         };
-    }, [uploadedImages, stages, template, selectedDevice]); // 의존성 배열에 상태를 추가하여 해당 상태가 변경될 때마다 이펙트를 다시 실행
-
+    }, [uploadedImages, stages, template, selectedDevice]);
     useEffect(() => {
         const fetchUserIdAndSetInterval = async () => {
             const userId = await getUserId();
