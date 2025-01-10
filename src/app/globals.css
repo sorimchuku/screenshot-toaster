@@ -73,6 +73,21 @@ input[type='number'] {
   flex-grow: 1;
 }
 
+.main-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.main-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
 .sidebar-wrap:focus {
   outline: none;
 }

@@ -49,7 +49,7 @@ const TopBar = () => {
 
   return (
     <nav className="top-bar flex items-center justify-between flex-wrap bg-white py-6 px-24 border-b">
-      <div className="flex items-center flex-shrink-0 text-black mr-6">
+      <div className="flex items-center gap-4 flex-shrink-0 text-black mr-6">
         <button onClick={() => router.push('/')} className="text-3xl font-bold racking-tight h-9 w-auto">
           <Image src='/images/logo_long.svg'
             alt="Shottoaster"
@@ -57,6 +57,8 @@ const TopBar = () => {
             height={36}
           />
         </button>
+        <div onClick={() => router.push('/guide')} className="font-bold text-gray-400 hover:underline cursor-pointer">앱스토어 스크린샷이 처음이라면?</div>
+          
       </div>
       {router.pathname === '/editor' && (
         <div className="editor-top flex gap-6 items-center">

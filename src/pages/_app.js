@@ -39,7 +39,7 @@ class MyApp extends App {
                 <TemplateProvider>
                     <div className='flex flex-col h-full w-full'>
                         <TopBar />
-                        <div className='flex w-full flex-grow'>
+                        <div className='main-container flex w-full flex-grow overflow-auto'>
                             <Component {...pageProps} />
                         </div>
                         
