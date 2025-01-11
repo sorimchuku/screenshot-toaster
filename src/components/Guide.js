@@ -156,7 +156,7 @@ export default function Guide() {
             </ul>
 
             <h4 className="text-lg font-bold mt-4">
-              &#8251; 미디어 그래픽 이미지
+              ※ 미디어 그래픽 이미지
             </h4>
             <ul className="text-lg list-disc ml-6 mt-2">
               <li className="text-lg">
